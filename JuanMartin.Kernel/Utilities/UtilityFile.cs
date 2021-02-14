@@ -12,6 +12,21 @@ namespace JuanMartin.Kernel.Utilities
         public const char CarriageReturn = '\r';
         public const char LineFeed = '\n';
 
+        public static bool WriteArrayToFile<T>(string file_name, T[] source,bool overwrite=true)
+        {
+            try
+            {
+                if (overwrite && File.Exists(file_name))
+                    File.Delete(file_name);
+
+                File.WriteAllLines(file_name, Array.ConvertAll(source, x => x.ToString()));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public static IEnumerable<string> ReadCsvToList(string fileName, char delimiter, char qualifier)
         {
             var word = new StringBuilder();
