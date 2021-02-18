@@ -47,7 +47,7 @@ namespace JuanMartin.Kernel.RuleEngine
             //Set the default alias as the full type name in the Token
             Symbol result = new Symbol(memberName, typeName, alias.Type); ;
 
-            if (alias.Type == Symbol.TokenType.Alias)
+            if (alias.Type == Symbol.TokenType.Alias || alias.Type==Symbol.TokenType.Value)
                 result.Value.Result = Type.GetType((string)alias.Value.Result);
             else if (alias.Type == Symbol.TokenType.Instance)
                 result.Value = alias.Value;

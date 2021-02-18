@@ -48,6 +48,15 @@ namespace JuanMartin.Kernel.Processors
         {}
         public CommandLine(string line, string file_name = "")
         {
+            // use default
+            if (file_name == string.Empty)
+            {
+                // This will get the current WORKING directory (i.e. \bin\Debug)
+                string workingDirectory = Environment.CurrentDirectory;
+                // This will get the current PROJECT directory
+                string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+                file_name = Path.Combine(projectDirectory, "commandline.settings.json");
+            }
             Options = new List<CommandLineOption>();
             LoadCommandLineSettings(file_name);
             Line = line;
@@ -64,7 +73,7 @@ namespace JuanMartin.Kernel.Processors
                 // get option name/Values from line in dictionary
                 var options = line.Split(new string[] { "-", "--" }, StringSplitOptions.RemoveEmptyEntries)
                                     .Select(s => s.Split('='))
-                                    .ToDictionary(s => s.First().Trim(), s => (s.Last() == s.First()) ? "null" : s.Last().Trim());
+                                    .ToDictionary(s => s.First().Trim(), s => (s.Last() == s.First()) ? string.Empty : s.Last().Trim());
 
                 // convert to command line options
                 //foreach(var item in options)
@@ -77,7 +86,7 @@ namespace JuanMartin.Kernel.Processors
 
                 var used_names = (from option in options select option.Key).ToHashSet();
                 var required_names = (from option in Options
-                                      where option.IsRequired == true && option.IsStandAlone == false
+                                      where option.IsRequired == true
                                       select option.Name).ToHashSet();
                 foreach (var n in used_names)
                 {

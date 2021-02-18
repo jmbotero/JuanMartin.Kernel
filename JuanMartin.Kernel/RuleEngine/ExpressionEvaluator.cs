@@ -277,7 +277,7 @@ namespace JuanMartin.Kernel.RuleEngine
             Symbol alias = Alias.GetDeclaringType(Token, _aliases);
 
             Type type = null;
-            if (alias.Type == Symbol.TokenType.Alias)
+            if (alias.Type == Symbol.TokenType.Alias || alias.Type == Symbol.TokenType.Value)
                 type = (Type)alias.Value.Result;
             else if (alias.Type == Symbol.TokenType.Instance)
                 type = alias.Value.Result.GetType();
