@@ -54,7 +54,11 @@ namespace JuanMartin.Kernel.Processors
                 // This will get the current WORKING directory (i.e. \bin\Debug)
                 string workingDirectory = Environment.CurrentDirectory;
                 // This will get the current PROJECT directory
-                string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+                string projectDirectory = Directory.GetParent(workingDirectory).Parent.FullName;
+
+                if(projectDirectory.Contains("\\bin"))
+                    projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+
                 file_name = Path.Combine(projectDirectory, "commandline.settings.json");
             }
             Options = new List<CommandLineOption>();
