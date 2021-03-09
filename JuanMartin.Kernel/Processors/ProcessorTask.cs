@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace JuanMartin.Kernel.Processors
@@ -43,12 +44,13 @@ namespace JuanMartin.Kernel.Processors
                 //If done waiting and task is not complete, if task is set to abort on timeout then terminate thread
                 if (_currentTaskComplete)
                 {
-                    thread.Abort(); //Request thread to be terminated
+                    // commented thread.Abort becaacause is not supported, by 03/01/2021, in .Net core
+                    //thread.Abort(); //Request thread to be terminated
                     thread.Join(); //Wait until thread is finished
                 }
                 else if (!_currentTaskComplete && task.OnTimeout == ActionOnTaskTimeout.Abort)
                 {
-                    thread.Abort(); //Request thread to be terminated
+                    //thread.Abort(); //Request thread to be terminated
                     thread.Join(); //Wait until thread is finished
                 }
             }
