@@ -1,9 +1,9 @@
-﻿	
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29926.136
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kernel", "JuanMartin.Kernel\Kernel.csproj", "{451CB413-E70B-4F70-93E9-76100453A956}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kernel", "JuanMartin.Kernel\Kernel.csproj", "{451CB413-E70B-4F70-93E9-76100453A956}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {3EAF461B-2E08-498F-B63F-65A07D970E15}
+		SolutionGuid = {F313D99A-161F-4CFD-A7C3-78077574F16D}
 	EndGlobalSection
 EndGlobal
