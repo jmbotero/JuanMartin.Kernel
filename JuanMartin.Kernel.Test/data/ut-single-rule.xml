@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+ <RuleEngine>
+	<RuleScope name="Scope1">
+		<Memory>
+			<Fact name="foo1" type="System.Double">3</Fact>
+			<Fact name="foo2" type="System.Double">1</Fact>
+		</Memory>
+		<Rule name="Rule1">
+			<Condition><![CDATA[ foo2<foo1]]></Condition>
+			<Actions evaluate="True">
+				<Evaluate factId="foo2"><![CDATA[ foo1+1 ]]></Evaluate>
+			</Actions>
+		</Rule>
+	</RuleScope>
+</RuleEngine>

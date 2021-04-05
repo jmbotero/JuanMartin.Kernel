@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+ <RuleEngine>
+	<RuleScope name="Scope1">
+		<Memory>
+			<Fact name="foo1" type="System.Double">3</Fact>
+			<Fact name="foo2" type="System.Double">1</Fact>
+			<Fact name="foo3" type="System.Double">0</Fact>
+		</Memory>
+		<Rule name="Rule1">
+			<Condition><![CDATA[ foo2<=foo1]]></Condition>
+			<Actions evaluate="True">
+				<Evaluate factId="foo2"><![CDATA[ foo2+1 ]]></Evaluate>
+				<Execute ruleId="Rule2"/>
+			</Actions>
+			<Actions evaluate="False">
+				<Execute ruleId="Rule1"/>
+			</Actions>
+		</Rule>
+		<Rule name="Rule2">
+			<Condition><![CDATA[ foo2=foo1]]></Condition>
+			<Actions evaluate="True">
+				<Evaluate factId="foo3"><![CDATA[ 5 ]]></Evaluate>
+			</Actions>
+		</Rule>
+	</RuleScope>
+</RuleEngine>
