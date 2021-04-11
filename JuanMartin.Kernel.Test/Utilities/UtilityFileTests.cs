@@ -10,7 +10,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         [Test]
         public void OdtFile_MustContainAContentXml()
         {
-            var files = UtilityFile.ListZipFileContents(@"C:\GitRepositories\JuanMartin.Kernel.Test\JuanMartin.Kernel.Test\data\dvd-labels-template.odt");
+            var files = UtilityFile.ListZipFileContents(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\dvd-labels-template.odt");
             Assert.IsTrue(files.Contains("content.xml"));
         }
     }

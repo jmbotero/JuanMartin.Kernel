@@ -107,7 +107,7 @@ namespace JuanMartin.Kernel.Adapters
             ValueHolder results = new ValueHolder();
 
             MySqlCommand command = new MySqlCommand(Query, _connection);
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.Connection.Open();
 
             MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
@@ -188,12 +188,17 @@ namespace JuanMartin.Kernel.Adapters
 
             CommandType commandType = (CommandType)Enum.Parse(typeof(CommandType), type);
 
-            if (commandType == CommandType.StoredProcedure)
-                _responseData = ExecuteProcedure(resultsName, query);
-            else if (commandType == CommandType.Text)
-                _responseData = ExecuteQuery(resultsName, query);
-            else
-                throw new Exception("Only StoredProcedure and Text are mysql adapter valid request types.");
+            switch (commandType)
+            {
+                case CommandType.StoredProcedure:
+                    _responseData = ExecuteProcedure(resultsName, query);
+                    break;
+                case CommandType.Text:
+                    _responseData = ExecuteQuery(resultsName, query);
+                    break;
+                default:
+                    throw new Exception("Only StoredProcedure and Text are mysql adapter valid request types.");
+            }
         }
 
         public IMessage Receive()

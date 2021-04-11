@@ -47,12 +47,17 @@ namespace JuanMartin.Kernel.Test.Adapters
 
             CommandType commandType = (CommandType)Enum.Parse(typeof(CommandType), type);
 
-            if (commandType == CommandType.StoredProcedure)
-                _responseData = new ValueHolder("Procedure", query);
-            else if (commandType == CommandType.Text)
-                _responseData = new ValueHolder("Query", query);
-            else
-                throw new Exception("Only StoredProcedure and Text are mysql adapter valid request types.");
+            switch (commandType)
+            {
+                case CommandType.StoredProcedure:
+                    _responseData = new ValueHolder("Procedure", query);
+                    break;
+                case CommandType.Text:
+                    _responseData = new ValueHolder("Query", query);
+                    break;
+                default:
+                    throw new Exception("Only StoredProcedure and Text are mysql adapter valid request types.");
+            }
 
             _responseData.AddAnnotation(_row);
         }

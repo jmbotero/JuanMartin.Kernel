@@ -7,3 +7,4 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>", Scope = "member", Target = "~M:JuanMartin.Kernel.Utilities.DataStructures.Tests.DirectedAcyclicGraphTests.GetVertex_MustFindAVertexByName")]
 [assembly: SuppressMessage("Style", "IDE0018:Inline variable declaration", Justification = "<Pending>", Scope = "member", Target = "~M:JuanMartin.Kernel.Utilities.DataStructures.Tests.DirectedAcyclicGraphTests.GetEdgesByName_MustReturnAllEdgesInGraph")]
+[assembly: SuppressMessage("Usage", "SecurityIntelliSenseCS:MS Security rules violation", Justification = "<Pending>", Scope = "member", Target = "~M:JuanMartin.Kernel.Test.Adapters.AdapterMySqlMock.Send(JuanMartin.Kernel.Messaging.IMessage)")]
