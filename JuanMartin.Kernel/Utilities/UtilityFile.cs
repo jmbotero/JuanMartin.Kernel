@@ -78,6 +78,20 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
+        public  static string[] ReadTextToArray(string fileName)
+        {
+            string line = string.Empty;
+            var contents = new List<string>();
+
+            using (var reader = new StreamReader(fileName, Encoding.UTF8))
+            {
+                while ((line = reader.ReadLine()) != null)
+                {
+                    contents.Add(line);
+                }
+            }
+            return contents.ToArray();
+        }
         public static List<string> ListZipFileContents(string zip_name)
         {
             var contents = new List<string>();

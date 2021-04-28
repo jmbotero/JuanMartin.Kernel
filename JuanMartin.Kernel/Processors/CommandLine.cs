@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace JuanMartin.Kernel.Processors
 {
@@ -59,7 +60,10 @@ namespace JuanMartin.Kernel.Processors
                 if(projectDirectory.Contains("\\bin"))
                     projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 
-                file_name = Path.Combine(projectDirectory, "commandline.settings.json");
+                file_name = projectDirectory + @"\commandline.settings.json";
+
+                if (!File.Exists(file_name))
+                    throw new FileNotFoundException(file_name);
             }
             Options = new List<CommandLineOption>();
             LoadCommandLineSettings(file_name);
@@ -143,6 +147,7 @@ namespace JuanMartin.Kernel.Processors
 
                     if (stype != null)
                     {
+                        //TOTO: fix value parsing logic
                         if (!option.IsSingle) // do not assign value to singles as these do no have command line values
                         {
                             var actual_value = o.Value;
@@ -151,7 +156,13 @@ namespace JuanMartin.Kernel.Processors
                             {
                                 case "System.Int32[]":
                                     {
-                                        value = actual_value.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
+                                        var numeric_pattern = new Regex("^[0-9,]*$");
+                                       
+                                        //TODO: specify range pattern
+                                        if (numeric_pattern.IsMatch(actual_value))
+                                            value = actual_value.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
+                                        else
+                                            throw new ArgumentException($"Cannot parse value {actual_value} as an integer or comma-separaated list of integers.");
                                         break;
                                     }
                                 case "System.Int32":
@@ -197,7 +208,7 @@ namespace JuanMartin.Kernel.Processors
                         catch (Exception e)
                         {
                             throw new TypeLoadException($"Error changing option's type ({e.GetType().Name}): {e.Message}.");
-                        }
+                        }       
                     }
                 }
 
