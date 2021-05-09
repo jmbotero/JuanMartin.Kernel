@@ -19,7 +19,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public DirectedAcyclicGraph()
         {
-            Vertices = new List<Vertex<T>>();
+            Vertices = new HashSet<Vertex<T>>();
             VertexUris = new Dictionary<string, string>();
         }
         public DirectedAcyclicGraph(IEnumerable<Vertex<T>> nodes = null) : this()
@@ -27,10 +27,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             foreach (var node in nodes)
                 VertexUris.Add(node.Guid, node.Name);
 
-            Vertices = nodes?.ToList();
+            Vertices = nodes?.ToHashSet();
         }
 
-        public List<Vertex<T>> Vertices { get; }
+        public HashSet<Vertex<T>> Vertices { get; }
 
         public bool Adjacent(Vertex<T> v1, Vertex<T> v2)
         {
@@ -82,20 +82,21 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public Vertex<T> this[int index]
         {
-            get => (Vertex<T>)Vertices[index];
+            get => (Vertex<T>)Vertices.ElementAt(index);
         }
 
-        public bool AddVertex(Vertex<T> v)
+        public bool Contains(T value) => (Vertices.FirstOrDefault(v=>v.Value.Equals(value))!=null);
+        public bool Contains(Vertex<T> value) => Vertices.Contains(value);
+        public Vertex<T> AddVertex(Vertex<T> v)
         {
             if (true) //Vertices.Count(i=>i.Name==v.Name) == 0) // ensure uniqueness
             {
                 //v.Index = VertexCount();
                 Vertices.Add(v);
                 VertexUris.Add(v.Guid, v.Name);
-                return true;
+                return v;
             }
-            //return false;
-        }
+       }
 
         /// <summary>
         /// 
@@ -103,26 +104,27 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <param name="value"></param>
         /// <param name="name">Ensure uniqueness by name</param>
         /// <returns></returns>
-        public bool AddVertex(T value, string name = null, string guid = null)
+        public Vertex<T> AddVertex(T value, string name = null, string guid = null)
         {
             if (name == null)
                 name = value.ToString();
 
+            Vertex<T> added;
             try
             {
-                var v = new Vertex<T>(value, name, guid);
-                AddVertex(v);
+                added = new Vertex<T>(value, name, guid);
+                AddVertex(added);
             }
             catch (Exception)
             {
-                return false;
+                return null;
             }
 
-            return true;
+            return added;
         }
 
-        public bool AddEdge(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
-            , string name = null, double weight = 0)
+        public bool AddEdge(Vertex<T> from, Vertex<T> to, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
+            , double weight = 0)
         {
             if (from.Equals(to))
                 throw new ArgumentException("A cycle edge, from and to the same vertex cannot be added in a directed-acyclic graph.");
@@ -162,7 +164,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public bool AddEdge(Edge<T> edge)
         {
-            return this.AddEdge(edge.From, edge.To, edge.Type, edge.Direction, edge.Name, edge.Weight);
+            return this.AddEdge(edge.From, edge.To, edge.Name, edge.Type, edge.Direction, edge.Weight);
         }
         public Vertex<T> RemoveVertex(string name)
         {

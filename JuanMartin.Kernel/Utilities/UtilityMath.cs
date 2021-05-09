@@ -1234,6 +1234,66 @@ namespace JuanMartin.Kernel.Utilities
                 return GreatestCommonDivisor(db, da % db);
         }
 
+        /// <summary>
+        /// Sum of squares of each digit in number, which has to be positive.
+        /// If  number is negative then return zero.
+        /// <param name="n">Integer greater than zero</param>
+        /// <returns></returns>
+        /// </summary>
+        public static Func<int, int> SquareDigits = n =>
+        {
+            int sum = 0;
+
+            while (n > 0)
+            {
+                sum += (n % 10) * (n % 10);
+                n /= 10;
+            }
+
+            return sum;
+        };
+
+        /// <summary>
+        /// Introducing cached version of SquareDigits() function,
+        /// so it can be memoized 
+        /// </summary>
+        public static int SquareDigitsCached(int n)
+        {
+            var squares = SquareDigits.Memoize();
+            return squares(n);
+        }
+
+        /// <summary>
+        /// Every starting number will eventually arrive at 1 or 89.   
+        /// And chain ends when it gets to either of these.  Chains 
+        /// ending in 1 have last  digit 1, otherwise  they end in 89.
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static (int terminator, HashSet<int> chain) SquareDigitsChain(int n)
+        {
+            var chain = new HashSet<int>();
+            bool found;
+            var value = n;
+            do
+            {
+                // check existence beore adding it
+                found = chain.Contains(value);
+                chain.Add(value);
+                value = SquareDigitsCached(value);
+
+                // only end if chain alredy contains terminator
+                if ((value == 1 || value == 89) && found)
+                    break;
+            } while (!found);
+
+            var term = 89;
+            if (chain.Last() == 1)
+                term = 1;
+
+            return (term, chain);
+        }
+
         public static long LeastCommonMultiple(long a, long b)
         {
             if (a < 0 || b < 0)

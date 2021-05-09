@@ -14,9 +14,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         List<Vertex<T>> OutgoingNeighbors(Vertex<T> v);
         int VertexCount();
         int EdgeCount(Edge<T>.EdgeType type);
-        bool AddVertex(Vertex<T> v);
-        bool AddVertex(T value, string name, string guid);
-        bool AddEdge(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, string name, double weight);
+        Vertex<T> AddVertex(Vertex<T> v);
+        Vertex<T> AddVertex(T value, string name, string guid);
+        bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight);
         Vertex<T> RemoveVertex(string name);
         Vertex<T> RemoveVertex(T value);
         Edge<T> RemoveEdge(string name);
@@ -25,6 +25,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         List<Edge<T>> GetEdges(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type);
         List<Edge<T>> GetOutgoingEdges();
         List<Edge<T>> GetIncomingEdges();
+        bool Contains(T value);
+        bool Contains(Vertex<T> value);
         Vertex<T> GetVertex(string name, string guid);
         Vertex<T> GetVertex(Guid guid);
         List<Vertex<T>> GetVertices(string name);

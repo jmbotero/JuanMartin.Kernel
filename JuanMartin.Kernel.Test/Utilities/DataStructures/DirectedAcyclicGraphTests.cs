@@ -67,7 +67,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         {
             // if name is be unique change graph dups status
             Assert.IsFalse(graph.HasDuplicateVertexNames,"no duplicates");
-            Assert.IsTrue(graph.AddVertex(1000, v1.Name),"add duplicate with v1 name");
+            Assert.IsNotNull(graph.AddVertex(1000, v1.Name),"add duplicate with v1 name");
             Assert.IsTrue(graph.HasDuplicateVertexNames,"one duplicate");
         }
 
@@ -145,7 +145,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             var v2 = new Vertex<string>("B");
             var g = new DirectedAcyclicGraph<string>(new List<Vertex<string>> { v1, v2 });
 
-            g.AddEdge(v1, v2, Edge<string>.EdgeType.outgoing, Edge<string>.EdgeDirection.bidirectional,"connect",1);
+            g.AddEdge(v1, v2, "connect", Edge<string>.EdgeType.outgoing, Edge<string>.EdgeDirection.bidirectional,1);
 
             Assert.IsTrue((v1.Neighbors.Count == 2) && (v2.Neighbors.Count == 2),"Neighbor Count");
             Assert.IsTrue((v1.Edges.Count == 2) && (v2.Edges.Count == 2),"Total edge count");

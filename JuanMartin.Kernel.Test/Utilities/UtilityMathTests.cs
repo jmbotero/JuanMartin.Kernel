@@ -85,7 +85,16 @@ namespace JuanMartin.Kernel.Utilities.Tests
         }
         #endregion
 
-        #region Square Root tests
+        #region ProductSum tests
+        [Test()]
+        public void NumberFourShouldHaveOneTwoDigitProductSums()
+        {
+            var p = UtilityMath.GetProductSums(4, 2);
+            Assert.AreEqual(1, p.Count);
+        }
+        #endregion
+
+        #region Execution Measure consumers
         [Test()]
         public void DotNetBabylonianSquareRootMethodShouldBeTheFastest()
         {
@@ -122,26 +131,6 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
             Assert.LessOrEqual(actualDuration, expectedDuration);
         }
-
-        #endregion
-        [Test()]
-        public void NumberFourShouldHaveOneTwoDigitProductSums()
-        {
-#pragma warning disable CS8321 // Local function is declared but never used
-            void print(string operation, List<IEnumerable<int>> info)
-#pragma warning restore CS8321 // Local function is declared but never used
-            {
-                foreach (var l in info)
-                {
-                    Console.WriteLine(string.Join(operation, l.ToArray()));
-                }
-            };
-
-            var p = UtilityMath.GetProductSums(4, 2);
-            //print("+", p);
-            Assert.AreEqual(1, p.Count);
-        }
-
         [Test()]
         public void GetCombinationsConsumer()
         {
@@ -161,5 +150,90 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
             Console.WriteLine($"Plain: {actualMethodOneDuration}, sorted: {actualMethodOneDuration}");
         }
+
+        #endregion
+
+        #region SquareDigit tests
+        [Test()]
+        public void SquareDigitsOfOneShouldBeOne()
+        {
+            var expected_sum = 1;
+            var actual_sum = UtilityMath.SquareDigits(1);
+
+            Assert.AreEqual(expected_sum, actual_sum);
+        }
+
+        [Test()]
+        public void AnySquareDigitsShouldBeGreaterThanZero()
+        {
+            var r = new Random();
+            int limit = 10000;
+
+            for (int i = 0; i <= limit; i++)
+            {
+                var number = r.Next(1, limit);
+                var actual_sum = UtilityMath.SquareDigits(number);
+
+                Assert.Greater(actual_sum, 0);
+            }
+        }
+
+        [Test()]
+        public void SquareDigitsOf25ShouldBe29()
+        {
+            var expected_sum = 29;
+            var actual_sum = UtilityMath.SquareDigits(25);
+
+            Assert.AreEqual(expected_sum, actual_sum);
+        }
+
+        [Test()]
+        public void SquareDigitsChainOfOneShouldHaveOneElement()
+        {
+            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(1);
+            var expected_length = 1;
+
+            Assert.AreEqual(expected_length, actual_chain.Count());
+        }
+
+        [Test()]
+        public void SquareDigitsChainOfEightyNineShouldHaveEightElements()
+        {
+            var actual_number = 89;
+            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(89);
+            var expected_length = 8;
+
+            // check duration
+            UtilityHelper.MeasureInLoop(loop_count: 10, actual_number, (x) => UtilityMath.SquareDigitsChain(x), true);
+            Assert.AreEqual(expected_length, actual_chain.Count());
+        }
+
+        [Test()]
+        public void SquareDigitsChainOfFourtyFourShouldHaveAsTerminatorOne()
+        {
+            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(44);
+            var expected_terminator = 1;
+
+            Assert.AreEqual(expected_terminator, actual_terminator);
+        }
+
+        [Test()]
+        public void SquareDigitsChainOfOneHundredFortyFiveShouldHaveAsTerminatorEightyNine()
+        { 
+            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(145);
+            var expected_terminator = 89;
+
+            Assert.AreEqual(expected_terminator, actual_terminator);
+        }
+
+        [Test()]
+        public void SquareDigitsChainOfEightyFiveShouldHaveAsTerminatorEightyNine()
+        {
+            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(85);
+            var expected_terminator = 89;
+
+            Assert.AreEqual(expected_terminator, actual_terminator);
+        }
+        #endregion
     }
 }
