@@ -3,8 +3,6 @@ using JuanMartin.Kernel.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JuanMartin.Kernel.Extesions
 {
@@ -181,26 +179,31 @@ namespace JuanMartin.Kernel.Extesions
             return RemoveAt<T>(source, index);
         }
 
-        public static double Multiply<T>(this IEnumerable<T> source)
+        public static double Multiply<T>(this IEnumerable<T> source, Func<T,int> predicate=null)
         {
-            double result;
-            var methodType = typeof(T);
+            if (source == null)
+            {
+                throw new ArgumentNullException("source", "The sequence is null and contains no elements.");
+            }
 
-            if (!UtilityType.IsNumericType(methodType))
-                throw new ArgumentException("Extension can only be used in numeric collections.");
+            // how to use predicate here???
+            if (predicate == null)
+            {
+                var methodType = typeof(T);
 
-            if (source.Count() > 0)
-                result = 1;
+                if (!UtilityType.IsNumericType(methodType))
+                    throw new ArgumentException("Extension can only be used in numeric collections.");
+            }
+            double result = 1;
+
+            if (source.Count() < 1)
+                result = 0;
             else
             {
-                return default;
+                foreach (var d in source)
+                    result *= (predicate==null)?(dynamic)d :(dynamic)predicate(d);
             }
 
-            if (source.Count() > 0)
-            {
-                foreach (var d in source)
-                    result *= (dynamic)d;
-            }
             return result;
         }
     }

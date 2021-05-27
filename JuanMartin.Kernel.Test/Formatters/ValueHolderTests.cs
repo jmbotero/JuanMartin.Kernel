@@ -6,40 +6,42 @@ namespace JuanMartin.Kernel.Formatters.Tests
     public class ValueHolderTests
     {
         [Test]
-        public void AddAngGetAnnotation()
+        public void ShoulAddAnnotationToListOfAnnotationsInalueholderAsAnotherValueholder()
         {
-            ValueHolder parent = new ValueHolder("Parent");
+            ValueHolder actualParent = new ValueHolder("Parent");
+            var actualAnnotationName = "Child";
+            var actualAnnotationValue = "foo";
+            var expectedAnnotationCount = 1;
+            var expectedAnnotationType = "JuanMartin.Kernel.ValueHolder";
+            var expectedAnnotationName = "Child";
+            var expectedAnnotationValue = "foo";
 
-            parent.AddAnnotation("Child", "foo");
+            actualParent.AddAnnotation(actualAnnotationName, actualAnnotationValue);
 
-            ValueHolder child = parent.GetAnnotation("Child");
+            Assert.AreEqual(expectedAnnotationCount, actualParent.Annotations.Count, "added to list of annotations");
 
-            Assert.AreEqual(child.Value, "foo");
+            var actualChild = actualParent.GetAnnotation(actualAnnotationName);
+
+            Assert.AreEqual(expectedAnnotationType, actualChild.GetType().ToString(), "annotation type");
+            Assert.AreEqual(expectedAnnotationName, actualChild.Name, "annotation name");
+            Assert.AreEqual(expectedAnnotationValue, actualChild.Value, "annotation value");
         }
 
         [Test]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>")]
-        public void RemoveAnnotation()
+        public void ShouldeleteAnnotationObjectOnRemoveAnnotation()
         {
-            ValueHolder parent = new ValueHolder("Parent");
+            ValueHolder actualParent = new ValueHolder("Parent");
 
-            parent.AddAnnotation("Child", "foo");
+            actualParent.AddAnnotation("Child", "foo");
 
-            ValueHolder child = parent.GetAnnotation("Child");
+            ValueHolder actualChild = actualParent.GetAnnotation("Child");
 
-            parent.RemoveAnnotation("Child");
+            actualParent.RemoveAnnotation("Child");
 
-            child = parent.GetAnnotation("Child");
+            actualChild = actualParent.GetAnnotation("Child");
 
-            Assert.AreEqual(child, null);
-        }
-
-        [Test]
-        public void AssignValue()
-        {
-            ValueHolder holder = new ValueHolder("int", 1);
-
-            Assert.AreEqual(holder.Value, 1);
+            Assert.AreEqual(null, actualChild);
         }
     }
 }

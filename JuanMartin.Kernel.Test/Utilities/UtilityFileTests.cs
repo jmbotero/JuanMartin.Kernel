@@ -8,7 +8,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
     class UtilityFileTests
     {
         [Test]
-        public void OdtFile_MustContainAContentXml()
+        public void ShoulProcessAsZipAndContainAContentXmlFileIfAnOdtFileIsSelected()
         {
             var files = UtilityFile.ListZipFileContents(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\dvd-labels-template.odt");
             Assert.IsTrue(files.Contains("content.xml"));

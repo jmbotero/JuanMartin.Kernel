@@ -7,7 +7,7 @@ namespace JuanMartin.Kernel.Processors
 {
     public class ProcessorTask
     {
-        private int _timeout;
+        private readonly int _timeout;
         private bool _currentTaskComplete;
         private List<ValueHolder>.Enumerator _tasks;
         private DateTime _currentTaskBeginExecution;
@@ -58,7 +58,7 @@ namespace JuanMartin.Kernel.Processors
 
         private void ProcesssTaskEvent(Object sender, TaskEventArgs e)
         {
-            if (e.Status == TaskEventArgs.COMPLETE_EXECUTION_STATUS)
+            if (e.Status == TaskEventArgs.ExecutionStatus.Complete.ToString())
             {
                 _currentTaskComplete = true;
             }

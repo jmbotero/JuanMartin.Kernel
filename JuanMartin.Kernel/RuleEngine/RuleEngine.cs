@@ -6,15 +6,17 @@ namespace JuanMartin.Kernel.RuleEngine
 {
     public class RuleEngine : IRuleContainer
     {
-        private string _name;
-        private Dictionary<string, RuleScope> _scopes;
-        private Dictionary<string, Symbol> _aliases;
-        private XmlDocument _kb;
+        private readonly string _name;
+        private readonly Dictionary<string,Value> _facts;
+        private readonly Dictionary<string, RuleScope> _scopes;
+        private readonly Dictionary<string, Symbol> _aliases;
+        private readonly XmlDocument _kb;
 
         public RuleEngine(string Name, bool LoadUtilityAliases)
         {
             _name = Name;
 
+            _facts = new Dictionary<string, Value>();
             _aliases = new Dictionary<string, Symbol>();
             _scopes = new Dictionary<string, RuleScope>();
             _kb = new XmlDocument();
@@ -31,6 +33,11 @@ namespace JuanMartin.Kernel.RuleEngine
         public string Name
         {
             get { return _name; }
+        }
+
+        public Dictionary<string, Value> Facts
+        {
+            get { return _facts; }
         }
 
         public Dictionary<string, Symbol> Aliases
@@ -73,13 +80,24 @@ namespace JuanMartin.Kernel.RuleEngine
                 _aliases.Add(name, alias);
             }
 
-            //load first rulescope
+            // load first rulescope
             XmlNodeList scopes = _kb.SelectNodes("RuleEngine//RuleScope");
 
             foreach (XmlNode scopeNode in scopes)
             {
                 LoadRuleScope((RuleEngine)this, scopeNode);
             }
+
+            // TODO: create super set  of facts for easy lookup
+            //foreach (RuleScope scope in _scopes.Values)
+            //{
+            //    foreach (Symbol fact in scope.Facts.Values)
+            //    {
+            //        var fullName = GetFactNeme(scope.Name, fact.Name);
+            //        _facts.Add(fullName,fact.Value);
+            //    }
+            //}
+
         }
 
         private void LoadRuleScope(IRuleContainer Container, XmlNode ScopeXml)
@@ -100,10 +118,10 @@ namespace JuanMartin.Kernel.RuleEngine
                 isDependent = false;
             }
 
-            //add scope to engine
+            // add scope to engine
             RuleScope scope = new RuleScope(this, name, Parent, isDependent);
 
-            //add associated facts
+            // add associated facts
             XmlNodeList facts = ScopeXml.SelectNodes("Memory//Fact");
 
             foreach (XmlNode factNode in facts)
@@ -141,7 +159,7 @@ namespace JuanMartin.Kernel.RuleEngine
                 LoadRule(scope, ruleNode);
             }
 
-            //add scope to engine
+            // add scope to engine
             Container.AddScope(scope);
         }
         private void LoadRule(RuleScope Scope, XmlNode RuleXml)
@@ -158,7 +176,6 @@ namespace JuanMartin.Kernel.RuleEngine
                 isDependent = false;
             }
 
-            //create new rule instance 
             Rule rule = new Rule(Scope, name, expression, isDependent);
 
             //add action sets

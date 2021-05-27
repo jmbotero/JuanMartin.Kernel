@@ -42,34 +42,34 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     previous = node;
 
                 int start = number;
-                bool found_node_in_graph, found_in_curent_chain, complete;
-                var current_chain = $",{number},";
+                bool foundNodeInGraph, foundInCurrentChain, complete;
+                var currentChain = $",{number},";
                 do
                 {
                     number = UtilityMath.SquareDigits(number);
-                    found_node_in_graph = digits.Contains(number);
-                    found_in_curent_chain = current_chain.Contains($",{number},");
+                    foundNodeInGraph = digits.Contains(number);
+                    foundInCurrentChain = currentChain.Contains($",{number},");
                     complete = false;
 
-                    if ((number == 1 || number == 89) && found_in_curent_chain)
+                    if ((number == 1 || number == 89) && foundInCurrentChain)
                     {
                         // first ccheck if terminator already exists to reuse it
-                        var terminator_node_name = ChainTerminator;// $"{ChainTerminator} of {start}";
-                        node = digits.Vertices.FirstOrDefault(v => v.Value == number && v.Name == terminator_node_name);
+                        var terminatorNodeName = ChainTerminator;// $"{ChainTerminator} of {start}";
+                        node = digits.Vertices.FirstOrDefault(v => v.Value == number && v.Name == terminatorNodeName);
                         if (node != null)
                             current = node;
                         else
-                            current = digits.AddVertex(new Vertex<int>(number, terminator_node_name));
+                            current = digits.AddVertex(new Vertex<int>(number, terminatorNodeName));
                         complete = true;
                     }
-                    else if (found_node_in_graph)
+                    else if (foundNodeInGraph)
                         current = digits.Vertices.FirstOrDefault(v => v.Name == number.ToString());
                     else
                         current = digits.AddVertex(new Vertex<int>(number));
 
                     if (previous != null && current != null)
                     {
-                        current_chain += $",{number},";
+                        currentChain += $",{number},";
                         digits.AddEdge(from: previous, to: current, name: "step");
                     }
                     previous = current;
@@ -98,14 +98,14 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                         chain.Add(value);
 
                         // if we got to the terminator then stop
-                        var terminator_node_name = ChainTerminator;// $"{ChainTerminator} of {start.Value}";
+                        var terminatorNodeName = ChainTerminator;// $"{ChainTerminator} of {start.Value}";
 
-                        if (next.Name == terminator_node_name)
+                        if (next.Name == terminatorNodeName)
                             break;
 
                         // first identify if we got to the  terminator of the chain,
                         // if not just go to   next step.                   
-                        var edge = next.Edges.FirstOrDefault(e => (e.Name.Contains(terminator_node_name) && e.Type == Edge<int>.EdgeType.outgoing));
+                        var edge = next.Edges.FirstOrDefault(e => (e.Name.Contains(terminatorNodeName) && e.Type == Edge<int>.EdgeType.outgoing));
                         if (edge == null)
                             edge = next.Edges.FirstOrDefault(e => (e.Name.Contains("(step)") && e.Type == Edge<int>.EdgeType.outgoing));
 

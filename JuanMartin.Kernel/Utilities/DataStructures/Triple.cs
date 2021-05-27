@@ -20,12 +20,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 throw new ArgumentException("Class only supports numeric tyepes.");
         }
 
-        public Triple(T side_a, T side_b, T side_c)
+        public Triple(T itemA, T itemB, T itemC)
             : this()
         {
-            Item1 = side_a;
-            Item2 = side_b;
-            Item3 = side_c;
+            Item1 = itemA;
+            Item2 = itemB;
+            Item3 = itemC;
         }
 
         public T Sum()

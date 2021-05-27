@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using JuanMartin.Kernel.Utilities.DataStructures;
 
 namespace JuanMartin.Kernel.Extesions.Tests
 {
@@ -12,53 +13,78 @@ namespace JuanMartin.Kernel.Extesions.Tests
     public class CollectionExtensionsTests
     {
         [Test()]
-        public void RemoveMultipleElements_ShouldReturnASmallerArray()
+        public void ShouldRemoveSingleElements()
         {
-            var actual_array = new int[] { 1, 2, 3, 4, 5 };
-            var expected_array = new int[] { 2, 4 };
+            var actualArray = new int[] { 1, 2, 3, 4, 5 };
+            var expectedArray = new int[] { 1, 2, 4, 5 };
 
-            var modified_array = CollectionExtensions.Remove(actual_array, 3);
-            modified_array = CollectionExtensions.Remove(modified_array, 1);
-            modified_array = CollectionExtensions.Remove(modified_array, 5);
+            var actualLength = actualArray.Length;
+            var expectedLenth = actualLength - 1;            
+            var modifiedArray = CollectionExtensions.Remove(actualArray, 3);
 
-            Assert.AreEqual(expected_array, modified_array);
+            Assert.AreEqual(expectedArray, modifiedArray);
+            Assert.AreEqual(expectedLenth, modifiedArray.Length);
         }
 
         [Test]
-        public static void Remove_ExistingElement_ShouldNotBeIndexed()
+        public static void ShouldReindexElementsAfterRemovedElement()
         {
-            var source = new String[] { "foo1", "foo2", "foo3" };
-            var actualIndex = Array.IndexOf<String>(source, "foo2");
-            var actual_item = "foo2";
+            var actualAray = new String[] { "foo1", "foo2", "foo3" };
+            var actualItem = "foo3";
+            var removeItem = "foo2";
+            var staticItem = "foo1";
+            var removeIndex = Array.IndexOf<String>(actualAray, removeItem);
 
-            source = CollectionExtensions.Remove<String>(source, actual_item);
+            var expectedArray = CollectionExtensions.Remove<String>(actualAray, removeItem);
 
-            Assert.AreNotEqual(Array.IndexOf<String>(source, actual_item), actualIndex);
-            Assert.AreEqual(-1, Array.IndexOf<String>(source, actual_item));
+            Assert.AreNotEqual(removeItem,expectedArray[removeIndex],"Removed elements index is reused.");
+            Assert.AreEqual(-1, Array.IndexOf<String>(expectedArray, removeItem),"Removed element is not indexed anymore.");
+            Assert.AreEqual(Array.IndexOf<String>(expectedArray, staticItem), Array.IndexOf<String>(actualAray, staticItem), "Element before removed element kept index.");
+            Assert.AreNotEqual(Array.IndexOf<String>(expectedArray, actualItem), Array.IndexOf<String>(actualAray, actualItem), "Element after removed element is reindexed.");
         }
 
         [Test]
-        public static void RemoveFirstElement_ShouldSetIndexOfFirstItemToNegativeOne()
+        public static void ShouldDetermineIndexIsNegativeOneWhenRemovingByIndex()
         {
-            var source = new String[] { "foo1", "foo2", "foo3" };
-            var actual_item = "foo1";
+            var actualArray = new String[] { "foo1", "foo2", "foo3" };
+            var actualItem = "foo1";
+            var actualIndex = 0;
+            var expectedIndex = -1;
 
-            source = CollectionExtensions.RemoveAt<String>(source, 0);
-            Assert.AreEqual(-1, Array.IndexOf<String>(source, actual_item));
-            Assert.IsFalse(source.Contains(actual_item));
+            actualArray = CollectionExtensions.RemoveAt<String>(actualArray, actualIndex);
+            Assert.AreEqual(expectedIndex, Array.IndexOf<String>(actualArray, actualItem));
+            Assert.IsFalse(actualArray.Contains(actualItem));
         }
 
         [Test()]
-        public void MultiplicationExtension_ShouldMultiplyAllItemsInCollection()
+        public void ShouldMultiplyAllItemsInCollectionWhenApplyingMultiplicationExtension()
         {
-            var source = new List<int> { 2, 3, 4, 5 };
+            var actualList = new List<int> { 2, 3, 4, 5 };
             var expectedMultiplication = 120;
 
-            Assert.AreEqual(expectedMultiplication, source.Multiply());
+            Assert.AreEqual(expectedMultiplication, actualList.Multiply());
         }
 
         [Test()]
-        public void MultiplicationExtension_ShouldReturnZeroIfCollectionIsmpty()
+        public void ShouldMultiplyOnlyPropertiesIndicatedByPropertyInPredicate()
+        {
+            var vertices = new List<Vertex<int>>();
+
+            foreach (var i in new int[] {1, 2, 3, 4, 5 })
+            {
+                vertices.Add(new Vertex<int>(i));
+            }
+
+            var actualCollectionOfObjects = new DirectedAcyclicGraph<int>(vertices);
+            var expectedMultiplicationOfValues = 120;
+            var expectedMultiplicationOfNames = 120;
+
+            Assert.AreEqual(expectedMultiplicationOfNames, actualCollectionOfObjects.Vertices.Multiply(v => Convert.ToInt32(v.Name)), "Multiplication of Vertex String names converted to integers");
+            Assert.AreEqual(expectedMultiplicationOfValues, actualCollectionOfObjects.Vertices.Multiply(v => v.Value), "Multiplication of Vertex Integer values");
+        }
+
+        [Test()]
+        public void ShouldReturnZeroWithMultiplicationExtensionIfCollectionIsmpty()
         {
             var source = new List<int> { };
             var expectedMultiplication = 0;
@@ -67,11 +93,11 @@ namespace JuanMartin.Kernel.Extesions.Tests
         }
 
         [Test()]
-        public void MultiplicationExtension_ShouldNotMultiplyStringCollections()
+        public void ShouldRaiseExeptionWhhenTryingToMultiplyStringCollection()
         {
-            var source = new String[] { "foo1", "foo2", "foo3" };
+            var actualArray = new String[] { "foo1", "foo2", "foo3" };
 
-            Assert.Throws<ArgumentException>(()=> source.Multiply<string>());
+            Assert.Throws<ArgumentException>(()=> actualArray.Multiply<string>());
         }
     }
 }

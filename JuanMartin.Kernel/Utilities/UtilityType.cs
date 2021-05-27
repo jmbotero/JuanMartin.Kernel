@@ -100,16 +100,16 @@ namespace JuanMartin.Kernel.Utilities
                    NumericTypes.Contains(Nullable.GetUnderlyingType(type));
         }
 
-        public static Type ParseType(string type_name)
+        public static Type ParseType(string typeName)
         {
             Type t = null;
             try
             {
-                t = Type.GetType(type_name);
+                t = Type.GetType(typeName);
             }
             catch (TypeLoadException e)
             {
-                Console.WriteLine("{0}: Unable to load type {1}", e.GetType().Name, type_name);
+                Console.WriteLine("{0}: Unable to load type {1}", e.GetType().Name, typeName);
             }
             return t;
         }

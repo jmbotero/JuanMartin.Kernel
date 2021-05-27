@@ -8,7 +8,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     /// <typeparam name="T"></typeparam>
     class Stack<T> where T : IComparable<T>
     {
-        private LinkedList<T> filo;
+        private readonly LinkedList<T> filo;
 
         public Stack()
         {

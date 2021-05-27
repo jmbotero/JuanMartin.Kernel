@@ -128,9 +128,9 @@
     <Compile Include="RuleEngine\RuleEngine.cs" />
     <Compile Include="RuleEngine\RuleScope.cs" />
     <Compile Include="RuleEngine\Symbol.cs" />
-    <Compile Include="Task.cs" />
-    <Compile Include="TaskEventArgs.cs" />
-    <Compile Include="ITask.cs" />
+    <Compile Include="Processors\Task.cs" />
+    <Compile Include="Processors\TaskEventArgs.cs" />
+    <Compile Include="Processors\ITask.cs" />
     <Compile Include="Listeners\Listener.cs" />
     <Compile Include="Processors\ProcessorTask.cs" />
     <Compile Include="Utilities\DataStructures\BigDeimal.cs" />

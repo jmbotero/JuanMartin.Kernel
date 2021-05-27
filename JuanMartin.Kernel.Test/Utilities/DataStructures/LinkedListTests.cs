@@ -8,19 +8,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
     class LinkedListTests
     {
         [Test]
-        public static void LinkedListTest_Initialized_WithAnArray_ShouldLinkedLkistWithSameElements()
+        public static void ShouldInitializeLinkedListWithAnArray()
         {
             var expectedArray = new int[] { 1, 2, 3, 4 };
             var actualList = new LinkedList<int>(expectedArray);
 
             var actualArray = actualList.ToArray();
 
-            Assert.AreEqual(actualArray.Length, actualList.Length);
-            Assert.AreEqual(actualArray, expectedArray);
+            Assert.AreEqual(expectedArray, actualArray);
         }
 
         [Test]
-        public static void LinkedListTest_Remove_OnlyElementInList_ShouldGenerateAnEmptyList()
+        public static void ShouldLaveAnEmptyListAfterRemovingOnlyElementInList()
         {
             var actualList = new LinkedList<int>();
 
@@ -30,7 +29,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test]
-        public static void LinkedListTest_Remove_OnAnEmpyList_ShouldThrowInvalidOperationException()
+        public static void ShouldThrowInvalidOperationExceptionWhenAttemptinToRemoveAnElementInAnEmpyList()
         {
             var actualList = new LinkedList<int>();
 
@@ -38,38 +37,38 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test]
-        public static void LinkedListTest_RemoveByKey_KeyGreaterThanListLength_ShouldThrowIndexOutOfRangeException()
+        public static void ShouldThrowIndexOutOfRangeExceptionWhenRemovingByKeyAndKeyIsGreaterThanListLength()
         {
             var actualList = new LinkedList<int>();
-
+            var actualKey = 5;
 
             actualList.Add(1);
             actualList.Add(2);
             actualList.Add(3);
 
-            var ex = Assert.Throws<IndexOutOfRangeException>(() => actualList.RemoveByKey(5));
-            Assert.IsTrue(ex.Message.Contains("Index specified is greater than or equal"));
+            var ex = Assert.Throws<IndexOutOfRangeException>(() => actualList.RemoveByKey(actualKey));
+            Assert.IsTrue(ex.Message.Contains($"Index specified [{actualKey}] is out of list bounds 0...{actualList.Length - 1}."));
         }
 
         [Test]
-        public static void LinkedListTest_Append_OnNotEmptyList_ShouldAddElementAtEndOfList()
+        public static void ShouldAddElementAtEndOfListWhenAppendingToLinkedList()
         {
-            const int expectedValue = 3;
-            const int expectedIndex = 2;
+            var expectedValue = 3;
             var actualList = new LinkedList<int>();
-
+    
             actualList.Append(1);                // index 0 element
             actualList.Append(2);                // index 1 element
             actualList.Append(expectedValue);    // index 2 element, last element
+            var expectedIndex = actualList.Length - 1;
 
             Assert.AreEqual(expectedValue, actualList[expectedIndex].Item);
         }
 
         [Test]
-        public static void LinkedListTest_Add_OnNotEmptyList_ShouldAddElementAtBeginningOfList()
+        public static void ShouldAddElementAtBegginningOfListWhenAddingToLinkedList()
         {
-            const int expectedValue = 3;
-            const int expectedIndex = 0;
+            var expectedValue = 3;
+            var expectedIndex = 0;
             var actualList = new LinkedList<int>();
 
             actualList.Add(1);                // index 2 element
@@ -79,24 +78,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             Assert.AreEqual(expectedValue, actualList[expectedIndex].Item);
         }
 
-
         [Test]
-        public static void LinkedListTest_ToArray_AWellFormedList_ShouldReturnArrayWithSameElementsAsListAndInSameOrder()
-        {
-            var expectedArray = new int[] { 4, 2, 1, 3 };
-            var actualList = new LinkedList<int>();
-
-            actualList.Add(3);    // last element
-            actualList.Add(1);
-            actualList.Add(2);
-            actualList.Add(4);    // first element
-
-            var actualArray = actualList.ToArray();
-            Assert.AreEqual(expectedArray, actualArray);
-        }
-
-        [Test]
-        public static void LinkedListTest_Clone_AWellFormedList_ShouldGenerateNewListDuplicate()
+        public static void ShouldGenerateNewAndIndependentListDuplicateWhenCloning()
         {
             var actualList = new LinkedList<int>();
 
@@ -105,12 +88,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualList.Add(3);
 
             var expectedList = (LinkedList<int>)actualList.Clone();
-            Assert.AreEqual(expectedList.Length, actualList.Length);
-            Assert.AreEqual(expectedList.ToArray(), actualList.ToArray());
+            //TODO: failed comparing full object
+            //Assert.AreEqual(expectedList, actualList,"List and its clone are identical objects.");
+            Assert.AreEqual(expectedList.Length, actualList.Length, "Lists  have same length");
+            Assert.AreEqual(expectedList.ToString(), actualList.ToString(), "Lists have same strig representation.");
+
+            var actualItem = 5;
+            actualList.Add(actualItem);
+            Assert.IsFalse(expectedList.Contains(actualItem), "Original and clone lists are independent.");
         }
 
         [Test]
-        public static void LinkedListTest_QuickSort_ListWithItemsAddedOutOfOrder_ShouldReturrnNewListWithItemsInAscendingOrder()
+        public static void ShouldReturnNewListWithItemsInAscendingOrderAfterQuickSortingListWithItemsAddedOutOfOrder()
         {
             var actualArray = new int[] { 5, 2, 7, 6, 1, 9, 4, 8 };
             var expectedArray = new int[] { 1, 2, 4, 5, 6, 7, 8, 9 };
@@ -122,33 +111,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test]
-        public static void LinkedListTest_Concatenate_SameListToItself_ShouldDoubleLengthAndHaveAllElementsDuplicated()
-        {
-            var actualList = new LinkedList<int>();
-
-            actualList.Add(1);
-            actualList.Add(2);
-
-            var actualLength = actualList.Length;
-            var expectedLength = actualLength * 2;
-
-            actualList += actualList;
-
-            Assert.AreEqual(expectedLength, actualList.Length);
-            for (int i = 0; i < actualLength; i++)
-            {
-                Assert.AreEqual(actualList[i + actualLength].Item, actualList[i].Item);
-            }
-        }
-
-        [Test]
-        public static void LinkedListTest_Concatenate_TwoSeparateLists_ShouldAppendAllElementsOfTheSecondListToTheFirst()
+        public static void ShouldAppendAllElementsOfTheSecondListToTheFirstWhenConcatenatingTwoSeparateLists()
         {
             var actualList1 = new LinkedList<int>();
             var actualList2 = new LinkedList<int>();
-
-            var actualLength1 = 2;
-            var actualLength2 = 3;
 
             actualList1.Append(4);
             actualList1.Append(5);
@@ -156,14 +122,19 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualList2.Append(7);
             actualList2.Append(8);
 
+            var actualLength1 = actualList1.Length;
+            var actualLength2 = actualList2.Length;
+
             actualList1 += actualList2;
 
             var expectedLength = actualList1.Length;
 
-            Assert.AreEqual(expectedLength, actualLength1 + actualLength2);
-            for (int i = 0; i < actualLength1; i++)
+            Assert.AreEqual(expectedLength, actualLength1 + actualLength2, "Lenth of conatenated list is the addition of the legths of the two source lists.");
+
+            for (int i = 0; i < actualLength2; i++)
             {
-                Assert.AreEqual(actualList1[i + actualLength2 - 1].Item, actualList2[i].Item);
+                var expectedIndex = i + actualLength2 - 1;
+                Assert.AreEqual(actualList1[expectedIndex].Item, actualList2[i].Item,$"Item   ({expectedIndex}), {actualList2[i]}, minplaced.");
             }
         }
     }

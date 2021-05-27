@@ -31,14 +31,14 @@ namespace JuanMartin.Kernel.Processors
         {
             get { return Options[i]; }
         }
-        public CommandLineOption this[string option_name]
+        public CommandLineOption this[string optionName]
         {
-            get { return Options.FirstOrDefault(o => o.Name == option_name); }
+            get { return Options.FirstOrDefault(o => o.Name == optionName); }
         }
 
-        public bool Contains(string option_name)
+        public bool Contains(string optionName)
         {
-            if (this[option_name] != null)
+            if (this[optionName] != null)
                 return true;
      
             return false;
@@ -47,10 +47,10 @@ namespace JuanMartin.Kernel.Processors
         [JsonConstructor]
         public CommandLine()
         {}
-        public CommandLine(string line, string file_name = "")
+        public CommandLine(string line, string fileName = "")
         {
             // use default
-            if (file_name == string.Empty)
+            if (fileName == string.Empty)
             {
                 // This will get the current WORKING directory (i.e. \bin\Debug)
                 string workingDirectory = Environment.CurrentDirectory;
@@ -60,13 +60,13 @@ namespace JuanMartin.Kernel.Processors
                 if(projectDirectory.Contains("\\bin"))
                     projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
 
-                file_name = projectDirectory + @"\commandline.settings.json";
+                fileName = projectDirectory + @"\commandline.settings.json";
 
-                if (!File.Exists(file_name))
-                    throw new FileNotFoundException(file_name);
+                if (!File.Exists(fileName))
+                    throw new FileNotFoundException(fileName);
             }
             Options = new List<CommandLineOption>();
-            LoadCommandLineSettings(file_name);
+            LoadCommandLineSettings(fileName);
             Line = line;
             Parse(line);
         }
@@ -86,38 +86,38 @@ namespace JuanMartin.Kernel.Processors
                 // convert to command line options
                 //foreach(var item in options)
                 //{
-                //    var is_single = (item.Value == "null") ? true : false;
-                //    var value = (is_single) ? string.Empty : item.Value;
+                //    var isSingle = (item.Value == "null") ? true : false;
+                //    var value = (isSingle) ? string.Empty : item.Value;
 
                 //    Options.Add(new CommandLineOption(item.Key, value, "string"));
                 //}
 
-                var used_names = (from option in options select option.Key).ToHashSet();
-                var required_names = (from option in Options
+                var usedNames = (from option in options select option.Key).ToHashSet();
+                var requiredNames = (from option in Options
                                       where option.IsRequired == true
                                       select option.Name).ToHashSet();
-                foreach (var n in used_names)
+                foreach (var n in usedNames)
                 {
                     var dependency = (from option in Options
                                       where option.Dependencies.Contains(n)
                                       select n).FirstOrDefault();
 
                     if(dependency != null)
-                        required_names.Add(dependency);
+                        requiredNames.Add(dependency);
                 }
 
-                var valid_names = (from option in Options
+                var validNames = (from option in Options
                                    select option.Name).ToList();
-                valid_names.AddRange((from option in Options where option.Abbreviation != option.Name select option.Abbreviation));
+                validNames.AddRange((from option in Options where option.Abbreviation != option.Name select option.Abbreviation));
 
-                foreach (var n in used_names)
+                foreach (var n in usedNames)
                 {
-                    if (!valid_names.Contains(n))
+                    if (!validNames.Contains(n))
                         throw new ArgumentException($"Command line '{line}' is not formatted correctly. Option {n} is not defined.");
                 }
-                foreach (var n in required_names)
+                foreach (var n in requiredNames)
                 {
-                    if (!used_names.Contains(n))
+                    if (!usedNames.Contains(n))
                         throw new ArgumentException($"Command line '{line}' is not formatted correctly. Required option {n} is not present.");
                 }
 
@@ -132,7 +132,7 @@ namespace JuanMartin.Kernel.Processors
                 {
                     throw new ArgumentException("Culture info argument not defined in settings file.");
                 }
-                Type type = null;
+                Type tType = null;
 
                 foreach (var o in options)
                 {
@@ -143,42 +143,42 @@ namespace JuanMartin.Kernel.Processors
                         throw new ArgumentOutOfRangeException($"Option {o.Key} not found in command line settings file.");
 
                     option.Status = CommandLineOption.OptionStatus.assigned;
-                    string stype = option.ValueType;
+                    string sType = option.ValueType;
 
-                    if (stype != null)
+                    if (sType != null)
                     {
                         //TOTO: fix value parsing logic
                         if (!option.IsSingle) // do not assign value to singles as these do no have command line values
                         {
-                            var actual_value = o.Value;
+                            var actualValue = o.Value;
 
-                            switch (stype)
+                            switch (sType)
                             {
                                 case "System.Int32[]":
                                     {
-                                        var numeric_pattern = new Regex("^[0-9,]*$");
+                                        var numericPattern = new Regex("^[0-9,]*$");
                                        
                                         //TODO: specify range pattern
-                                        if (numeric_pattern.IsMatch(actual_value))
-                                            value = actual_value.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
+                                        if (numericPattern.IsMatch(actualValue))
+                                            value = actualValue.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
                                         else
-                                            throw new ArgumentException($"Cannot parse value {actual_value} as an integer or comma-separaated list of integers.");
+                                            throw new ArgumentException($"Cannot parse value {actualValue} as an integer or comma-separaated list of integers.");
                                         break;
                                     }
                                 case "System.Int32":
                                 case "System.Boolean":
                                 case "System.String":
                                     {
-                                        value = actual_value;
+                                        value = actualValue;
                                         break;
                                     }
                                 default:
-                                    throw new TypeLoadException($"Type {stype} not supported.");
+                                    throw new TypeLoadException($"Type {sType} not supported.");
                             }
                         }
                         else // if single and boolean value is true else use value in settings as default
                         {
-                            switch (stype)
+                            switch (sType)
                             {
                                 case "System.Int32[]":
                                     {
@@ -197,13 +197,13 @@ namespace JuanMartin.Kernel.Processors
                                         break;
                                     }
                                 default:
-                                    throw new TypeLoadException($"Type {stype} not supported.");
+                                    throw new TypeLoadException($"Type {sType} not supported.");
                             }
                         }
-                        type = UtilityType.ParseType(stype);
+                        tType = UtilityType.ParseType(sType);
                         try
                         {
-                            option.Value = Convert.ChangeType(value, type);
+                            option.Value = Convert.ChangeType(value, tType);
                         }
                         catch (Exception e)
                         {
@@ -217,7 +217,7 @@ namespace JuanMartin.Kernel.Processors
                 {
                     var option = Options[i];
 
-                    if (!used_names.Contains(option.Name))
+                    if (!usedNames.Contains(option.Name))
                         Options.Remove(option);
                 }
 
@@ -227,12 +227,12 @@ namespace JuanMartin.Kernel.Processors
             }
         }
 
-        private void LoadCommandLineSettings(string file_name)
+        private void LoadCommandLineSettings(string fileName)
         {
             var json = string.Empty;
-            if (file_name != null && file_name.Length > 0)
+            if (fileName != null && fileName.Length > 0)
             {
-                using (var reader = new StreamReader(file_name, Encoding.UTF8))
+                using (var reader = new StreamReader(fileName, Encoding.UTF8))
                 {
                     json = reader.ReadToEnd();
                 }

@@ -8,15 +8,16 @@ namespace JuanMartin.Kernel.RuleEngine.Tests
         [Test]
         public static void SingleXmlRuleTest()
         {
-            var engine = new JuanMartin.Kernel.RuleEngine.RuleEngine("SingleXmlRuleTest");
+            var actualEngine = new RuleEngine("SingleXmlRuleTest");
+            var actualFactName = "foo2";
+            var expectedFactValue = 4;
 
-            engine.Load(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\ut-single-rule.xml");
+            actualEngine.Load(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\ut-single-rule.xml");
+            actualEngine.Execute();
 
-            engine.Execute();
+            var actualFact = actualEngine.FactLookup(actualFactName); // after rule executes fact = 3+1
 
-            var foo2 = engine.FactLookup("foo2");
-
-            Assert.AreEqual(4, foo2.Value.Result);
+            Assert.AreEqual(expectedFactValue, actualFact.Value.Result);
         }
     }
 }

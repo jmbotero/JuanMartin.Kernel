@@ -21,9 +21,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         Vertex<T> RemoveVertex(T value);
         Edge<T> RemoveEdge(string name);
         List<Edge<T>> RemoveEdges(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type);
-        Edge<T> GetEdge(string name, string from_name, Edge<T>.EdgeType type);
+        Edge<T> GetEdge(string name, string fromName    , Edge<T>.EdgeType type);
         List<Edge<T>> GetEdges(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type);
-        List<Edge<T>> GetOutgoingEdges();
+        List<Edge<T>> GetOutgoingEdges();       
         List<Edge<T>> GetIncomingEdges();
         bool Contains(T value);
         bool Contains(Vertex<T> value);
@@ -47,7 +47,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             longest = 1
         };
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
         public Graph(IEnumerable<Vertex<T>> nodes = null)
         {
 

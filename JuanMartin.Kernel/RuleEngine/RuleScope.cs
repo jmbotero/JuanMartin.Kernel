@@ -5,16 +5,16 @@ namespace JuanMartin.Kernel.RuleEngine
 {
     public class RuleScope : IRuleContainer
     {
-        private RuleEngine _engine;
-        private RuleScope _parent;
+        private readonly RuleEngine _engine;
+        private readonly RuleScope _parent;
 
-        private Dictionary<string, RuleScope> _scopes; //sub-scopes
-        private Dictionary<string, Rule> _rules;
+        private readonly Dictionary<string, RuleScope> _scopes; //sub-scopes
+        private readonly Dictionary<string, Rule> _rules;
 
         private string _name;
-        private bool _isDependent;
+        private readonly bool _isDependent;
 
-        private Dictionary<string, Symbol> _facts;
+        private readonly Dictionary<string, Symbol> _facts;
 
         public RuleScope(RuleEngine Engine, string Name, RuleScope Parent, bool IsDependent)
         {

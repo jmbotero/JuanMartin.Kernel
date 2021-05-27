@@ -1,32 +1,31 @@
-﻿using JuanMartin.Kernel.Utilities;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
+using System.Numerics;
 
 namespace JuanMartin.Kernel.Utilities.Tests
 {
     [TestFixture]
     public class UtilityMathTests
     {
-        #region Sqrt_By_Substraction tests
+        #region SqrtBySubstraction tests
         [Test]
-        public void SqrtBySubstraction_SqrtResultMultipliedByItselfShouldBeEqualToOriginalNumber()
+        public void ShouldBeEqualToOriginalNumberTheSquareRootResultMultipliedByItself()
         {
-            for (var expected_number = 0.5; expected_number < 10; expected_number += 0.5)
+            for (var actualNumber = 0.5; actualNumber < 10; actualNumber += 0.5)
             {
-                var actual_sqrt = UtilityMath.Sqrt_By_Substraction(expected_number, 5);
-                var actual_number = Math.Round(actual_sqrt * actual_sqrt, 3);
+                var actualSqrt = UtilityMath.GetSqrtBySubstraction(actualNumber, 5);
+                var expectedNumber = Math.Round(actualSqrt * actualSqrt, 3);
 
-                Assert.AreEqual(expected_number, actual_number);
+                Assert.AreEqual(expectedNumber, actualNumber);
             }
         }
         #endregion
 
         #region GetNumericPatterns tests
         [Test]
-        public void NumberShouldHaveOnePatternForAtLeastTwoDigitsRepeatinng()
+        public void ShouldHaveOneGroupPatternForAtLeastTwoDigitsRepeatingInNumberOnlyString()
         {
             var masks = UtilityMath.GetNumericPatterns(123426);
             Assert.IsTrue(masks.Where(m => Regex.Matches(m, @"\\1").Count == 1).Count() == 1);
@@ -37,7 +36,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         }
 
         [Test]
-        public void NumberShouldReturnOneValidRegexPatternForEverySetofRepeatedDigits()
+        public void ShouldReturnOneValidRegexPatternForEverySetofRepeatedDigitsInNumberOnlyString()
         {
             var masks = UtilityMath.GetNumericPatterns(121313);
 
@@ -53,34 +52,34 @@ namespace JuanMartin.Kernel.Utilities.Tests
         {
             // receive string of decimals as array
             var numbers = UtilityMath.GetDecimalList(1, 3, 2000).ToArray();
-            var expected_sequence = "3";
-            var actual_sequence = UtilityMath.GetPeriodicalSequence(numbers);
+            var expectedSequence = "3";
+            var actualSequence = UtilityMath.GetPeriodicalSequence(numbers);
 
-            Assert.AreEqual(expected_sequence, actual_sequence);
+            Assert.AreEqual(expectedSequence, actualSequence);
 
             numbers = UtilityMath.GetDecimalList(7, 12, 2000).ToArray();
-            expected_sequence = "3";
-            actual_sequence = UtilityMath.GetPeriodicalSequence(numbers);
+            expectedSequence = "3";
+            actualSequence = UtilityMath.GetPeriodicalSequence(numbers);
 
-            Assert.AreEqual(expected_sequence, actual_sequence);
+            Assert.AreEqual(expectedSequence, actualSequence);
 
             numbers = UtilityMath.GetDecimalList(1, 6, 2000).ToArray();
-            expected_sequence = "6";
-            actual_sequence = UtilityMath.GetPeriodicalSequence(numbers);
+            expectedSequence = "6";
+            actualSequence = UtilityMath.GetPeriodicalSequence(numbers);
 
-            Assert.AreEqual(expected_sequence, actual_sequence);
+            Assert.AreEqual(expectedSequence, actualSequence);
 
             numbers = UtilityMath.GetDecimalList(1, 81, 2000).ToArray();
-            expected_sequence = "012345679";
-            actual_sequence = UtilityMath.GetPeriodicalSequence(numbers);
+            expectedSequence = "012345679";
+            actualSequence = UtilityMath.GetPeriodicalSequence(numbers);
 
-            Assert.AreEqual(expected_sequence, actual_sequence);
+            Assert.AreEqual(expectedSequence, actualSequence);
 
             numbers = UtilityMath.GetDecimalList(1, 893, 2000).ToArray();
-            expected_sequence = "001119820828667413213885778275475923852183650615901455767077267637178051511758118701007838745800671892497200447928331466965285554311310190369540873460246360582306830907054871220604703247480403135498320268756998880179171332586786114221724524076147816349384098544232922732362821948488241881298992161254199328107502799552071668533034714445688689809630459126539753639417693169092945128779395296752519596864501679731243";
-            actual_sequence = UtilityMath.GetPeriodicalSequence(numbers);
+            expectedSequence = "001119820828667413213885778275475923852183650615901455767077267637178051511758118701007838745800671892497200447928331466965285554311310190369540873460246360582306830907054871220604703247480403135498320268756998880179171332586786114221724524076147816349384098544232922732362821948488241881298992161254199328107502799552071668533034714445688689809630459126539753639417693169092945128779395296752519596864501679731243";
+            actualSequence = UtilityMath.GetPeriodicalSequence(numbers);
 
-            Assert.AreEqual(expected_sequence, actual_sequence);
+            Assert.AreEqual(expectedSequence, actualSequence);
 
         }
         #endregion
@@ -94,9 +93,9 @@ namespace JuanMartin.Kernel.Utilities.Tests
         }
         #endregion
 
-        #region Execution Measure consumers
+        #region Sqrt Execution Measure consumers
         [Test()]
-        public void DotNetBabylonianSquareRootMethodShouldBeTheFastest()
+        public void ShouldBeTheFastestMethodToCalCulateTheSquareRootTheNativeDotNetVersusTheBabylonianOrNewtonian()
         {
             void DotNetSquareRootLoop(int n)
             {
@@ -104,35 +103,47 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
             void BabylonianSquareRootLoop(int n)
             {
-                var f = Enumerable.Range(1, n).Select(i => UtilityMath.Sqrt_Babylonian(i)).ToList();
+                var f = Enumerable.Range(1, n).Select(i => UtilityMath.GetSqrtBabylonianMethod(i)).ToList();
             }
             void NewtonSquareRootLoop(int n)
             {
-                var f = Enumerable.Range(1, n).Select(i => UtilityMath.Sqrt_Newton(i)).ToList();
+                var f = Enumerable.Range(1, n).Select(i => UtilityMath.GetSqrtUsingNewtonMethod(i)).ToList();
             }
             var count = 10000;
             var actualMethodDotNetDuration = UtilityHelper.Measure(() => DotNetSquareRootLoop(count));
             var actualMethodOneDuration = UtilityHelper.Measure(() => BabylonianSquareRootLoop(count));
             var actualMethodTwoDuration = UtilityHelper.Measure(() => NewtonSquareRootLoop(count));
-            Assert.Less(actualMethodDotNetDuration, actualMethodOneDuration);
-            Assert.Less(actualMethodDotNetDuration, actualMethodTwoDuration);
+            Assert.Less(actualMethodDotNetDuration, actualMethodOneDuration,  "Babylonian is faster  than .Net Sqrt.");
+            Assert.Less(actualMethodDotNetDuration, actualMethodTwoDuration,  "Newton  method is faster  than .Net Sqrt.");
         }
 
+        #endregion
+
+        #region Prime factors tests
         [Test()]
-        public void ManyRunsOfGetPrimeFactors_ShouldTakeAtMost50Miliseconds()
+        public void ShouldHaveTwoPrimeFactorsForOneThousand()
         {
-            void FactorPrimeLoop(int n)
-            {
-                var f = Enumerable.Range(1, n).Select(i => UtilityMath.GetPrimeFactors(i, false, true)).ToList();
-            }
-
-            var actualDuration = UtilityHelper.Measure(() => FactorPrimeLoop(100000));
-            var expectedDuration = 70;
-
-            Assert.LessOrEqual(actualDuration, expectedDuration);
+            var actualFactors = UtilityMath.GetPrimeFactors(1000, false, true);
+            var expectedFactorsCount = 2;
+            UtilityHelper.MeasureInLoop(loopCount: 1000, seed: 2, (x) => UtilityMath.GetPrimeFactors(x, false, true), true);
+            Assert.AreEqual(expectedFactorsCount, actualFactors.Count());
         }
+
         [Test()]
-        public void GetCombinationsConsumer()
+        public void ShouldHaveNoPrimeFactorsSetOfPrimeNumbers()
+        {
+            var expectedFactorsCount = 0;
+            var primes = UtilityMath.ErathostenesSieve(1000);
+
+            foreach (var p in primes)
+            {
+                var actualFactors = UtilityMath.GetPrimeFactors(p, false, true);
+                Assert.AreEqual(expectedFactorsCount, actualFactors.Count());
+            }
+        }
+
+        [Test()]
+        public void GetCombinationsExecutionDurationTest()
         {
             void CombLoop(int n, int d)
             {
@@ -155,84 +166,94 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
         #region SquareDigit tests
         [Test()]
-        public void SquareDigitsOfOneShouldBeOne()
+        public void ShouldBeOneTheSquareDigitsOfOne()
         {
-            var expected_sum = 1;
-            var actual_sum = UtilityMath.SquareDigits(1);
+            var expectedSum = 1;
+            var actualSum = UtilityMath.SquareDigits(1);
 
-            Assert.AreEqual(expected_sum, actual_sum);
+            Assert.AreEqual(expectedSum, actualSum);
         }
 
         [Test()]
-        public void AnySquareDigitsShouldBeGreaterThanZero()
+        public void ShouldBeGreaterThanZeroAnySquareDigitsUptoOneHundredThousand()
         {
-            var r = new Random();
             int limit = 10000;
 
-            for (int i = 0; i <= limit; i++)
+            for (int number = 2; number <= limit; number++)
             {
-                var number = r.Next(1, limit);
-                var actual_sum = UtilityMath.SquareDigits(number);
+                var actualSum = UtilityMath.SquareDigits(number);
 
-                Assert.Greater(actual_sum, 0);
+                Assert.Greater(actualSum, 0);
             }
         }
 
         [Test()]
-        public void SquareDigitsOf25ShouldBe29()
+        public void ShouldBeTwentyNineSquareDigitsOfTwentyFive()
         {
-            var expected_sum = 29;
-            var actual_sum = UtilityMath.SquareDigits(25);
+            var expectedSum = 29;
+            var actualSum = UtilityMath.SquareDigits(25);
 
-            Assert.AreEqual(expected_sum, actual_sum);
+            Assert.AreEqual(expectedSum, actualSum);
         }
 
         [Test()]
-        public void SquareDigitsChainOfOneShouldHaveOneElement()
+        public void ShouldHaveOneElementTheSquareDigitsChainOfOne()
         {
-            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(1);
-            var expected_length = 1;
+            var (_, actualChain) = UtilityMath.SquareDigitsChain(1);
+            var expectedLength = 1;
 
-            Assert.AreEqual(expected_length, actual_chain.Count());
+
+            Assert.AreEqual(expectedLength, actualChain.Count());
         }
 
         [Test()]
-        public void SquareDigitsChainOfEightyNineShouldHaveEightElements()
+        public void SShouldHaveEightElementsTheSquareDigitsChainOfEightyNine()
         {
-            var actual_number = 89;
-            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(89);
-            var expected_length = 8;
+            var actualNumber = 89;
+            var (actualTerminator, actualChain ) = UtilityMath.SquareDigitsChain(89);
+            var expectedLength = 8;
 
             // check duration
-            UtilityHelper.MeasureInLoop(loop_count: 10, actual_number, (x) => UtilityMath.SquareDigitsChain(x), true);
-            Assert.AreEqual(expected_length, actual_chain.Count());
+            UtilityHelper.MeasureInLoop(loopCount: 10, actualNumber, (x) => UtilityMath.SquareDigitsChain(x), true);
+            Assert.AreEqual(expectedLength, actualChain.Count());
         }
 
         [Test()]
-        public void SquareDigitsChainOfFourtyFourShouldHaveAsTerminatorOne()
+        public void ShouldHaveAsTerminatorOneTheSquareDigitsChainOfFourtyFour()
         {
-            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(44);
-            var expected_terminator = 1;
+            var (actualTerminator, _) = UtilityMath.SquareDigitsChain(44);
+            var expectedTerminator = 1;
 
-            Assert.AreEqual(expected_terminator, actual_terminator);
+            Assert.AreEqual(expectedTerminator, actualTerminator);
         }
 
         [Test()]
-        public void SquareDigitsChainOfOneHundredFortyFiveShouldHaveAsTerminatorEightyNine()
-        { 
-            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(145);
-            var expected_terminator = 89;
-
-            Assert.AreEqual(expected_terminator, actual_terminator);
-        }
-
-        [Test()]
-        public void SquareDigitsChainOfEightyFiveShouldHaveAsTerminatorEightyNine()
+        public void ShouldHaveAsTerminatorEightyNineTheSquareDigitsChainOfOneHundredFortyFive()
         {
-            var (actual_terminator, actual_chain) = UtilityMath.SquareDigitsChain(85);
-            var expected_terminator = 89;
+            var (actualTerminator, _) = UtilityMath.SquareDigitsChain(145);
+            var expectedTerminator = 89;
 
-            Assert.AreEqual(expected_terminator, actual_terminator);
+            Assert.AreEqual(expectedTerminator, actualTerminator);
+        }
+
+        [Test()]
+        public void ShouldHaveAsTerminatorEightyNineTheSquareDigitsChainOfEightyFive()
+        {
+            var (actualTerminator, _) = UtilityMath.SquareDigitsChain(85);
+            var expectedTerminator = 89;
+
+            Assert.AreEqual(expectedTerminator, actualTerminator);
+        }
+        #endregion
+
+        #region  Fibonacci tests
+        [Test()]
+        public void ShoulReturnValidResponseTheFibonacciLoopImplementationOfNumberOneHundred()
+        {
+            /// <seealso cref="http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html"/>
+            var expectedFibonacciAsString = BigInteger.Parse("354224848179261915075");
+            var actualFibonacciAsString = UtilityMath.FibonacciLoop(100);
+            Assert.AreEqual(expectedFibonacciAsString,actualFibonacciAsString);
         }
         #endregion
     }

@@ -125,11 +125,11 @@ namespace JuanMartin.Kernel.Extesions
         //    return string.Empty;
         //}
 
-        public static string Tail(this string source, int tail_length)
+        public static string Tail(this string source, int tailLength)
         {
-            if (tail_length >= source.Length)
+            if (tailLength >= source.Length)
                 return source;
-            return source.Substring(source.Length - tail_length);
+            return source.Substring(source.Length - tailLength);
         }
 
         public static bool IsAnagram(this string source, string target)

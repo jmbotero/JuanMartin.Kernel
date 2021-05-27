@@ -201,7 +201,7 @@ namespace JuanMartin.Kernel.Utilities
 
             for (int i = 0; i <= number; i++)
             {
-                //sqrt.Add((int)Sqrt_Babylonian(i));
+                //sqrt.Add((int)GetSqrtBabylonianMethod(i));
                 sqrt.Add((int)Math.Sqrt(i));
             }
 
@@ -288,14 +288,14 @@ namespace JuanMartin.Kernel.Utilities
 
             public int CompareTo(Operands other)
             {
-                var this_id = this.Id;
-                var other_id = other.Id;
+                var thisId = this.Id;
+                var otherId = other.Id;
 
-                if (this_id < other_id)
+                if (thisId < otherId)
                 {
                     return 1;
                 }
-                else if (this_id > other_id)
+                else if (thisId > otherId)
                 {
                     return -1;
                 }
@@ -330,17 +330,17 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="number">Mximum value of i(x) or operand for product-sum</param>
         /// <param name="k">nunmber of terms in operation</param>
         /// <returns></returns>
-        public static List<Operands> GetProductSumPermutations(int number, int k, bool return_just_first_permutation = false, bool sort_permutations_by_each_operands_order = true)
+        public static List<Operands> GetProductSumPermutations(int number, int k, bool returnJustFirstPermutation = false, bool sortPermutationsByEachOperandsOrder = true)
         {
             var permutations = new List<Operands>();
             // var permutations = new SortedSet<Operands>(); sorting once tested faster than add in order, if that 
             // is better use SortedSet<> instead.
 
-            var duplicate_keys = new List<SortedSet<int>>(); // set to ensure only one combination of operands is added
+            var duplicateKeys = new List<SortedSet<int>>(); // set to ensure only one combination of operands is added
             int[] digits = Enumerable.Repeat(1, k).ToArray();
             int index;
             bool hasMatch = false;
-
+ 
             digits[k - 1] = 0;
             index = k - 1;
             while (true)
@@ -374,29 +374,29 @@ namespace JuanMartin.Kernel.Utilities
                     {
                         // check if operands are new in permutations list, by checking its key
 
-                        hasMatch = duplicate_keys.Any(op => op.Count == key.Count && key.All(y => op.Contains(y)));
+                        hasMatch = duplicateKeys.Any(op => op.Count == key.Count && key.All(y => op.Contains(y)));
                         if (!hasMatch)
                         {
-                            duplicate_keys.Add(key);
+                            duplicateKeys.Add(key);
                             permutations.Add(operands);
-                            if (return_just_first_permutation && permutations.Count == 1)
+                            if (returnJustFirstPermutation && permutations.Count == 1)
                                 break;
                         }
                     }
                 }
             }
-            if (sort_permutations_by_each_operands_order && permutations.Count > 0)
+            if (sortPermutationsByEachOperandsOrder && permutations.Count > 0)
                 return permutations.OrderBy(operands => operands.Id).ToList();
             else
                 return permutations.ToList();
         }
         public static int[] GetMinimalProductSumPermutation(int number, int k)
         {
-            string GenerateFrequencyKey(int value, int[] permutation, int thread_count = -1)
+            string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
             {
                 var options = new ParallelOptions()
                 {
-                    MaxDegreeOfParallelism = thread_count
+                    MaxDegreeOfParallelism = threadCount
                 };
                 int[] frequencies = new int[value + 1];
 
@@ -408,11 +408,11 @@ namespace JuanMartin.Kernel.Utilities
                 return string.Join("", frequencies);
             };
 
-            var duplicate_keys = new HashSet<string>(); // set to ensure only one combination of operands is added
+            var duplicateKeys = new HashSet<string>(); // set to ensure only one combination of operands is added
             int[] digits = Enumerable.Repeat(1, k).ToArray();
             int index;
-            double minimal_operand_id = double.MaxValue;
-            int[] minimal_permutation = new int[k];
+            double minimalOperandId = double.MaxValue;
+            int[] minimalPermutation = new int[k];
 
             digits[k - 1] = 0;
             index = k - 1;
@@ -435,7 +435,7 @@ namespace JuanMartin.Kernel.Utilities
 
                     // check if operands are new in permutations list, by checking its key
                     var key = GenerateFrequencyKey(number, digits, 2);
-                    var hasMatch = duplicate_keys.Contains(key);
+                    var hasMatch = duplicateKeys.Contains(key);
 
                     if (!hasMatch)
                     {
@@ -450,12 +450,12 @@ namespace JuanMartin.Kernel.Utilities
                         {
                             if (!hasMatch)
                             {
-                                duplicate_keys.Add(key);
+                                duplicateKeys.Add(key);
                                 var label = Convert.ToDouble(string.Join("", digits.LoopReverse()));
-                                if (label <= minimal_operand_id)
+                                if (label <= minimalOperandId)
                                 {
-                                    minimal_operand_id = label;
-                                    Array.Copy(digits, minimal_permutation, k);
+                                    minimalOperandId = label;
+                                    Array.Copy(digits, minimalPermutation, k);
                                 }
                             }
                             else
@@ -467,16 +467,16 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
-            return minimal_permutation;
+            return minimalPermutation;
         }
 
         public static int[] GetMinimalProductSumPermutation2(int number, int k)
         {
-            string GenerateFrequencyKey(int value, int[] permutation, int thread_count = -1)
+            string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
             {
                 var options = new ParallelOptions()
                 {
-                    MaxDegreeOfParallelism = thread_count
+                    MaxDegreeOfParallelism = threadCount
                 };
                 int[] frequencies = new int[value + 1];
 
@@ -488,11 +488,11 @@ namespace JuanMartin.Kernel.Utilities
                 return string.Join("", frequencies);
             };
 
-            var duplicate_keys = new HashSet<string>(); // set to ensure only one combination of operands is added
+            var duplicateKeys = new HashSet<string>(); // set to ensure only one combination of operands is added
             int[] digits = new int[k];
             int index;
-            double minimal_operand_id = double.MaxValue;
-            int[] minimal_permutation = new int[k];
+            double minimalOperandId = double.MaxValue;
+            int[] minimalPermutation = new int[k];
             var factors = UtilityMath.GetFactors(number, includeSelf: true).ToArray();
             int[] operands = Enumerable.Repeat(1, k).ToArray();
             // int[] operands = new int[k];
@@ -525,7 +525,7 @@ namespace JuanMartin.Kernel.Utilities
                     
                     // check if operands are new in permutations list, by checking its key
                     var key = GenerateFrequencyKey(number, operands, 2);
-                    var hasMatch = duplicate_keys.Contains(key);
+                    var hasMatch = duplicateKeys.Contains(key);
 
                     if (!hasMatch)
                     {
@@ -540,12 +540,12 @@ namespace JuanMartin.Kernel.Utilities
                         {
                             if (!hasMatch)
                             {
-                                duplicate_keys.Add(key);
+                                duplicateKeys.Add(key);
                                 var label = Convert.ToDouble(string.Join("", digits.LoopReverse()));
-                                if (label <= minimal_operand_id)
+                                if (label <= minimalOperandId)
                                 {
-                                    minimal_operand_id = label;
-                                    Array.Copy(operands, minimal_permutation, k);
+                                    minimalOperandId = label;
+                                    Array.Copy(operands, minimalPermutation, k);
                                 }
                             }
                             else
@@ -557,7 +557,7 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
-            return minimal_permutation;
+            return minimalPermutation;
         }
 
         public static List<IEnumerable<int>> GetProductSums(int number, int k = 0)
@@ -597,7 +597,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
 
-        public static IEnumerable<IEnumerable<T>> GetCombinationsOfK<T>(T[] data, int k, bool include_duplicates=true)
+        public static IEnumerable<IEnumerable<T>> GetCombinationsOfK<T>(T[] data, int k, bool includeDuplicates=true)
         {
             int size = data.Length;
 
@@ -610,7 +610,7 @@ namespace JuanMartin.Kernel.Utilities
                         yield return headList;
                     else
                     {
-                        foreach (var tailList in Runner(list.Skip((include_duplicates)?skip - 1:skip), n - 1))
+                        foreach (var tailList in Runner(list.Skip((includeDuplicates)?skip - 1:skip), n - 1))
                         {
                             yield return headList.Concat(tailList);
                         }
@@ -696,7 +696,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         public static (string sequence, int[] set) GetNumericalCyclicalSet(string[] order, int[][] polygonalNumbers)
         {
-            Func<int, int[], List<int>> GetCyclicalMatches = (n, numbers) =>
+            List<int> GetCyclicalMatches(int n, int[] numbers)
             {
                 var tail = n % 100;
 
@@ -705,7 +705,7 @@ namespace JuanMartin.Kernel.Utilities
                 s = s.Where(item => item % 100 >= 10); // ignore numbers ending from 00 to 09
 
                 return s.ToList();
-            };
+            }
 
             // polygonal number sides count to index: polygonalNumbers[triangular, square, pentagonal, hexagonal, heptagonal, octagonal]
             var size = polygonalNumbers.Length;
@@ -940,12 +940,12 @@ namespace JuanMartin.Kernel.Utilities
                 }
                 // Generate next partition 
 
-                // Find the rightmost non-one value in p[]. Also, update the rem_val so that we know how much value can be accommodated 
-                int rem_val = 0;
+                // Find the rightmost non-one value in p[]. Also, update the remainderValue so that we know how much value can be accommodated 
+                int remainderValue = 0;
 
                 while (k >= 0 && p[k] == 1)
                 {
-                    rem_val += p[k];
+                    remainderValue += p[k];
                     k--;
                 }
 
@@ -953,20 +953,20 @@ namespace JuanMartin.Kernel.Utilities
                 if (k < 0)
                     return (count, partitions);
 
-                // Decrease the p[k] found above and adjust the rem_val 
+                // Decrease the p[k] found above and adjust the remainderValue 
                 p[k]--;
-                rem_val++;
+                remainderValue++;
 
-                // If rem_val is more, then the sorted  order is violated. Divide rem_val in different values of size p[k] and copy these values at different positionsafter p[k] 
-                while (rem_val > p[k])
+                // If remainderValue is more, then the sorted  order is violated. Divide remainderValue in different values of size p[k] and copy these values at different positionsafter p[k] 
+                while (remainderValue > p[k])
                 {
                     p[k + 1] = p[k];
-                    rem_val -= p[k];
+                    remainderValue -= p[k];
                     k++;
                 }
 
-                // Copy rem_val to next position and increment position 
-                p[k + 1] = rem_val;
+                // Copy remainderValue to next position and increment position 
+                p[k + 1] = remainderValue;
                 k++;
             }
         }
@@ -1091,19 +1091,21 @@ namespace JuanMartin.Kernel.Utilities
             var value = 0;
             var current = ringSize;
 
-            var grouped_sides = new List<List<int>>[ringSize];
+            var groupedSides = new List<List<int>>[ringSize];
 
             foreach (var s in sides)
             {
                 if (s[first] != value)
                 {
                     current--;
-                    grouped_sides[current] = new List<List<int>>();
+                    groupedSides[current] = new List<List<int>>();
                     value = s[first];
                 }
-                grouped_sides[current].Add(s);
+                groupedSides[current].Add(s);
             }
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
             sides = null;
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
 
             var a = digits.Max();
             var b = -1;
@@ -1112,7 +1114,7 @@ namespace JuanMartin.Kernel.Utilities
 
             while (ring.Count < ringSize)
             {
-                sides = grouped_sides[gi];
+                sides = groupedSides[gi];
                 var side = sides[i];
                 var count = sides.Count;
 
@@ -1131,9 +1133,6 @@ namespace JuanMartin.Kernel.Utilities
                 if (gi == ringSize && ring.Count < ringSize)
                     return null;
             }
-
-            sides = null;
-
             return ring;
         }
 
@@ -1155,7 +1154,7 @@ namespace JuanMartin.Kernel.Utilities
                 {
                     factors.Add(i);
                     factors.Add(x / i);
-                    x = x / i;
+                    x /= i;
                 }
                 i++;
 
@@ -1321,15 +1320,15 @@ namespace JuanMartin.Kernel.Utilities
             {
                 case Formula.Euclid:
                     {
-                        return GetPythagoreanTriples_Euclid(perimeter, checkMultiples);
+                        return GetPythagoreanTriplesUsingEuclid(perimeter, checkMultiples);
                     }
                 case Formula.Pythagoras:
                     {
-                        return GetPythagoreanTriples_Pitagoras(perimeter, checkMultiples);
+                        return GetPythagoreanTriplesUsingPitagoras(perimeter, checkMultiples);
                     }
                 case Formula.BruteForce:
                     {
-                        return GetPythagoreanTriples_BruteForce(perimeter);
+                        return GetPythagoreanTriplesUsingBruteForce(perimeter);
                     }
 
                 default:
@@ -1343,7 +1342,7 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="p">Triangle perimeter</param>
         /// <returns></returns>
-        public static List<Triple<long>> GetPythagoreanTriples_Pitagoras(long p, bool checkMultiples)
+        public static List<Triple<long>> GetPythagoreanTriplesUsingPitagoras(long p, bool checkMultiples)
         {
             var triples = new List<Triple<long>>();
 
@@ -1377,7 +1376,7 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="p">Triangle perimeter</param>
         /// <returns></returns>
-        public static List<Triple<long>> GetPythagoreanTriples_Euclid(long p, bool checkMultiples)
+        public static List<Triple<long>> GetPythagoreanTriplesUsingEuclid(long p, bool checkMultiples)
         {
             var triples = new List<Triple<long>>();
             var mlimit = (long)Math.Sqrt(p / 2);
@@ -1424,7 +1423,7 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static List<Triple<long>> GetPythagoreanTriples_BruteForce(long p)
+        public static List<Triple<long>> GetPythagoreanTriplesUsingBruteForce(long p)
         {
             var triples = new List<Triple<long>>();
 
@@ -1481,9 +1480,9 @@ namespace JuanMartin.Kernel.Utilities
         /// <summary>
         /// Calculate Champerowne's constant in base 10 for a certain seed integer
         /// </summary>
-        /// <param name="l">length if the constant</param>
+        /// <param name="size">length of the constant</param>
         /// <returns></returns>
-        public static string GetChamperowneConstant(int l)
+        public static string GetChamperowneConstant(int size)
         {
             var count = 1;
             var temp = 0;
@@ -1497,7 +1496,7 @@ namespace JuanMartin.Kernel.Utilities
                 temp += c.Length;
                 constant.Append(c);
 
-                if (temp >= l)
+                if (temp >= size)
                     break;
                 count++;
             }
@@ -1558,10 +1557,10 @@ namespace JuanMartin.Kernel.Utilities
         }
 
 
-        public static IEnumerable<long> GetTriangularNumbers(long upper_limit, long lower_limit = 1)
+        public static IEnumerable<long> GetTriangularNumbers(long upperLimit, long lowerLimit = 1)
         {
-            var i = lower_limit;
-            while (i <= upper_limit)
+            var i = lowerLimit;
+            while (i <= upperLimit)
             {
                 if (IsTriangularNumber(i))
                     yield return i;
@@ -1610,7 +1609,7 @@ namespace JuanMartin.Kernel.Utilities
 
         public static long GetPolygonalNumber(int sides, long n)
         {
-            long number = 0;
+            long number;
 
             switch (sides)
             {
@@ -1659,7 +1658,7 @@ namespace JuanMartin.Kernel.Utilities
             return number;
         }
 
-        public static IEnumerable<T> GetPolygonalNumbers<T>(int sides, int lbound, int ubound)
+        public static IEnumerable<T> GetPolygonalNumbers<T>(int sides, int lowerBound, int upperBound)
         {
             var methodType = typeof(T);
 
@@ -1668,10 +1667,10 @@ namespace JuanMartin.Kernel.Utilities
                 dynamic number = 0;
                 var n = 1;
 
-                while (number <= ubound)
+                while (number <= upperBound)
                 {
                     number = GetPolygonalNumber(sides, n);
-                    if (number > lbound && number <= ubound)
+                    if (number > lowerBound && number <= upperBound)
                         yield return (T)number;
                     n++;
                 }
@@ -1764,7 +1763,7 @@ namespace JuanMartin.Kernel.Utilities
         public static string[] GeneratePandigitalSet(int length, int begin = 1)
         {
             var end = (begin == 0) ? length + 1 : length;
-            var count = (begin == 0) ? length : length - 1;
+            _ = (begin == 0) ? length : length - 1;
             var digits = Enumerable.Range(begin, end).ToArray<int>();
 
             return UtilityString.GeneratePermutations<int>(digits);
@@ -1778,29 +1777,6 @@ namespace JuanMartin.Kernel.Utilities
         private static bool AreMatchingPermutations(string a, string b)
         {
             return (a.IsAnagram(b));
-
-            //for (int i=0;i<a_array.Length;i++)
-            //{
-            //    var ca = a_array[i];
-            //    var j = (i==a.Length-1)?0:i;
-
-            //    while(true)
-            //    {
-            //        j = (j == b.Length-1) ? 0 : j+1;
-
-            //        var cb = b_array[j];
-            //        if (ca == cb)
-            //        {
-            //            contains++;
-            //            break;
-            //        }
-
-            //        if (j == i)
-            //            break;
-            //    }
-            //}
-
-            //return (contains==length);
         }
 
 
@@ -1911,11 +1887,11 @@ namespace JuanMartin.Kernel.Utilities
 
         public static IEnumerable<Fraction> GetReducedProperFractionsUsingYield(int d, Fraction key = null)
         {
-            var list_fractions = RPF(d, key).ToList();
-            var sort_list = from fraction in list_fractions
+            var fractions = RPF(d, key).ToList();
+            var sorted = from fraction in fractions
                             orderby fraction.Value ascending
                             select fraction;
-            return sort_list;
+            return sorted;
         }
 
         public static IEnumerable<Fraction> RPF(int d, Fraction key = null)
@@ -2169,10 +2145,10 @@ namespace JuanMartin.Kernel.Utilities
                             template = template.Replace(C, "\\d");
                     }
                     var position = template.IndexOf(mark);
-                    StringBuilder mask_builder = new StringBuilder(template);
-                    mask_builder.Remove(position, 1);
-                    mask_builder.Insert(position, "(\\d)");
-                    mask = mask_builder.ToString();
+                    StringBuilder maskBuilder = new StringBuilder(template);
+                    maskBuilder.Remove(position, 1);
+                    maskBuilder.Insert(position, "(\\d)");
+                    mask = maskBuilder.ToString();
                     mask = mask.Replace(mark, "\\1");
 
                     template = number.ToString();
@@ -2181,18 +2157,17 @@ namespace JuanMartin.Kernel.Utilities
             }
             return masks;
         }
-
         /// <summary>
         /// Get list of all prime numbers less than or equal to limit(long)
         /// </summary>
         /// 
-        /// <param name="upper_bound"></param>
+        /// <param name="upperBound"></param>
         /// <param name="includeOne">add nuomber one to the list of prime numbers</param>
         /// <returns></returns>
-        public static List<long> GetPrimeNumbers(int upper_bound, int lower_bound = 2, bool includeOne = true)
+        public static List<long> GetPrimeNumbers(int upperBound, int lowerBound = 2, bool includeOne = true)
         {
             var primes = new List<long>();
-            var start = (includeOne) ? 1 : lower_bound;
+            var start = (includeOne) ? 1 : lowerBound;
 
             var num = start;
             while (true)
@@ -2200,7 +2175,7 @@ namespace JuanMartin.Kernel.Utilities
                 if (IsPrime(num))
                     primes.Add(num);
 
-                if (primes.Count > upper_bound)
+                if (primes.Count > upperBound)
                     break;
 
                 num++;
@@ -2212,55 +2187,34 @@ namespace JuanMartin.Kernel.Utilities
         /// <summary>
         /// Get list of all prime numbers less than or equal to limit(int), using no factor prime definition
         /// </summary>
-        /// <param name="upper_bound"></param>
+        /// <param name="upperBound"></param>
         /// <returns></returns>
-        public static IEnumerable<int> GetPrimeNumbersUsingSquares(int upper_bound, int lower_bound = 2)
+        public static IEnumerable<int> GetPrimeNumbersUsingSquares(int upperBound, int lowerBound = 2)
         {
-            var primes = new List<int>();
-            var count = 0;
-
-            for (int num = lower_bound; num <= upper_bound; num++)
+            for (int num = lowerBound; num <= upperBound; num++)
             {
                 if (IsPrimeUsingSquares(num))
-                {
-                    count++;
-                    yield return num;//primes.Add(num);
-                }
-
-                if (count > upper_bound - 1)
-                    break;
+                    yield return num;
             }
         }
 
         /// <summary>
         /// Get list of all prime numbers less than or equal to limit(int), using no factor prime definition
         /// </summary>
-        /// <param name="upper_bound"></param>
+        /// <param name="upperBound"></param>
         /// <returns></returns>
-        public static IEnumerable<int> GetPrimeNumbersUsingSquareRoot(int upper_bound, int lower_bound = 2)
+        public static IEnumerable<int> GetPrimeNumbersUsingSquareRoot(int upperBound, int lowerBound = 2)
         {
-            var squares = GetSquareRootArray(upper_bound);
-            var count = 0;
+            var squares = GetSquareRootArray(upperBound);
 
-            for (int num = lower_bound; num <= upper_bound; num++)
+            for (int num = lowerBound; num <= upperBound; num++)
             {
                 if (IsPrimeUsingSquareRootArray(num, squares[num]))
-                {
-                    count++;
-                    yield return num;//primes.Add(num);
-                }
-
-                if (count > upper_bound - 1)
-                    break;
+                    yield return num;
             }
         }
 
-        public static int[] ErathostenesSieve(int upperLimit)
-        {
-            return ErathostenesSieve(2, upperLimit);
-        }
-
-        public static int[] ErathostenesSieve(int lowerLimit, int upperLimit)
+        public static int[] ErathostenesSieve(int upperLimit, int lowerLimit=2)
         {
             var sieveBound = (int)(upperLimit - 1) / 2;
             var upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
@@ -2295,15 +2249,10 @@ namespace JuanMartin.Kernel.Utilities
             return numbers.ToArray();
         }
 
-        public static int[] CompositeErathostenesSieve(int upperLimit)
-        {
-            return CompositeErathostenesSieve(4, upperLimit);
-        }
-
-        public static int[] CompositeErathostenesSieve(int lowerlimit, int upperLimit)
+        public static int[] CompositeErathostenesSieve(int upperLimit, int lowerlimit=4)
         {
             var lower = (lowerlimit < 4) ? 4 : lowerlimit;
-            var primes = ErathostenesSieve(lowerlimit, upperLimit);
+            var primes = ErathostenesSieve(upperLimit, lowerlimit);
             var numbers = Enumerable.Range(lower, upperLimit - 3);
 
             var composites = numbers.Except(primes);
@@ -2339,9 +2288,9 @@ namespace JuanMartin.Kernel.Utilities
             return primes.ToArray();
         }
 
-        public static IEnumerable<int> GeneratePrimes(int lower_limit, int upper_limit)
+        public static IEnumerable<int> GeneratePrimes(int lowerLimit, int upperLimit)
         {
-            for(var number=lower_limit;number<upper_limit;number++)
+            for(var number=lowerLimit;number<upperLimit;number++)
             {
                 if (IsPrimeUsingSquares(number))
                     yield return number;
@@ -2419,7 +2368,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="n"></param>
         /// <param name="digits"></param>
         /// <returns></returns>
-        public static double Sqrt_By_Substraction(double n, int digits = 50)
+        public static double GetSqrtBySubstraction(double n, int digits = 50)
         {
             double ShiftDecimal(double number, int position)
             {
@@ -2451,8 +2400,8 @@ namespace JuanMartin.Kernel.Utilities
                 return 1;
 
             // calculate decimal position for future root value
-            var original_n = n;
-            int decimal_position = 1;
+            var originalNumber = n;
+            int decimalPosition = 1;
             var shift = Location.left;
             if (n < 1)
                 shift = Location.right;
@@ -2464,12 +2413,12 @@ namespace JuanMartin.Kernel.Utilities
                     if (shift == Location.right)
                     {
                         n *= 100;
-                        decimal_position--;
+                        decimalPosition--;
                     }
                     else if (shift == Location.left)
                     {
                         n /= 100;
-                        decimal_position++;
+                        decimalPosition++;
                     }
                     if (n >= 1 && n <= 100)
                         break;
@@ -2477,7 +2426,7 @@ namespace JuanMartin.Kernel.Utilities
             }
 
             // multiply original by 100 until is a natural
-            n = original_n;
+            n = originalNumber;
             while (!IsNaturalNumber(n))
             {
                 n *= 100;
@@ -2487,24 +2436,24 @@ namespace JuanMartin.Kernel.Utilities
             var b = (double)SqrtDigitExpansion((int)n, digits);
 
             // add decimal
-            if (!IsPerferctSquare(original_n))
+            if (!IsPerferctSquare(originalNumber))
             {
                 // Decimal position indicate where to put the decimal in the square root
-                b = ShiftDecimal(b, decimal_position);
+                b = ShiftDecimal(b, decimalPosition);
             }
 
             return b;
         }
 
         /// <summary>
-        /// Same as <see cref="Sqrt_By_Substraction"/> but just expressing value as a string of numbers
+        /// Same as <see cref="GetSqrtBySubstraction"/> but just expressing value as a string of numbers
         /// </summary>
         /// <param name="n"></param>
         /// <param name="digits"></param>
         /// <returns></returns>
         public static BigInteger SqrtDigitExpansion(double n, int digits)
         {
-            Func<BigInteger, int> DigitCount = (number) =>
+            int DigitCount(BigInteger number)
             {
                 var s = number.ToString();
 
@@ -2513,18 +2462,18 @@ namespace JuanMartin.Kernel.Utilities
                     c--;
 
                 return c;
-            };
+            }
 
-            Func<BigInteger, BigInteger> InsertZero = (number) =>
+            BigInteger InsertZero(BigInteger number)
             {
                 var s = number.ToString();
 
                 s = s.Insert(s.Length - 1, "0");
 
                 return BigInteger.Parse(s);
-            };
+            }
 
-            Func<BigInteger, BigInteger> RemoveLastZero = (number) =>
+            BigInteger RemoveLastZero(BigInteger number)
             {
                 var s = number.ToString();
                 var position = s.Length - 2;
@@ -2533,9 +2482,9 @@ namespace JuanMartin.Kernel.Utilities
                     s = s.Remove(position, 1);
 
                 return BigInteger.Parse(s);
-            };
+            }
 
-            Func<BigInteger, BigInteger> RemoveLastDigit = (number) =>
+            BigInteger RemoveLastDigit(BigInteger number)
             {
                 var s = number.ToString();
                 var position = s.Length - 1;
@@ -2543,9 +2492,10 @@ namespace JuanMartin.Kernel.Utilities
                 s = s.Remove(position);
 
                 return BigInteger.Parse(s);
-            };
+            }
 
-            bool is_perfect = false;
+            ///  <seealso cref="https://www.mathwarehouse.com/arithmetic/numbers/what-is-a-perfect-square.php"/>
+            bool isPerfectSquare = false;
             BigInteger a = 5 * (BigInteger)n;
             BigInteger b = 5;
 
@@ -2563,7 +2513,7 @@ namespace JuanMartin.Kernel.Utilities
                 }
                 if (a == 0)
                 {
-                    is_perfect = true;
+                    isPerfectSquare = true;
                     break;
                 }
 
@@ -2571,7 +2521,7 @@ namespace JuanMartin.Kernel.Utilities
                     break;
             }
 
-            if (!is_perfect)
+            if (!isPerfectSquare)
                 b = RemoveLastZero(b);
 
             return RemoveLastDigit(b);
@@ -2582,7 +2532,7 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="n"></param>
         /// <returns></returns>
-        public static float Sqrt_Babylonian(float n, float epsilon = 0.00001F)
+        public static float GetSqrtBabylonianMethod(float n, float epsilon = 0.00001F)
         {
             /*We are using n itself as initial approximation
              This can definitely be improved */
@@ -2601,7 +2551,7 @@ namespace JuanMartin.Kernel.Utilities
         // epsilon - an accuracy of calculation of the root from our number.
         // The result of the calculations will differ from an actual value
         // of the root on less than epslion.
-        public static decimal Sqrt_Newton(decimal x, decimal epsilon = 0.0M)
+        public static decimal GetSqrtUsingNewtonMethod(decimal x, decimal epsilon = 0.0M)
         {
             if (x < 0) throw new OverflowException("Cannot calculate square root from a negative number");
 
@@ -2657,7 +2607,7 @@ namespace JuanMartin.Kernel.Utilities
                 while (x % i == 0)
                 {
                     e++;
-                    x = x / i;
+                    x /= i;
                 }
                 if (e == maxBaseToCheck)
                 {
@@ -2772,18 +2722,18 @@ namespace JuanMartin.Kernel.Utilities
             return AddLargeNumbers(FibonacciString(SubstractLargeNumbers(number, "1")), FibonacciString(SubstractLargeNumbers(number, "2")));
         }
 
-        public static BigInteger FibonacciLoop(BigInteger number)
+        public static BigInteger FibonacciLoop(int number)
         {
             BigInteger a = 0;
             BigInteger b = 1;
             // In 'number' steps compute Fibonacci sequence iteratively.
-            for (BigInteger i = 0; i <= number; i++)
+            for (int i = 2; i <= number; i++)
             {
-                var temp = a;
+                BigInteger c = a + b;
                 a = b;
-                b = temp + b;
+                b = c;
             }
-            return a;
+            return b;
         }
 
         public static IEnumerable<ulong> FibonacciSequence(ulong x)
@@ -2806,10 +2756,9 @@ namespace JuanMartin.Kernel.Utilities
 
         public static string NumberToLetters(string number)
         {
-            var parts = new List<string>();
             var letters = new StringBuilder();
 
-            parts = SplitNumberByGroups(number, 3);
+            List<string> parts = SplitNumberByGroups(number, 3);
             var sequence = parts.Count;
             parts.Reverse();
 
@@ -2842,7 +2791,7 @@ namespace JuanMartin.Kernel.Utilities
         {
             var digits = number.ToCharArray();
             long sum = 0;
-            long d = 0;
+            long d;
 
             for (int i = 0; i < digits.Length; i++)
             {
@@ -2985,7 +2934,7 @@ namespace JuanMartin.Kernel.Utilities
             while (begin > 1)
             {
                 if (begin % 2 == 0) //even
-                    begin = begin / 2;
+                    begin /= 2;
                 else
                     begin = (begin * 3) + 1;
                 length++;
@@ -3024,13 +2973,13 @@ namespace JuanMartin.Kernel.Utilities
                 sequence += value[i];
 
                 var tail = (i == upperLimit) ? string.Empty : value.Substring(i + 1);
-                var sequence_tail = sequence.Repeat(tail.Length / sequence.Length + 1);
-                sequence_tail = sequence_tail.Substring(0, tail.Length);
+                var sequenceTail = sequence.Repeat(tail.Length / sequence.Length + 1);
+                sequenceTail = sequenceTail.Substring(0, tail.Length);
 
                 if (!tail.Contains(sequence))
                     sequence = string.Empty;
 
-                if (sequence_tail  == tail)
+                if (sequenceTail  == tail)
                     return sequence;
                 else
                     continue;
@@ -3117,24 +3066,24 @@ namespace JuanMartin.Kernel.Utilities
             return result;
         }
 
-        public static string SubstractLargeNumbers(string r, string l)
+        public static string SubstractLargeNumbers(string rightValue, string leftValue)
         {
             var result = new StringBuilder();
             var carryOn = 0;
 
-            var max = (r.Length > l.Length) ? r.Length : l.Length;
+            var max = (rightValue.Length > leftValue.Length) ? rightValue.Length : leftValue.Length;
 
             //pad numbers with zeroes to make them of equal length
-            r = r.PadLeft(max, '0');
-            l = l.PadLeft(max, '0');
+            rightValue = rightValue.PadLeft(max, '0');
+            leftValue = leftValue.PadLeft(max, '0');
 
-            var right = r.ToCharArray();
-            var left = l.ToCharArray();
+            //var right = r.ToCharArray();
+            //var left = l.ToCharArray();
 
             for (int i = max - 1; i >= 0; i--)
             {
-                var digitLeft = l[i] - 48;
-                var digitRight = r[i] - 48;
+                var digitLeft = leftValue[i] - 48;
+                var digitRight = rightValue[i] - 48;
 
                 string digit;
 
@@ -3178,8 +3127,8 @@ namespace JuanMartin.Kernel.Utilities
             var left = l.TrimStart('0').ToCharArray();
 
             var operands = string.Empty;
-            var string_operands = new StringBuilder();
-            string_operands.Append(operands);
+            var stringOperands = new StringBuilder();
+            stringOperands.Append(operands);
 
             for (int i = left.Length - 1; i >= 0; i--)
             {
@@ -3188,13 +3137,13 @@ namespace JuanMartin.Kernel.Utilities
 
                 //pad with zeroes for multiplication for partials of 'left' digits 
                 var pad = number.Length + (left.Length - 1 - i);
-                var padded_number = number.PadRight(pad, '0');
+                var paddedNumber = number.PadRight(pad, '0');
 
                 if (operands.Length > 0)
-                    string_operands.Append(",");
+                    stringOperands.Append(",");
 
-                string_operands.Append(padded_number);
-                operands = string_operands.ToString();
+                stringOperands.Append(paddedNumber);
+                operands = stringOperands.ToString();
             }
 
             var numbers = operands.Split(',').ToArray<string>();

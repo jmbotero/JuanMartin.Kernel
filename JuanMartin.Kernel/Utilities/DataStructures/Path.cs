@@ -82,8 +82,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     weight += Convert.ToInt32(v1.Value);
                 else
                 {
-                    //var  edge_name = v2.Notes;  // get edge used to travel from v2 to v1
-                    //var edge = v1.Edges.FirstOrDefault(e => e.Name.Contains(edge_name) && (v1.Name == null || (v1?.Name != null && e.From != null && e    == v1.Name)));
+                    //var  edgeName = v2.Notes;  // get edge used to travel from v2 to v1
+                    //var edge = v1.Edges.FirstOrDefault(e => e.Name.Contains(edgeName) && (v1.Name == null || (v1?.Name != null && e.From != null && e    == v1.Name)));
                     var edge = v1.Edges.FirstOrDefault(e => e.Type == Edge<T>.EdgeType.outgoing && e.From.Guid == v1.Guid && e.To.Guid == v2.Guid);
 
                     if (edge == null)

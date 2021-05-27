@@ -8,67 +8,64 @@ namespace JuanMartin.Kernel.RuleEngine.Tests
     class ExpressionEvaluatorTests
     {
         [Test]
-        public void TestEvaluateGreaterThan()
+        public void ShouldEvaluateCorrectlyLogicalBinaryMathematicalOperation()
         {
-            ExpressionEvaluator _evaluator = new ExpressionEvaluator();
+            ExpressionEvaluator actualEvaluator = new ExpressionEvaluator();
+            var actualOperation = "3 > 4";
 
-            _evaluator.Parse("3 > 4");
-            Symbol symbol = _evaluator.Evaluate(new Dictionary<string, Symbol>());
+            actualEvaluator.Parse(actualOperation);
+            Symbol actualOperationSymbol = actualEvaluator.Evaluate(new Dictionary<string, Symbol>());
+            var expectedOperationResult = false;
 
-            Assert.AreEqual(symbol.Value.Result, false);
+            Assert.AreEqual(expectedOperationResult, actualOperationSymbol.Value.Result);
         }
 
         [Test]
-        public void TestEvaluateGreaterThanMacro()
+        public void ShouldEvaluateAliasIsNullMacrsDefinedAsUtilityMethod()
         {
-            ExpressionEvaluator _evaluator = new ExpressionEvaluator();
+            Dictionary<string, Symbol> actualAliases = new Dictionary<string, Symbol>();
+            ExpressionEvaluator actualEvaluator = new ExpressionEvaluator(actualAliases);
 
-            _evaluator.Parse("3 > 4");
-            Symbol symbol = _evaluator.Evaluate(new Dictionary<string, Symbol>());
+            Symbol actualTypeAlias = new Symbol("alias::Type", "JuanMartin.Kernel.Utilities.UtilityType", Symbol.TokenType.Alias);
+            actualAliases.Add("Type", actualTypeAlias);
 
-            Assert.AreEqual(symbol.Value.Result, false);
-        }
-
-        [Test]
-        public void TestEvaluateIsNullMacro()
-        {
-            Dictionary<string, Symbol> aliases = new Dictionary<string, Symbol>();
-            ExpressionEvaluator _eval = new ExpressionEvaluator(aliases);
-
-            Symbol alias = new Symbol("alias::Type", "JuanMartin.Kernel.Utilities.UtilityType", Symbol.TokenType.Alias);
-            aliases.Add("Type", alias);
-
-            _eval.Parse("Type.IsNull('a')");
-            Symbol result = _eval.Evaluate();
-
+            var actualMacroCall = "Type.IsNull('a')";
+            actualEvaluator.Parse(actualMacroCall);
+            Symbol actualMacroResult = actualEvaluator.Evaluate();
             //since 'a' is not null returns false
-            Assert.AreEqual(result.Value.Result, false);
+            var expectedMacroResult = false;
+
+            Assert.AreEqual(expectedMacroResult, actualMacroResult.Value.Result);
         }
 
         [Test]
-        public void TestArithmenticFixedPrecedence()
+        public void ShouldResolveCorrectlySimpleArithmenticOperation()
         {
-            ExpressionEvaluator _evaluator = new ExpressionEvaluator();
+            ExpressionEvaluator actualEvaluator = new ExpressionEvaluator();
+            var actualOperation = "(4-3)*2";
 
-            _evaluator.Parse("(4-3)*2");
-            Symbol symbol = _evaluator.Evaluate(new Dictionary<string, Symbol>());
+            actualEvaluator.Parse(actualOperation);
+            Symbol actualOperationSymbol = actualEvaluator.Evaluate(new Dictionary<string, Symbol>());
+            var expectedOperationResult = 2;
 
-            Assert.AreEqual(symbol.Value.Result, 2);
+            Assert.AreEqual(expectedOperationResult , actualOperationSymbol.Value.Result);
         }
 
         [Test]
-        public void TestArithmenticPrecedence()
+        public void ShouldEvaluateCorrectlySimpleArithmenticOperatorPrecedenceInOperation()
         {
-            ExpressionEvaluator _evaluator = new ExpressionEvaluator();
+            ExpressionEvaluator actualEvaluator = new ExpressionEvaluator();
 
-            _evaluator.Parse("2*3-4");
-            Symbol symbol1 = _evaluator.Evaluate(new Dictionary<string, Symbol>());
+            var actualPrecedenceOperation = "2*3-4";
+            actualEvaluator.Parse(actualPrecedenceOperation);
+            Symbol actualPrecedenceOperationSymbol = actualEvaluator.Evaluate(new Dictionary<string, Symbol>());
 
-            _evaluator.ClearStack();
-            _evaluator.Parse("(2*3)-4");
-            Symbol symbol2 = _evaluator.Evaluate(new Dictionary<string, Symbol>());
+            actualEvaluator.ClearStack();
+            var actualOperation = "(2*3)-4";
+            actualEvaluator.Parse(actualOperation);
+            Symbol actualOperationSymbol = actualEvaluator.Evaluate(new Dictionary<string, Symbol>());
 
-            Assert.AreEqual(symbol1.Value.Result, symbol2.Value.Result);
+            Assert.AreEqual(actualPrecedenceOperationSymbol.Value.Result, actualOperationSymbol.Value.Result);
         }
     }
 }

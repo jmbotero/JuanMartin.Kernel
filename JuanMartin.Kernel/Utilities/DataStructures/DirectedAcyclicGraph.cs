@@ -57,27 +57,27 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public int EdgeCount(Edge<T>.EdgeType type = Edge<T>.EdgeType.both)
         {
-            var incoming_count = 0;
-            var outgoing_count = 0;
+            var incomingCount = 0;
+            var outgoingCount = 0;
 
             foreach (var vertex in Vertices)
             {
-                incoming_count += vertex.IncomingEdges().Count;
-                outgoing_count += vertex.OutgoingEdges().Count;
+                incomingCount += vertex.IncomingEdges().Count;
+                outgoingCount += vertex.OutgoingEdges().Count;
             }
 
             switch (type)
             {
                 case Edge<T>.EdgeType.incoming:
-                    return incoming_count;
+                    return incomingCount;
                 case Edge<T>.EdgeType.outgoing:
-                    return outgoing_count;
+                    return outgoingCount;
                 default:
                     return 0;
             }
         }
 
-        private Dictionary<string, string> VertexUris;
+        private readonly Dictionary<string, string> VertexUris;
         public bool HasDuplicateVertexNames => Vertices.Count != Vertices.Select(v => v.Name).Distinct().Count();
 
         public Vertex<T> this[int index]
@@ -269,16 +269,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// If name is repeated use name of from vertex to disambiguate
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="from_name"></param>
+        /// <param name="fromName"></param>
         /// <returns></returns>
-        public Edge<T> GetEdge(string name, string from_name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.none)
+        public Edge<T> GetEdge(string name, string fromName = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.none)
         {
             if (type == Edge<T>.EdgeType.none)
                 throw new ArgumentException("To select an edge a type, either incoming or outgoing, must be speciFied.");
 
             foreach (var v in Vertices)
             {
-                var edge = v.Edges.FirstOrDefault(e => e.Name.Contains(name) && (from_name == null || (from_name != null && e.From != null && e.From.Name == from_name)) && e.Type == type);
+                var edge = v.Edges.FirstOrDefault(e => e.Name.Contains(name) && (fromName == null || (fromName != null && e.From != null && e.From.Name == fromName)) && e.Type == type);
                 if (edge != null)
                     return edge;
             }
@@ -443,7 +443,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 Vertex<T> v = e.To;
 
                 v.Notes = e.Name; // save the edge id/name used to travel to this vertex
-                var outgoing_edges_count = v.OutgoingEdges().Count;
+                var outgoingEdgesCount = v.OutgoingEdges().Count;
 
                 // build all possible paths from this point                                                                                                                                                                             )
                 DefinePaths(paths, path);
@@ -458,7 +458,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 else
                     continue;
 
-                if ((end != null && v.Guid == end.Guid) || (end == null && outgoing_edges_count == 0))
+                if ((end != null && v.Guid == end.Guid) || (end == null && outgoingEdgesCount == 0))
                 {
                     continue;
                 }
@@ -480,7 +480,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public Path<T> GetCriticalPath(CriticalPathType type, List<Path<T>> paths)
         {
-            Path<T> critical_path = null;
+            Path<T> criticalPath = null;
             var limit = 0;
             switch (type)
             {
@@ -507,11 +507,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                    (type == CriticalPathType.shortest && p.Weight < limit))
                 {
                     limit = p.Weight;
-                    critical_path = p;
+                    criticalPath = p;
                 }
             }
 
-            return critical_path;
+            return criticalPath;
         }
 
         public Path<T> GetLongestPath(Vertex<T> start = null, Vertex<T> end = null)
@@ -599,7 +599,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public (int Distance, Path<T> ShortestPath) GetDijkstraSingleShortestPath(string start, string end)
         {
             Dictionary<string, DijkstraNode> dist = new Dictionary<string, DijkstraNode>();
-            Path<T> shortest_path = new Path<T>();
+            Path<T> shortestPath = new Path<T>();
 
             // initialize distances with all vertices
             foreach (var vertex in Vertices)
@@ -613,10 +613,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
             catch (Exception)
             {
-                return (INFINITY, shortest_path);
+                return (INFINITY, shortestPath);
             }
             bool IsNumericNode = UtilityType.IsNumericType(a.Value.GetType());
-            Vertex<T> start_v = a, end_v = b;
+            Vertex<T> startNode = a, endNode = b;
             // the distance for starting node is the first nodes value if node's weight is in its value, if not, since
             // no vertices come into it, is zero
             dist[a.Guid].Distance = IsNumericNode ? Convert.ToInt32(a.Value) : 0;
@@ -636,35 +636,35 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (dist[b.Guid].Previous != string.Empty)
             {
                 // get shortest path between start vertex and end vertex from Dijkstra'sinformation log
-                shortest_path.AddVertex(end_v);
+                shortestPath.AddVertex(endNode);
 
-                Vertex<T> current_node;
-                var current_id = end_v.Guid;
-                while (current_id != start_v.Guid && current_id != string.Empty)
+                Vertex<T> currentNode;
+                var currentId = endNode.Guid;
+                while (currentId != startNode.Guid && currentId != string.Empty)
                 {
-                    if (dist.ContainsKey(current_id))
+                    if (dist.ContainsKey(currentId))
                     {
-                        current_id = dist[current_id].Previous;
-                        current_node = GetVertex(name: null, guid: current_id.ToString());
+                        currentId = dist[currentId].Previous;
+                        currentNode = GetVertex(name: null, guid: currentId.ToString());
 
-                        shortest_path.AddVertex(current_node);
+                        shortestPath.AddVertex(currentNode);
                     }
                 }
-                shortest_path.AddVertex(start_v);
+                shortestPath.AddVertex(startNode);
 
-                shortest_path.Reverse();
+                shortestPath.Reverse();
             } 
 
-            return (dist[b.Guid].Distance, shortest_path);
+            return (dist[b.Guid].Distance, shortestPath);
         }
 
         private int[][] _distance;
         /// <summary>
-        /// Implementation of Bellman_Ford algrithm  to find shortest path (distance) between source vertex  and 
+        /// Implementation of BellmanFord algrithm  to find shortest path (distance) between source vertex  and 
         /// other nodes in graph.
         /// </summary>
         /// <returns></returns>
-        public int[][] GetBellman_FordSingleShortestPath(string start, Vertex<T>[][] matrix)
+        public int[][] GetBellmanFordSingleShortestPath(string start, Vertex<T>[][] matrix)
         {
             //TODO: implement based on weights
             int h = matrix.Length;
@@ -688,7 +688,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             bool IsNumericNode = UtilityType.IsNumericType(a.Value.GetType());
 
-            // Bellman–Ford algorithm: https://www.youtube.com/watch?v=hxMWBBCpR6A
+            // BellmanFord algorithm: https://www.youtube.com/watch?v=hxMWBBCpR6A
              _distance[0][0] = IsNumericNode ? Convert.ToInt32(a.Value) : 0;
             for (int i = 0; i < w * h; i++)
             {
@@ -699,17 +699,17 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                         var d = IsNumericNode ? Convert.ToInt32(matrix[x][y].Value.ToString()) : 0;
 
                         int temp = INFINITY;
-                        temp = Math.Min(getDistance(x - 1, y), temp);
-                        temp = Math.Min(getDistance(x + 1, y), temp);
-                        temp = Math.Min(getDistance(x, y - 1), temp);
-                        temp = Math.Min(getDistance(x, y + 1), temp);
+                        temp = Math.Min(GetDistance(x - 1, y), temp);
+                        temp = Math.Min(GetDistance(x + 1, y), temp);
+                        temp = Math.Min(GetDistance(x, y - 1), temp);
+                        temp = Math.Min(GetDistance(x, y + 1), temp);
                         _distance[x][y] = Math.Min(d + temp, _distance[x][y]);
                     }
                 }
             }
             return _distance;
         }
-        private int getDistance(int x, int y)
+        private int GetDistance(int x, int y)
         {
             if (x < 0 || x >= _distance.Length || y < 0 || y >= _distance[x].Length)
             {
@@ -723,31 +723,31 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         private string ToString(Vertex<T> start, bool includeEdges = false, bool IsLast=false)
         {
-            var sgraph = new StringBuilder();
+            var sBuilder = new StringBuilder();
 
             if (start == null)
             {
-                sgraph.Append(string.Empty);
+                sBuilder.Append(string.Empty);
             }
             else
             {
                 if (!start.IsVisited)
                 {
                     start.IsVisited = true;
-                    sgraph.Append(start.Name);
+                    sBuilder.Append(start.Name);
                     if (includeEdges)
-                        sgraph.Append($":[ {(string.Join(", ", start.Edges.Select(e => e.ToString())))} ]");
-                    if (!IsLast) sgraph.Append(",");
+                        sBuilder.Append($":[ {(string.Join(", ", start.Edges.Select(e => e.ToString())))} ]");
+                    if (!IsLast) sBuilder.Append(",");
                     var vertices = start.OutgoingNeighbors();
                     foreach (var v in vertices)
                     { 
-                        sgraph.Append(ToString(v, includeEdges,v==vertices.Last()));
+                        sBuilder.Append(ToString(v, includeEdges,v==vertices.Last()));
                     }
                 }
                 else
-                    sgraph.Append(string.Empty);
+                    sBuilder.Append(string.Empty);
             }
-            return sgraph.ToString();
+            return sBuilder.ToString();
         }
 
         /// <summary>
@@ -755,66 +755,66 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// to a vertex that has multiple outgoing edges
         /// </summary>
         /// <param name="paths"></param>
-        /// <param name="current_path"></param>
+        /// <param name="currentPath"></param>
           /// <returns></returns>
-        private void DefinePaths(List<Path<T>> paths, Path<T> current_path)
+        private void DefinePaths(List<Path<T>> paths, Path<T> currentPath)
         {
-            Vertex<T> split_point = current_path.Vertices.Last();
+            Vertex<T> splitPoint = currentPath.Vertices.Last();
 
-            var edges = split_point.OutgoingEdges();
-            var path_count = edges.Count;
-            var split_paths = path_count > 1;
+            var edges = splitPoint.OutgoingEdges();
+            var pathCount = edges.Count;
+            var splitThePath = pathCount > 1;
 
-            if (!split_paths && current_path.IsComplete() && current_path.IsSingle())
+            if (!splitThePath && currentPath.IsComplete() && currentPath.IsSingle())
             {
-                paths.Add(current_path);
+                paths.Add(currentPath);
             }
-            else if (split_paths)
+            else if (splitThePath)
             {
                 if (paths.Count == 0)
-                    paths.Add(current_path);
+                    paths.Add(currentPath);
 
-                // one path, ending in split_point, must splitted, copied over, for the 
+                // one path, ending in splitPoint, must splitted, copied over, for the 
                 // number of its outgoing edges
                 for (var i = 0; i < paths.Count; i++)
                 {
                     var p = paths[i];
 
-                    if (p.IsLast(split_point.Name))
+                    if (p.IsLast(splitPoint.Name))
                     {
                         paths.Remove(p);
-                        for (var j = 0; j < path_count; j++)
+                        for (var j = 0; j < pathCount; j++)
                         {
-                            var new_path = new Path<T>();
-                            new_path.Append(p);
-                            paths.Add(new_path);
+                            var newPath = new Path<T>();
+                            newPath.Append(p);
+                            paths.Add(newPath);
                         }
-                        current_path = paths.Last();
+                        currentPath = paths.Last();
                         break;
                     }
                 }
             }
         }
 
-        private Path<T> SelectPath(List<Path<T>> paths, Path<T> current_path, Vertex<T> split_point)
+        private Path<T> SelectPath(List<Path<T>> paths, Path<T> currentPath, Vertex<T> splitPoint)
         {
-            var edges = split_point.OutgoingEdges();
-            var path_count = edges.Count;
-            var split_paths = path_count > 1;
+            var edges = splitPoint.OutgoingEdges();
+            var pathCount = edges.Count;
+            var splitThePath = pathCount > 1;
 
-            if (split_paths)
+            if (splitThePath)
             {
                 foreach (var p in paths)
                 {
-                    if (p.IsLast(split_point.Name))
+                    if (p.IsLast(splitPoint.Name))
                     {
-                        current_path = p;
+                        currentPath = p;
                         break;
                     }
                 }
             }
 
-            return current_path;
+            return currentPath;
         }
 
         private void UnvisitAllVertices()

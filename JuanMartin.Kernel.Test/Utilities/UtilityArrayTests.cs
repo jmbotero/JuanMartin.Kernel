@@ -11,24 +11,26 @@ namespace JuanMartin.Kernel.Utilities.Tests
     [TestFixture()]
     public class UtilityArrayTests
     {
+        #region  Binary Search tests
         [Test()]
-        public void BinarySearchOfNonExistingIntegerValue_ShouldReturnNegativeOne()
+        public void ShouldReturnNegativeOneWhenSeachingForNonExistingIntegerValue()
         {
-            var actual_array = new int[] { 1, 2, 3, 4 };
-            var actual_item = 10;
-            var expected_index = -1;
+            var actualArray = new int[] { 1, 2, 3, 4 };
+            var actualItem = 10;
+            var expectedIndex = -1;
 
-            Assert.AreEqual(expected_index, UtilityArray.BinarySearch<int>(actual_array, actual_item));
+            Assert.AreEqual(expectedIndex, UtilityArray.BinarySearch<int>(actualArray, actualItem));
         }
 
         [Test()]
-        public void BinarySearchOfExistingStringValue_ShouldReturnItsIndexInArrsy()
+        public void ShouldReturnItsIndexInArrayWhenSearchingForAnExistingStringValue()
         {
-            var actual_array = new string[] { "foo1", "foo2", "foo3", "foo4", "foo5" };
-            var actual_item = "foo3";
-            var expected_index = 2;
+            var actualArray = new string[] { "foo1", "foo2", "foo3", "foo4", "foo5" };
+            var actualItem = "foo3";
+            var expectedIndex = Array.IndexOf(actualArray, actualItem);
 
-            Assert.AreEqual(expected_index, UtilityArray.BinarySearch<string>(actual_array, actual_item));
+            Assert.AreEqual(expectedIndex, UtilityArray.BinarySearch<string>(actualArray, actualItem));
         }
+        #endregion
     }
 }

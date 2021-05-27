@@ -12,14 +12,14 @@ namespace JuanMartin.Kernel.Utilities
         public const char CarriageReturn = '\r';
         public const char LineFeed = '\n';
 
-        public static bool WriteArrayToFile<T>(string file_name, T[] source,bool overwrite=true)
+        public static bool WriteArrayToFile<T>(string fileName, T[] source,bool overwrite=true)
         {
             try
             {
-                if (overwrite && File.Exists(file_name))
-                    File.Delete(file_name);
+                if (overwrite && File.Exists(fileName))
+                    File.Delete(fileName);
 
-                File.WriteAllLines(file_name, Array.ConvertAll(source, x => x.ToString()));
+                File.WriteAllLines(fileName, Array.ConvertAll(source, x => x.ToString()));
                 return true;
             }
             catch
@@ -92,11 +92,11 @@ namespace JuanMartin.Kernel.Utilities
             }
             return contents.ToArray();
         }
-        public static List<string> ListZipFileContents(string zip_name)
+        public static List<string> ListZipFileContents(string zipFileName)
         {
             var contents = new List<string>();
 
-            ZipArchive zip = ZipFile.Open(zip_name, ZipArchiveMode.Read);
+            ZipArchive zip = ZipFile.Open(zipFileName, ZipArchiveMode.Read);
 
             foreach (var entry in zip.Entries.ToList())
             {
@@ -108,17 +108,17 @@ namespace JuanMartin.Kernel.Utilities
             return contents;
         }
 
-        public static string GetTextContentOfFileInZip(string zip_name, string file_full_name)
+        public static string GetTextContentOfFileInZip(string zipFileName, string fileFullName)
         {
             var text = "";
 
-            using (FileStream zipToOpen = new FileStream(zip_name, FileMode.Open))
+            using (FileStream zipToOpen = new FileStream(zipFileName, FileMode.Open))
             {
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
                 {
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        if (entry.FullName == file_full_name)
+                        if (entry.FullName == fileFullName)
                         {
                             using (StreamReader reader = new StreamReader(entry.Open()))
                             {
@@ -133,15 +133,15 @@ namespace JuanMartin.Kernel.Utilities
             return text;
         }
 
-        public static void UpddateTextContentOfFileInZip(string zip_name, string file_full_name, string text, string new_zip_name = "")
+        public static void UpddateTextContentOfFileInZip(string zipFileName, string fileFullName, string text, string newZipFileName = "")
         {
-            using (FileStream zipToOpen = new FileStream(zip_name, FileMode.Open))
+            using (FileStream zipToOpen = new FileStream(zipFileName, FileMode.Open))
             {
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
                 {
                     foreach (ZipArchiveEntry entry in archive.Entries)
                     {
-                        if (entry.FullName == file_full_name)
+                        if (entry.FullName == fileFullName)
                         {
                             using (StreamWriter writer = new StreamWriter(entry.Open()))
                             {

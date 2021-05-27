@@ -17,54 +17,56 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         private readonly string _type;
         private readonly Dictionary<int, T> _bag;
 
-        private LinkedList(string listType, Link<T> first, Link<T> last, int size)
-        {
-            _type = char.ToUpper(listType[0]) + listType.Substring(1);
-            _size = size;
-            _first = first;
-            _last = last;
-            _bag = new Dictionary<int, T>();
-        }
-
         public LinkedList(string listType, T[] values)
         {
-            var len = values.Length;
-            var nodes = new Link<T>[len];
-            _type = char.ToUpper(listType[0]) + listType.Substring(1);
-            _bag = new Dictionary<int, T>();
-
-            // initialize nodes with values only
-            for (int i = 0; i < len; i++)
+            if (values == null)
             {
-                nodes[i] = new Link<T>(values[i]);
-                _bag.Add(i + 1, values[i]); // list indexes are one lessb than their array counterparts
+                _type = listType;
+                _size = 0;
+                _first = null;
+                _last = null;
+                _bag = new Dictionary<int, T>();
             }
-
-            // set node links set head and tail
-            for (int i = 0; i < len; i++)
+            else
             {
-                if (i == 0)
+                var len = values.Length;
+                var nodes = new Link<T>[len];
+                _type = char.ToUpper(listType[0]) + listType.Substring(1);
+                _bag = new Dictionary<int, T>();
+
+                // initialize nodes with values only
+                for (int i = 0; i < len; i++)
                 {
-                    if (len > 1)
+                    nodes[i] = new Link<T>(values[i]);
+                    _bag.Add(i, values[i]); // rollback list indexes are one lessb than their array counterparts
+                }
+
+                // set node links set head and tail
+                for (int i = 0; i < len; i++)
+                {
+                    if (i == 0)
+                    {
+                        if (len > 1)
+                            nodes[i].Next = nodes[i + 1];
+                        _first = nodes[i];
+                    }
+                    else if (i == len - 1)
+                    {
+                        if (len > 1)
+                            nodes[i].Previous = nodes[i - 1];
+                        _last = nodes[i];
+                    }
+                    else if (i > 0 && i < len)
+                    {
                         nodes[i].Next = nodes[i + 1];
-                    _first = nodes[i];
-                }
-                else if (i == len - 1)
-                {
-                    if (len > 1)
                         nodes[i].Previous = nodes[i - 1];
-                    _last = nodes[i];
+                    }
                 }
-                else if (i > 0 && i < len)
-                {
-                    nodes[i].Next = nodes[i + 1];
-                    nodes[i].Previous = nodes[i - 1];
-                }
+                _size = len;
             }
-            _size = len;
         }
 
-        public LinkedList(string listType) : this(listType, null, null, 0)
+        public LinkedList(string listType) : this(listType, null)
         { }
 
         public LinkedList() : this(LinkedListType)
@@ -212,8 +214,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     var n = node.Next;
                     p.Next = n;
                     n.Previous = p;
-                    node = null;
-
                     _bag.Remove(key);
                 }
             }
@@ -245,8 +245,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public override string ToString()
         {
             var node = _first;
-            var s = string.Empty;
-
             if (IsEmpty())
                 throw new InvalidOperationException(_type + " is empty.");
 
@@ -257,8 +255,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 builder.Append(node + ((node.Next != null) ? "," : string.Empty));
                 node = node.Next;
             }
-            s = builder.ToString();
-
+            string s = builder.ToString();
             return s;
         }
 
@@ -350,9 +347,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public object Clone()
         {
-            var list = new LinkedList<T>(_type, this.ToArray());
+            var list = new LinkedList<T>(_type);
+            foreach (var item in _bag.Values)
+                list.Add(item);
 
             return list;
+            //return this.MemberwiseClone();
         }
 
         /// <summary>
@@ -368,9 +368,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (IsEmpty())
                 throw new IndexOutOfRangeException(_type + " cannot be inexed because it is empty.");
 
-            if (key >= _size)
+            if (key > _size || key < 0)
             {
-                throw new IndexOutOfRangeException("Index specified is greater than or equal to " + _type + " size.");
+                throw new IndexOutOfRangeException($"Index specified [{key}] is out of list bounds 0...{_size - 1}.");
             }
             while (node != null && position <= key)
             {

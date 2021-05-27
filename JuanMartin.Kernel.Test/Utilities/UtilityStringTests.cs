@@ -7,7 +7,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
     public class UtilityStringTests
     {
         [Test()]
-        public void IsPalindromeTest()
+        public void ShouldDetermineWordAnaIsPalindrome()
         {
             Assert.IsTrue(UtilityString.IsPalindrome("ana"));
         }
