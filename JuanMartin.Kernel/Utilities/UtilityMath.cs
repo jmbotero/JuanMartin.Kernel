@@ -2724,29 +2724,25 @@ namespace JuanMartin.Kernel.Utilities
 
         public static BigInteger FibonacciLoop(int number)
         {
-            BigInteger a = 0;
-            BigInteger b = 1;
-            // In 'number' steps compute Fibonacci sequence iteratively.
-            for (int i = 2; i <= number; i++)
+            BigInteger prev = 1;
+            BigInteger next = 1;
+
+            if (number > 2)
             {
-                BigInteger c = a + b;
-                a = b;
-                b = c;
+                // In 'number' steps compute Fibonacci sequence iteratively.
+                for (int i = 1; i < number; i++)
+                {
+                    BigInteger sum = prev + next;
+                    prev = next;
+                    next = sum;
+                }
             }
-            return b;
+            return prev;
         }
 
-        public static IEnumerable<ulong> FibonacciSequence(ulong x)
+        public static IEnumerable<BigInteger> FibonacciSequence(int x)
         {
-            ulong prev = 0; //make this -1 to start sequence from 0
-            ulong next = 1;
-            for (ulong i = 0; i < x; i++)
-            {
-                var sum = prev + next;
-                prev = next;
-                next = sum;
-                yield return sum;
-            }
+            yield return FibonacciLoop(x);
         }
 
         public static string NumberToLetters(long number)
