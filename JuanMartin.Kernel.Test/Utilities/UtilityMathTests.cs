@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using JuanMartin.Kernel.Utilities;
+using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -113,8 +114,8 @@ namespace JuanMartin.Kernel.Utilities.Tests
             var actualMethodDotNetDuration = UtilityHelper.Measure(() => DotNetSquareRootLoop(count));
             var actualMethodOneDuration = UtilityHelper.Measure(() => BabylonianSquareRootLoop(count));
             var actualMethodTwoDuration = UtilityHelper.Measure(() => NewtonSquareRootLoop(count));
-            Assert.Less(actualMethodDotNetDuration, actualMethodOneDuration,  "Babylonian is faster  than .Net Sqrt.");
-            Assert.Less(actualMethodDotNetDuration, actualMethodTwoDuration,  "Newton  method is faster  than .Net Sqrt.");
+            Assert.Less(actualMethodDotNetDuration, actualMethodOneDuration, "Babylonian is faster  than .Net Sqrt.");
+            Assert.Less(actualMethodDotNetDuration, actualMethodTwoDuration, "Newton  method is faster  than .Net Sqrt.");
         }
 
         #endregion
@@ -210,7 +211,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         public void SShouldHaveEightElementsTheSquareDigitsChainOfEightyNine()
         {
             var actualNumber = 89;
-            var (actualTerminator, actualChain ) = UtilityMath.SquareDigitsChain(89);
+            var (actualTerminator, actualChain) = UtilityMath.SquareDigitsChain(89);
             var expectedLength = 8;
 
             // check duration
@@ -253,7 +254,18 @@ namespace JuanMartin.Kernel.Utilities.Tests
             /// <seealso cref="http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html"/>
             var expectedFibonacciAsString = BigInteger.Parse("354224848179261915075");
             var actualFibonacciAsString = UtilityMath.FibonacciLoop(100);
-            Assert.AreEqual(expectedFibonacciAsString,actualFibonacciAsString);
+            Assert.AreEqual(expectedFibonacciAsString, actualFibonacciAsString);
+        }
+        #endregion
+
+        #region ErathostenesSieve tests
+        [Test()]
+        public void ShouldContainOnlyPrimes()
+        {
+            var actualSieve = UtilityMath.ErathostenesSieve(10000);
+
+            foreach(var n  in actualSieve)
+                Assert.IsTrue(UtilityMath.IsPrime(n),$"{n} is prime.");
         }
         #endregion
     }

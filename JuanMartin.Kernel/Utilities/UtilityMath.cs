@@ -2221,22 +2221,27 @@ namespace JuanMartin.Kernel.Utilities
 
             var PrimeBits = new BitArray(sieveBound + 1, true);
 
-            for (int i = 1; i <= upperSqrt; i++)
+            //            for (int i = 1; i <= upperSqrt; i++)
+            Parallel.For(1, upperSqrt, i =>
             {
                 if (PrimeBits.Get(i))
                 {
-                    for (int j = i * 2 * (i + 1); j <= sieveBound; j += 2 * i + 1)
+                    int seed = i * 2 * (i + 1);
+                    int delta = 2 * i + 1;
+
+                    for (int j = seed; j <= sieveBound; j += delta)
                     {
                         PrimeBits.Set(j, false);
                     }
                 }
-            }
+            });
 
             var numbers = new List<int>((int)(upperLimit / (Math.Log(upperLimit) - 1.08366)));
             if (2 >= lowerLimit)
                 numbers.Add(2);
 
-            for (int i = 1; i <= sieveBound; i++)
+            //for (int i = 1; i <= sieveBound; i++)
+            Parallel.For(1, sieveBound, i =>
             {
                 if (PrimeBits.Get(i))
                 {
@@ -2244,7 +2249,7 @@ namespace JuanMartin.Kernel.Utilities
                     if (n >= lowerLimit)
                         numbers.Add(n);
                 }
-            }
+            });
 
             return numbers.ToArray();
         }
