@@ -200,6 +200,7 @@ namespace JuanMartin.Kernel.Processors
                                     throw new TypeLoadException($"Type {sType} not supported.");
                             }
                         }
+                       
                         tType = UtilityType.ParseType(sType);
                         try
                         {
@@ -207,7 +208,7 @@ namespace JuanMartin.Kernel.Processors
                         }
                         catch (Exception e)
                         {
-                            throw new TypeLoadException($"Error changing option's type ({e.GetType().Name}): {e.Message}.");
+                            throw new TypeLoadException($"Error changing option's type ({sType}): {e.Message}.");
                         }       
                     }
                 }

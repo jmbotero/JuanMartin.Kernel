@@ -22,32 +22,48 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public static void ShouldLaveAnEmptyListAfterRemovingOnlyElementInList()
         {
             var actualList = new LinkedList<int>();
+            var expectedItem = 5;
 
-            actualList.Add(5);
-            actualList.Remove(5);
+            actualList.Add(expectedItem);
+            actualList.Remove(expectedItem);
             Assert.IsTrue(actualList.IsEmpty());
         }
 
         [Test]
-        public static void ShouldThrowInvalidOperationExceptionWhenAttemptinToRemoveAnElementInAnEmpyList()
+        public static void ShouldBeAleToRemoveDirectlyLastElementInList()
+        {
+            var actualList = new LinkedList<int>();
+            var expectedItem = 5;
+            actualList.Append(1);
+            actualList.Append(2);
+            actualList.Append(expectedItem); // last element
+            
+            actualList.RemoveLast();
+
+            Assert.AreNotEqual(expectedItem, actualList[actualList.Length - 1], $"{expectedItem} is the last item.");
+            Assert.IsFalse(actualList.Contains(expectedItem),$"List  does  not contain  item {expectedItem}");
+        }
+
+        [Test]
+        public static void ShouldThrowInvalidOperationExceptionWhenAttemptingToRemoveAnElementFromAnEmpyList()
         {
             var actualList = new LinkedList<int>();
 
+            Assert.IsTrue(actualList.IsEmpty(), "List is empty.");
             var ex = Assert.Throws<InvalidOperationException>(() => actualList.Remove(5));
         }
 
         [Test]
-        public static void ShouldThrowIndexOutOfRangeExceptionWhenRemovingByKeyAndKeyIsGreaterThanListLength()
+        public static void ShouldThrowIndexOutOfRangeExceptionWhenRemovingByIndexAndIndexIsGreaterThanListLength()
         {
             var actualList = new LinkedList<int>();
-            var actualKey = 5;
+            var actualIndex = 2;
 
             actualList.Add(1);
             actualList.Add(2);
-            actualList.Add(3);
 
-            var ex = Assert.Throws<IndexOutOfRangeException>(() => actualList.RemoveByKey(actualKey));
-            Assert.IsTrue(ex.Message.Contains($"Index specified [{actualKey}] is out of list bounds 0...{actualList.Length - 1}."));
+            var ex = Assert.Throws<IndexOutOfRangeException>(() => actualList.RemoveByIndex(actualIndex));
+            Assert.IsTrue(ex.Message.Contains($"Index specified [{actualIndex}] is out of list bounds 0...{actualList.Length - 1}."));
         }
 
         [Test]
@@ -71,8 +87,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             var expectedIndex = 0;
             var actualList = new LinkedList<int>();
 
-            actualList.Add(1);                // index 2 element
-            actualList.Add(2);                // index 1 element
+            actualList.Add(1);                // index 1 element
+            actualList.Add(2);                // index 2 element
             actualList.Add(expectedValue);    // index 0 element, first element
 
             Assert.AreEqual(expectedValue, actualList[expectedIndex].Item);
@@ -91,11 +107,27 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             //TODO: failed comparing full object
             //Assert.AreEqual(expectedList, actualList,"List and its clone are identical objects.");
             Assert.AreEqual(expectedList.Length, actualList.Length, "Lists  have same length");
-            Assert.AreEqual(expectedList.ToString(), actualList.ToString(), "Lists have same strig representation.");
+            Assert.AreEqual(expectedList.ToString(), actualList.ToString(), "Lists have same string representation.");
 
             var actualItem = 5;
             actualList.Add(actualItem);
             Assert.IsFalse(expectedList.Contains(actualItem), "Original and clone lists are independent.");
+        }
+
+        [Test]
+        public static void ShouldBeAbleToDetermineIfAddedElementIsContainedInList()
+        {
+            var actualList = new LinkedList<int>();
+
+            actualList.Add(1);
+            actualList.Add(2);
+            actualList.Add(3);
+
+            var expectedItem = 5;
+            Assert.IsFalse(actualList.Contains(expectedItem), $"List does not contain {expectedItem}.");
+
+            expectedItem = 2;
+            Assert.IsTrue(actualList.Contains(expectedItem), $"List does contain {expectedItem}.");
         }
 
         [Test]
@@ -111,7 +143,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test]
-        public static void ShouldAppendAllElementsOfTheSecondListToTheFirstWhenConcatenatingTwoSeparateLists()
+        public static void ShouldAppendAllElementsOfTheSecondListToTheFirstWhenAddingTwoSeparateLists()
         {
             var actualList1 = new LinkedList<int>();
             var actualList2 = new LinkedList<int>();

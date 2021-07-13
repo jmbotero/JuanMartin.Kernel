@@ -48,7 +48,20 @@ namespace JuanMartin.Kernel.RuleEngine.Tests
             Symbol actualOperationSymbol = actualEvaluator.Evaluate(new Dictionary<string, Symbol>());
             var expectedOperationResult = 2;
 
-            Assert.AreEqual(expectedOperationResult , actualOperationSymbol.Value.Result);
+            Assert.AreEqual(expectedOperationResult, actualOperationSymbol.Value.Result);
+        }
+
+        [Test]
+        public void ShouldResolveCorrectlyNonIntegerArithmenticOperation()
+        {
+            ExpressionEvaluator actualEvaluator = new ExpressionEvaluator();
+            var actualOperation = "((1 / 2) + 5) * 8";
+
+            actualEvaluator.Parse(actualOperation);
+            Symbol actualOperationSymbol = actualEvaluator.Evaluate(new Dictionary<string, Symbol>());
+            var expectedOperationResult = 44;
+
+            Assert.AreEqual(expectedOperationResult, actualOperationSymbol.Value.Result);
         }
 
         [Test]

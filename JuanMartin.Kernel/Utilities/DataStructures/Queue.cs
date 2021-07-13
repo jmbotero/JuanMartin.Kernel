@@ -55,7 +55,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
             var node = fifo[0];
 
-            fifo.RemoveByKey(0);
+            fifo.RemoveByIndex(0);
 
             return node;
         }

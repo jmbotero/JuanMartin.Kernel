@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
     /// <summary>
-    /// Class implementing the list data structure
+    /// Class implementing the liked list data structure,
+    /// zero-based index
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class LinkedList<T> : ICloneable where T : IComparable<T>
     {
         private const string LinkedListType = "LinkedList";
         private int _size;
-        private Link<T> _first;
-        private Link<T> _last;
         private readonly string _type;
-        private readonly Dictionary<int, T> _bag;
+        private readonly Dictionary<Guid, Link<T>> _bag; // add link to dictionary to allow to store multiple values
 
         public LinkedList(string listType, T[] values)
         {
@@ -23,22 +23,22 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             {
                 _type = listType;
                 _size = 0;
-                _first = null;
-                _last = null;
-                _bag = new Dictionary<int, T>();
+                First = null;
+                Last = null;
+                _bag = new Dictionary<Guid, Link<T>>();
             }
             else
             {
                 var len = values.Length;
                 var nodes = new Link<T>[len];
                 _type = char.ToUpper(listType[0]) + listType.Substring(1);
-                _bag = new Dictionary<int, T>();
+                _bag = new Dictionary<Guid, Link<T>>();
 
-                // initialize nodes with values only
+                // initialize nodes with values and array index for key
                 for (int i = 0; i < len; i++)
                 {
                     nodes[i] = new Link<T>(values[i]);
-                    _bag.Add(i, values[i]); // rollback list indexes are one lessb than their array counterparts
+                    _bag.Add(nodes[i].Key, nodes[i]);
                 }
 
                 // set node links set head and tail
@@ -48,13 +48,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     {
                         if (len > 1)
                             nodes[i].Next = nodes[i + 1];
-                        _first = nodes[i];
+                        First = nodes[i];
                     }
                     else if (i == len - 1)
                     {
                         if (len > 1)
                             nodes[i].Previous = nodes[i - 1];
-                        _last = nodes[i];
+                        Last = nodes[i];
                     }
                     else if (i > 0 && i < len)
                     {
@@ -77,7 +77,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public bool IsEmpty()
         {
-            return _first == null;
+            return First == null;
         }
 
         /// <summary>
@@ -94,24 +94,28 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             var node = new Link<T>(value);
 
             if (node == null)
-                throw new StackOverflowException(string.Format("Stack overflow when creating noe for ({0}).", value));
+                throw new StackOverflowException(string.Format("Stack overflow when creating node for ({0}).", value));
 
-            if (_last == null)
+            if (Last == null)
             {
-                _last = node;
+                Last = node;
             }
             else
             {
-                _last.Next = node;
-                node.Previous = _last;
-                _last = node;
+                Last.Next = node;
+                node.Previous = Last;
+                Last = node;
+
+                //index  new node appropriately
+                node.Index = node.Previous.Index + 1;
             }
-            if (_first == null)
+            if (First == null)
             {
-                _first = node;
+                First = node;
             }
             _size++;
-            _bag.Add(_size, value);
+
+            _bag.Add(node.Key, node);
 
             return node;
         }
@@ -131,31 +135,37 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             if (node == null)
             {
-                throw new StackOverflowException(string.Format("Stack overflow when creating noe for ({0}).", value));
+                throw new StackOverflowException(string.Format("Stack overflow when creating node for ({0}).", value));
             }
-
-            if (_first == null)
+            if (First == null)
             {
-                _first = node;
+                First = node;
+                node.Index = 0;
             }
             else
             {
-                _first.Previous = node;
-                node.Next = _first;
-                _first = node;
+                node.Next = First;
+                if (Last.Previous == null)
+                    Last.Previous = node;
+                First = node;
+                //index  new node appropriately
+                node.Index = 0;
+                ReIndexListNodes(node);
             }
-            if (_last == null)
+            if (Last == null)
             {
-                _last = node;
+                Last = node;
             }
+
             _size++;
-            _bag.Add(_size, value);
+            _bag.Add(node.Key, node);
 
             return node;
         }
 
         /// <summary>
-        /// Look for a value in the list and delete the corresponging node (linking  over it).
+        /// Look for a value in the list and delete the corresponging node setting
+        /// it to null and linking  over it.
         /// </summary>
         /// <param name="value"></param>
         public void Remove(T value)
@@ -164,59 +174,55 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 throw new InvalidOperationException(_type + " is empty.");
             else
             {
-                var node = _first;
-                var position = 0;
+                var node = First;
                 while (node != null)
                 {
                     if (node.Item.Equals(value))
                     {
-                        var p = node.Previous;
 
-                        if (p != null)
+                        if(node==First)
                         {
-                            var n = node.Next;
-                            p.Next = node;
-                            if (n != null)
-                            {
-                                n.Previous = node;
-                            }
-                            node = null;
+                            First = node.Next;
+                            // reindex
+                             node.Index = 0;
+                            ReIndexListNodes(node);
+                        }
+                        else if(node==Last)
+                        {
+                            Last.Previous = Last;
                         }
                         else
                         {
-                            // the value to the list corresponded to the first element in the list. The new first is the next of the original first
-                            var n = _first.Next;
-                            _first = null;
-                            _first = n;
+                            var previous = node.Previous;
+                            previous.Next = node.Next;
+                            ReIndexListNodes(previous);
                         }
-                        _bag.Remove(position);
+
+                        _bag.Remove(node.Key);
+                        _size--;
+                        if (_size == 0)
+                        {
+                            First = null;
+                            Last = null;
+                        }
+
+                        node = null;
                     }
-                    node = node.Next;
-                    position++;
+                    if(node != null)
+                        node = node.Next;
                 }
             }
         }
 
         /// <summary>
-        /// Look for a value in the list and delete the corresponging node (linking  over it).
+        /// Delete the corresponging node indexed in list (linking  over it).
         /// </summary>
-        /// <param name="key">todo: describe key parameter on RemoveByKey</param>
-        public void RemoveByKey(int key)
+        /// <param name="position">index in list</param>
+        public void RemoveByIndex(int position)
         {
-            if (IsEmpty())
-                throw new InvalidOperationException(_type + " is empty.");
-            else
-            {
-                var node = Get(key);
-                if (node != null)
-                {
-                    var p = node.Previous;
-                    var n = node.Next;
-                    p.Next = n;
-                    n.Previous = p;
-                    _bag.Remove(key);
-                }
-            }
+            var node = Get(position);
+            if (node != null)
+                Remove(node.Item);
         }
 
         /// <summary>
@@ -229,12 +235,24 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 throw new InvalidOperationException(_type + " is empty.");
             else
             {
-                var previuos = _last.Previous;
-                _last = previuos;
-                if (_last == null)
+                if (Last != null)
                 {
-                    _first = null;
+                    if (Last.Index == -1)
+                        throw new ArgumentException("node index has not been set.");
+                    _bag.Remove(Last.Key);
+                    _size--;
+                    var previuos = Last.Previous;
+                    Last = previuos;
+                    if(Last != null)
+                        Last.Next = null;
+                    if(_size == 0)
+                    {
+                        Last = null;
+                        First = null;
+                    }
                 }
+                else
+                    throw new ArgumentException("Last node is undefined:  result of  possible linking issue.");
             }
         }
 
@@ -244,7 +262,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public override string ToString()
         {
-            var node = _first;
+            var node = First;
             if (IsEmpty())
                 throw new InvalidOperationException(_type + " is empty.");
 
@@ -252,7 +270,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             while (node != null)
             {
-                builder.Append(node + ((node.Next != null) ? "," : string.Empty));
+                builder.Append(node.ToString() + ((node.Next != null) ? "," : string.Empty));
                 node = node.Next;
             }
             string s = builder.ToString();
@@ -270,15 +288,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <summary>
         /// Indexing off zero based list
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="position"></param>
         /// <returns></returns>
-        public Link<T> this[int key]
+        public Link<T> this[int position]
         {
             get
             {
-                return Get(key);
+                return Get(position);
             }
         }
+
+        public Link<T> Last { get; private set; }
+        public Link<T> First { get; private set; }
 
         public static LinkedList<T> operator +(LinkedList<T> l1, LinkedList<T> l2)
         {
@@ -308,9 +329,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             var array = new T[_size];
             var i = 0;
 
-            var node = _first.Next;
+            var node = First.Next;
 
-            array[i] = _first.Item;
+            array[i] = First.Item;
             i++;
             while (node != null)
             {
@@ -338,7 +359,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public bool Contains(T value)
         {
-            return _bag.ContainsValue(value);
+            var element = _bag.Where(i => i.Value.Item.Equals(value)).FirstOrDefault().Value;
+
+            return element != null;
         }
 
         /// <summary>
@@ -349,39 +372,53 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
             var list = new LinkedList<T>(_type);
             foreach (var item in _bag.Values)
-                list.Add(item);
+                list.Add(item.Item);
 
             return list;
             //return this.MemberwiseClone();
         }
 
         /// <summary>
-        /// Get node indicated with index key counting linked nodes from _first.
+        /// Get node indicated with index or position counting linked nodes from _first,
+        /// its a zero-bsed count.
         /// </summary>
-        /// <param name="key">Integer position of node starting in zero to one less than length</param>
+        /// <param name="position">Integer position of node starting in zero to one less than length</param>
         /// <returns></returns>
-        private Link<T> Get(int key)
+        private Link<T> Get(int position)
         {
-            var node = _first;
-            var position = 0;
+            var node = First;
+            var i = 0;
 
             if (IsEmpty())
                 throw new IndexOutOfRangeException(_type + " cannot be inexed because it is empty.");
 
-            if (key > _size || key < 0)
+            if (position > _size - 1 || position < 0)
             {
-                throw new IndexOutOfRangeException($"Index specified [{key}] is out of list bounds 0...{_size - 1}.");
+                throw new IndexOutOfRangeException($"Index specified [{position}] is out of list bounds 0...{_size - 1}.");
             }
-            while (node != null && position <= key)
+            while (node != null && i <= position)
             {
-                if (position == key)
+                if (i == position)
                 {
                     return node;
                 }
-                position++;
+                i++;
                 node = node.Next;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Recalculate indexes o elements in list starting in 'n' sequentially. 
+        /// </summary>
+        /// <param name="n"></param>
+        private void ReIndexListNodes(Link<T> n)
+        {
+            while (n.Next != null)
+            {
+                n.Next.Index = n.Index + 1;
+                n = n.Next;
+            }
         }
 
         private LinkedList<T> Qsort(LinkedList<T> list)
@@ -392,9 +429,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             else
             {
                 var i = 0;
-                var rnd = new Random();
 
-                var pivot = (dynamic)list[rnd.Next(0, len)].Item;
+                var pivot = (dynamic)list[new Random().Next(0, len)].Item;
 
                 var left = new LinkedList<T>();
                 var right = new LinkedList<T>();

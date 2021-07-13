@@ -10,10 +10,26 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     {
         public Link(T value)
         {
+            Key = Guid.NewGuid();
+            Index = -1; //initilize as not defined
             Item = value;
             Next = null;
             Previous = null;
         }
+
+        /// <summary>
+        /// Commonly a link may be stored in a list or dictionary, this
+        /// property allows to store in the link object its external
+        /// key. 
+        /// </summary>
+        public Guid Key { get; set; }
+
+        /// <summary>
+        /// Commonly a link may be stored in a list or dictionary, this
+        /// property allows to store in the link object its external
+        /// index - (position in external collection) 
+        /// </summary>
+        public int Index { get; set; }
 
         public T Item { get; set; }
 

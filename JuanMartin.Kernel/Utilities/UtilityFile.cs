@@ -78,7 +78,7 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public  static string[] ReadTextToArray(string fileName)
+        public  static IEnumerable<string> ReadTextToStringEnumerable(string fileName)
         {
             string line = string.Empty;
             var contents = new List<string>();
@@ -90,7 +90,7 @@ namespace JuanMartin.Kernel.Utilities
                     contents.Add(line);
                 }
             }
-            return contents.ToArray();
+            return contents.AsEnumerable();
         }
         public static List<string> ListZipFileContents(string zipFileName)
         {
@@ -133,8 +133,23 @@ namespace JuanMartin.Kernel.Utilities
             return text;
         }
 
-        public static void UpddateTextContentOfFileInZip(string zipFileName, string fileFullName, string text, string newZipFileName = "")
+        public static void UpddateTextContentOfFileInZip(string zipFileName, string fileFullName, string text)
         {
+            if (string.IsNullOrEmpty(zipFileName))
+            {
+                throw new ArgumentException($"'{nameof(zipFileName)}' cannot be null or empty.", nameof(zipFileName));
+            }
+
+            if (string.IsNullOrEmpty(fileFullName))
+            {
+                throw new ArgumentException($"'{nameof(fileFullName)}' cannot be null or empty.", nameof(fileFullName));
+            }
+
+            if (string.IsNullOrEmpty(text))
+            {
+                throw new ArgumentException($"'{nameof(text)}' cannot be null or empty.", nameof(text));
+            }
+
             using (FileStream zipToOpen = new FileStream(zipFileName, FileMode.Open))
             {
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))

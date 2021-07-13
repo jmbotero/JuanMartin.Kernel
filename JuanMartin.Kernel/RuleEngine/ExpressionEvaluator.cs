@@ -34,11 +34,11 @@ namespace JuanMartin.Kernel.RuleEngine
         };
 
         //Lists of the parsed expression  as symbols, infix as it read in the string expression, postfix as it is needed for evaluation
-        private List<Symbol> _inFixExpression;
-        private List<Symbol> _postFixExpression;
+        private readonly List<Symbol> _inFixExpression;
+        private readonly List<Symbol> _postFixExpression;
 
         //Dictionary of namespace aliases used to resolve namespaces of macros
-        private Dictionary<string, Symbol> _aliases = new Dictionary<string, Symbol>();
+        private readonly Dictionary<string, Symbol> _aliases = new Dictionary<string, Symbol>();
 
         public ExpressionEvaluator(Dictionary<string, Symbol> Aliases)
         {

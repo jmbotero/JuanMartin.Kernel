@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CellList = System.Collections.Generic.Dictionary<string, JuanMartin.Kernel.Utilities.DataStructures.Cells>;
 
@@ -151,6 +152,7 @@ namespace JuanMartin.Kernel.Utilities
         #endregion
 
         #region Math utility functions
+
         [Flags]
 
         public enum Sizing
@@ -394,16 +396,12 @@ namespace JuanMartin.Kernel.Utilities
         {
             string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
             {
-                var options = new ParallelOptions()
-                {
-                    MaxDegreeOfParallelism = threadCount
-                };
                 int[] frequencies = new int[value + 1];
 
-                Parallel.ForEach(permutation, digit =>
+                for(var  i=0;i<frequencies.Length;i++)
                 {
-                    frequencies[digit]++;
-                });
+                    frequencies[i]++;
+                }
 
                 return string.Join("", frequencies);
             };
@@ -474,16 +472,12 @@ namespace JuanMartin.Kernel.Utilities
         {
             string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
             {
-                var options = new ParallelOptions()
-                {
-                    MaxDegreeOfParallelism = threadCount
-                };
                 int[] frequencies = new int[value + 1];
 
-                Parallel.ForEach(permutation, digit =>
+                for (var i = 0; i < frequencies.Length; i++)
                 {
-                    frequencies[digit]++;
-                });
+                    frequencies[i]++;
+                }
 
                 return string.Join("", frequencies);
             };
@@ -580,7 +574,7 @@ namespace JuanMartin.Kernel.Utilities
 
             for (var digits = upper; digits >= lower; digits--)
             {
-                var combinations = (List<IEnumerable<int>>)GetCombinationsOfK(Enumerable.Range(1, number).ToArray(), digits).ToList();
+                var combinations = (List<IEnumerable<int>>)GetCombinationsOfKRecursive(Enumerable.Range(1, number).ToArray(), digits).ToList();
 
                 for (var i = combinations.Count - 1; i >= 0; i--)
                 {
@@ -596,35 +590,82 @@ namespace JuanMartin.Kernel.Utilities
             return result;
         }
 
-
-        public static IEnumerable<IEnumerable<T>> GetCombinationsOfK<T>(T[] data, int k, bool includeDuplicates=true)
+        private static bool NextCombination(IList<int> num, int n, int k)
         {
-            int size = data.Length;
+            bool finished;
 
-            IEnumerable<IEnumerable<T>> Runner(IEnumerable<T> list, int n)
+            var changed = finished = false;
+
+            if (k <= 0) return false;
+
+            for (var i = k - 1; !finished && !changed; i--)
             {
-                int skip = 1;
-                foreach (var headList in list.Take(size - k + 1).Select(h => new T[] { h }))
+                if (num[i] < n - 1 - (k - 1) + i)
                 {
-                    if (n == 1)
-                        yield return headList;
-                    else
-                    {
-                        foreach (var tailList in Runner(list.Skip((includeDuplicates)?skip - 1:skip), n - 1))
-                        {
-                            yield return headList.Concat(tailList);
-                        }
-                        skip++;
-                    }
+                    num[i]++;
+
+                    if (i < k - 1)
+                        for (var j = i + 1; j < k; j++)
+                            num[j] = num[j - 1] + 1;
+                    changed = true;
                 }
+                finished = i == 0;
             }
 
-            return Runner(data, k);
+            return changed;
         }
 
-        public static List<List<int>> GetNumericPermutationsOfK(int number, int k)
+        /// <summary>
+        ///  Return all combinations of k number of elements within a finite set of n elements
+        ///  <see cref="https://www.technical-recipes.com/2017/obtaining-combinations-of-k-elements-from-n-in-c/"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="elements"></param>
+        /// <param name="k"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEnumerable<T>> GetCombinationsOfK<T>(IEnumerable<T> elements, int k)
         {
-            var permtations = new List<List<int>>();
+            var elem = elements.ToArray();
+            var size = elem.Length;
+
+            if (k > size) yield break;
+
+            var numbers = new int[k];
+
+            for (var i = 0; i < k; i++)
+                numbers[i] = i;
+
+            do
+            {
+                yield return numbers.Select(n => elem[n]).ToArray();
+            } while (NextCombination(numbers, size, k));
+        }
+
+        public static IEnumerable<IEnumerable<T>> GetCombinationsOfKRecursive<T>(IEnumerable<T> list, int k)
+        {
+            if (k == 1) return list.Select(t => new T[] { t });
+
+            return GetCombinationsOfKRecursive(list, k - 1)
+                      .SelectMany(t => list, (t1, t2) => t1.Concat(new T[] { t2 }));
+        }
+
+        public static int[][] GetNumericPermutationsOfK(int number, int k, bool includeDuplicates = false)
+        {
+            void AddPermutation(int lenght, int[] collection, List<int[]> p)
+            {
+                var list = new List<int>();
+
+                for (var i = 1; i <= lenght; i++)
+                {
+                    list.Add(collection[i]);
+                }
+                p.Add(list.ToArray());
+            }
+
+            if (k > number)
+                throw new ArgumentException($"Sample size ({k}) cannot be greater than repetition set size ({number}).");
+
+            var permutations = new List<int[]>();
             int[] a = new int[k + 1];
             int temp;
 
@@ -650,24 +691,31 @@ namespace JuanMartin.Kernel.Utilities
                         temp++;
                         a[temp] = 1;
                     }
-                    var p = new List<int>();
-
-                    for (var i = 1; i <= k; i++)
-                    {
-                        p.Add(a[i]);
-                    }
-                    permtations.Add(p);
+                    if (includeDuplicates || (!includeDuplicates && !a.HasDuplicates<int>()))
+                        AddPermutation(k, a, permutations);
                 }
             }
-            return permtations;
+            return permutations.ToArray();
         }
-        public static IEnumerable<IEnumerable<T>>  GetCombinationsOfKRecursive<T>(IEnumerable<T> list, int length)
-        {
-            if (length == 1) return list.Select(t => new T[] { t });
 
-            return GetCombinationsOfKRecursive(list, length - 1)
-                .SelectMany(t => list, (t1, t2) => t1.Concat(new T[] { t2 }));
-        }
+        //public static IEnumerable<T[]> GeneratePermutations2<T>(T[] elements, int currentIndex=0, List<T> perm = null)
+        //{
+        //    if(perm == null)
+        //    {
+        //        perm = new List<T>();
+        //    }
+        //    double pass = (currentIndex == 0) ? 0 : pass + 1;
+        //    for(int i=0;i<elements.Length;i++)
+        //    {
+        //        if (i == currentIndex)
+        //            perm.Add(elements[i]);
+        //        else
+        //            perm[currentIndex] = elements[currentIndex + 1];
+        //        foreach (var p in GeneratePermutations2<T>(elements, i, perm))
+        //            yield return p;
+        //    }
+        //}
+
         public static IEnumerable<T[]> GeneratePermutations<T>(T[] values, int fromInd = 0)
         {
             if (fromInd + 1 == values.Length)
@@ -685,6 +733,21 @@ namespace JuanMartin.Kernel.Utilities
                     SwapValues(values, fromInd, i);
                 }
             }
+        }
+
+        /// <summary>
+        /// TODO: this is very innefficient, use zero-based index
+        /// <typeparam name="T"></typeparam>
+        /// <param name="actualCollection"></param>
+        /// <param name="actualSetSize"></param>
+        /// <returns></returns>
+        public static IEnumerable<T[]> GeneratePermutationsOfK<T>(T[] actualCollection, int actualSetSize, bool includeDuplicates=false)
+        {
+            var permutationIndexes = UtilityMath.GetNumericPermutationsOfK(actualCollection.Length, actualSetSize, includeDuplicates);
+
+            var result = permutationIndexes.Select(row => row.Select(i => actualCollection[i - 1]).ToArray()).ToArray();
+
+            return result;
         }
 
         /// <summary>
@@ -2213,16 +2276,64 @@ namespace JuanMartin.Kernel.Utilities
                     yield return num;
             }
         }
-
-        public static int[] ErathostenesSieve(int upperLimit, int lowerLimit=2)
+        /// <summary>
+        /// Check both ascending or descending sequential positive integers
+        /// in collection. And if additional item is specified compare it to
+        /// last member of collection.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="newItem"></param>
+        /// <returns></returns>
+        public static bool ItemsArePositiveSequential(IEnumerable<int> source, int newItem = -1)
         {
+//            if (!double.IsInfinity(result) && result == Math.Truncate(result) && result > 0) // is positive integer
+
+                if (source == null)
+                throw new ArgumentException("Collection  is null."); ;
+            if (source.Count() < 1 && newItem == -1)
+                return false;
+
+            bool descending = true;
+            int previous = int.MaxValue;
+
+            foreach (var n in source)
+            {
+                if (n < 0)
+                    return false;
+
+                descending &= (n < previous);
+                previous = n;
+            }
+            descending &= newItem == -1 || (newItem > ((source.Count() < 1) ? int.MinValue : source.Last()));
+
+
+            bool ascending = true;
+            previous = int.MinValue;
+
+            foreach (var n in source)
+            {
+                ascending &= (n > previous);
+                previous = n;
+            }
+            ascending &= newItem == -1 || (newItem > ((source.Count() < 1) ? int.MaxValue : source.Last()));
+
+            return ascending || descending;
+        }
+
+        public static int[] ErathostenesSieve(int upperLimit, int lowerLimit=2, int threadCount=-1)
+        {
+            // TODO: fix bug, when upperlimit=1000 add some non-prime numbers
             var sieveBound = (int)(upperLimit - 1) / 2;
             var upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
 
             var PrimeBits = new BitArray(sieveBound + 1, true);
 
             //            for (int i = 1; i <= upperSqrt; i++)
-            Parallel.For(1, upperSqrt, i =>
+            var options = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = threadCount
+            };
+            Parallel.For(1, upperSqrt, options, i =>
             {
                 if (PrimeBits.Get(i))
                 {
@@ -2241,12 +2352,12 @@ namespace JuanMartin.Kernel.Utilities
                 numbers.Add(2);
 
             //for (int i = 1; i <= sieveBound; i++)
-            Parallel.For(1, sieveBound, i =>
+            Parallel.For(1, sieveBound, options, i =>
             {
                 if (PrimeBits.Get(i))
                 {
                     var n = 2 * i + 1;
-                    if (n >= lowerLimit)
+                    if (n >= lowerLimit && UtilityMath.IsPrime(n))
                         numbers.Add(n);
                 }
             });
@@ -3152,6 +3263,142 @@ namespace JuanMartin.Kernel.Utilities
             var numericMatrix = LoadMatrix(numbers);
 
             return AddMatrix(numericMatrix);
+        }
+
+        /// <summary>
+        /// Handle binary arithmetic operations with -,+,*/ and any precedence
+        /// ordering arrangement using parenthesis, as:
+        ///         a o b o c o d
+        ///         a o  (b o c)  o  d 
+        ///         a o b o  (c o d)
+        ///         a o  (b o c o d)
+        ///         (a o b)  o  (c o d)
+        ///         And operands a,b,c,d can be negative.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static double EvaluateSimpleArithmeticOerations(string expression, int NumberOfDecimalsAllowedForArithmeticOperationParsing=4)
+        {
+            if(!CheckForValidArithmeticSyntax(expression, NumberOfDecimalsAllowedForArithmeticOperationParsing))
+                throw new ArgumentException($"{expression} is not a valid expression.");
+
+            double result = double.PositiveInfinity;
+
+            //string pattern = @"(-?\d+)(\+|\/|\-|\*)(-?\d+)";
+            int startCount = (NumberOfDecimalsAllowedForArithmeticOperationParsing == 0) ? 0 : 1;
+            string pattern = $@"(-?\d+(\.\d{{{startCount},{NumberOfDecimalsAllowedForArithmeticOperationParsing}}})?)(\+|\/|\-|\*)(-?\d+(\.\d{{{startCount},{NumberOfDecimalsAllowedForArithmeticOperationParsing}}})?)";
+            string originalExpression = "";
+            var regexExpression = new Regex(pattern);
+            bool found = false, matched = false;
+            var match = regexExpression.Match(expression);
+
+            if (match.Success)
+            {
+                if (match.Index > 0)
+                {
+                    found = true;
+                    originalExpression = expression;
+                    expression = match.Value;
+                }
+                if (match.Index == 0)
+                    found = true;
+            }
+
+            if (found)
+            {
+                matched = true;
+                (double a, double b, char op) = ParseOperation(match, NumberOfDecimalsAllowedForArithmeticOperationParsing);
+                switch (op)
+                {
+                    case '+':
+                        result = a + b;
+                        break;
+                    case '*':
+                        result = a * b;
+                        break;
+                    case '-':
+                        result = a - b;
+                        break;
+                    case '/':
+                        {
+                            if (b == 0)
+                                throw new DivideByZeroException($"Division by zero in {expression}.");
+                            else
+                                result = a / b;
+                                if (NumberOfDecimalsAllowedForArithmeticOperationParsing == 0 && result < 1) result = 0;
+                            break;
+                        }
+                    default:
+                        throw new ArgumentException($"{expression} contains a not recognized operator {op}.");
+                }
+                result = Math.Round(result, NumberOfDecimalsAllowedForArithmeticOperationParsing);
+
+            }
+            else if (!match.Success)
+                throw new ArgumentException($"{expression} is not a valid expression.");
+
+            if (matched && originalExpression == "")
+                return Math.Round(Convert.ToDouble(result), NumberOfDecimalsAllowedForArithmeticOperationParsing);
+            else
+            {
+                if (NumberOfDecimalsAllowedForArithmeticOperationParsing == 0 && result < 1)
+                    return 0;
+                pattern = "(" + expression + ")";
+                if (!originalExpression.Contains(pattern))
+                    throw new ArgumentException($"{pattern} is not a valid expression in {originalExpression}.");
+
+                return EvaluateSimpleArithmeticOerations(originalExpression.Replace(pattern, result.ToString()), NumberOfDecimalsAllowedForArithmeticOperationParsing);
+            }
+        }
+        /// <summary>
+        /// Check if expression, using parentheses to specify  precedence
+        /// of operations: +, -, *, /
+        /// <see cref="https://stackoverflow.com/questions/1631820/regular-expression-to-match-digits-and-basic-math-operators"/>
+        /// <seealso cref="http://javaonlineguide.net/2013/03/how-to-check-parentheses-in-string-exp.html"/>
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        private static bool CheckForValidArithmeticSyntax(string expression, int NumberOfDecimalsAllowed)
+        {
+            // check opeeeeerands and operations without parentheses
+            string pattern = $@"[-?(\d +)(\.\d\{{1,{NumberOfDecimalsAllowed}}})?)\-*\/\(\)]*$";
+            var regexExpression = new Regex(pattern);
+            var match = regexExpression.Match(expression);
+
+            // check parentheses are baanced
+            var stack = new DataStructures.Stack<char>();
+
+            foreach (var c in expression)
+            {
+                switch (c)
+                {
+                    case '(': stack.Push(')'); break;
+                    case ')':
+                        {
+                            if (stack.IsEmpty())
+                                return false;
+
+                            else if (stack.Peek() == c)
+                            {
+                                stack.Pop();
+                            }
+                            break;
+                        }
+                    default: 
+                        break;
+                }
+            }
+            return match.Success && stack.IsEmpty();
+        }
+
+        private static (double a, double b, char op) ParseOperation(Match matches, int NumberOfDecimals)
+        {
+            // groups 2 and 5 are the decimal parts, 1 and 4 have the complete numbers
+            double x = Math.Round(Convert.ToDouble(matches.Groups[1].Value), NumberOfDecimals);
+            double y = Math.Round(Convert.ToDouble(matches.Groups[4].Value), NumberOfDecimals);
+            char o = Convert.ToChar(matches.Groups[3].Value);
+
+            return (x, y, o);
         }
 
         /// <summary>

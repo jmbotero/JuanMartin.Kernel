@@ -6,7 +6,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     /// Class defining first-in-last-out implementation of linked list data structure
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    class Stack<T> where T : IComparable<T>
+   
+    public  class Stack<T> where T : IComparable<T>
     {
         private readonly LinkedList<T> filo;
 
@@ -43,18 +44,21 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <param name="value"></param>
         public void Push(T value)
         {
-            filo.Append(value);
+            filo.Add (value);
         }
 
         /// <summary>
-        /// Removes and returns the top element from the stack
+        /// Removes and returns the last element added to the stack: first-i-last-out
         /// </summary>
         /// <returns></returns>
         public Link<T> Pop()
         {
-            var node = filo[0];
+            if (filo.IsEmpty())
+                throw new InvalidOperationException("Cannot pop a item  from  an empty stack.");
 
-            filo.RemoveByKey(0);
+            var node = filo.Last;
+
+            filo.RemoveLast();
 
             return node;
         }
