@@ -1,53 +1,51 @@
 ﻿using System;
-using System.Numerics;
+using System.Linq;
+using JuanMartin.Kernel.Utilities;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
     public struct BigDecimal
     {
-        public BigInteger Integer { get; set; }
-        public BigInteger Scale { get; set; }
+        public string Number { get; set; }
+        public string Decimal { get; private set; }
+        public int DecimalPoint { get; private set; }
 
-        public BigDecimal(BigInteger integer, BigInteger scale) : this()
+
+        public BigDecimal(string n) : this()
         {
-            Integer = integer;
-            Scale = scale;
-            while (Scale > 0 && Integer % 10 == 0)
+            if (n.Count(c => c == '.') > 1)
+                throw new ArgumentException("Inalid number contains multiple decimal points.");
+
+            Number = n;
+            DecimalPoint = 0;
+            Decimal = "";
+
+            if(n.Contains('.'))
             {
-                Integer /= 10;
-                Scale -= 1;
+                DecimalPoint = n.IndexOf('.');
+                if (DecimalPoint == n.Length - 1 )
+                {
+                    n = n.Substring(0, DecimalPoint);
+                    DecimalPoint = 0;
+                }
+                else
+                    Decimal = n.Substring(DecimalPoint + 1);
             }
         }
 
-        public static implicit operator BigDecimal(decimal a)
-        {
-            BigInteger integer = (BigInteger)a;
-            BigInteger scale = 0;
-            decimal scaleFactor = 1m;
-            while ((decimal)integer != a * scaleFactor)
-            {
-                scale += 1;
-                scaleFactor *= 10;
-                integer = (BigInteger)(a * scaleFactor);
-            }
-            return new BigDecimal(integer, scale);
-        }
+        public BigDecimal(int n) : this(n.ToString())
+        { }
 
-        public static BigDecimal operator *(BigDecimal a, BigDecimal b)
-        {
-            return new BigDecimal(a.Integer * b.Integer, a.Scale + b.Scale);
-        }
+        public BigDecimal(decimal n) : this(n.ToString())
+        { }
+
+        public static BigDecimal operator +(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.AddLargeNumbers(a.Number, b.Number));
+        public static BigDecimal operator -(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.Number, b.Number));
 
         public override string ToString()
         {
-            string s = Integer.ToString();
-            if (Scale != 0)
-            {
-                if (Scale > Int32.MaxValue) return "[Undisplayable]";
-                int decimalPos = s.Length - (int)Scale;
-                s = s.Insert(decimalPos, decimalPos == 0 ? "0." : ".");
-            }
-            return s;
+            return Number;
         }
     }
+
 }

@@ -8,13 +8,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     /// <typeparam name="T"></typeparam>
     public class Link<T> where T : IComparable<T>
     {
-        public Link(T value)
+        public Link(T value,  Guid key=default)
         {
-            Key = Guid.NewGuid();
+            Key = (key == default) ? Guid.NewGuid() : key;
             Index = -1; //initilize as not defined
             Item = value;
             Next = null;
             Previous = null;
+        }
+
+        public Link(T value, int index, Guid key = default) :this(value, key)
+        {
+            Index = index;
         }
 
         /// <summary>

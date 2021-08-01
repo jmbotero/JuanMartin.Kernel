@@ -1356,6 +1356,35 @@ namespace JuanMartin.Kernel.Utilities
             return (term, chain);
         }
 
+        /// <summary>
+        /// <see cref="https://stackoverflow.com/questions/3432412/calculate-square-root-of-a-biginteger-system-numerics-biginteger"/>
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static BigInteger SquareRootLargeNumbers(BigInteger number)
+        {
+            // TODO: fix rounding of large decimal parts to zero
+            BigInteger square = (BigInteger )Math.Pow(Math.E,(double)BigInteger.Log(number) / 2);
+
+            return square;
+        }
+
+        /// <summary>
+        /// <see cref="https://www.csharp-console-examples.com/general/finding-the-square-root-of-a-number-in-c/"/>
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static BigInteger? BigIntegerSquareRoot(BigInteger number)
+        {
+            if (number < 0) return null;
+            
+            BigInteger root = number / 3;
+            int i;
+            for (i = 0; i < 32; i++)
+                root = (root + number / root) / 2;
+            return root;
+        }
+
         public static long LeastCommonMultiple(long a, long b)
         {
             if (a < 0 || b < 0)
@@ -1594,7 +1623,7 @@ namespace JuanMartin.Kernel.Utilities
             var x = 8 * number + 1;
             var isMatch = (x % 2 == 1);
 
-            isMatch = isMatch && IsPerferctSquare(x);
+            isMatch = isMatch && IsPerferctSquare((double)x);
 
             return isMatch;
         }
@@ -1719,6 +1748,22 @@ namespace JuanMartin.Kernel.Utilities
             }
 
             return number;
+        }
+        /// <summary>
+        /// Calculate the area   and perimete name="a">length of the two equal sides</param>
+        /// <returr of a triangle with two equal sides.
+        /// <see cref="https://byjus.com/maths/area-of-isosceles-triangle/"/>
+        /// </summary>
+        /// <param name="b">base of the isosceles triangle</param>
+        /// <paramns></returns>
+        public static (BigInteger? area,BigInteger? perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
+        {
+            BigInteger A = new BigInteger(a);
+            BigInteger B = new BigInteger(b);
+            BigInteger? area = BigIntegerSquareRoot((A * A) - (B * B) / 4) * B / 2;
+            BigInteger? perimeter = B + (2 * A);
+            
+            return (area, perimeter);
         }
 
         public static IEnumerable<T> GetPolygonalNumbers<T>(int sides, int lowerBound, int upperBound)
@@ -2552,7 +2597,7 @@ namespace JuanMartin.Kernel.Utilities
             var b = (double)SqrtDigitExpansion((int)n, digits);
 
             // add decimal
-            if (!IsPerferctSquare(originalNumber))
+            if (!IsPerferctSquare((double)originalNumber))
             {
                 // Decimal position indicate where to put the decimal in the square root
                 b = ShiftDecimal(b, decimalPosition);
@@ -2759,24 +2804,68 @@ namespace JuanMartin.Kernel.Utilities
             return count;
         }
 
+        /// <summary>
+        /// Determine if a large  number  expressed as a biginter is a perfect square. 
+        /// <see cref="https://www.quora.com/How-can-I-check-if-a-BigInteger-is-a-perfect-square-in-C"/>
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static bool IsLargeNumberPerferctSquare(BigInteger number)
+        {
+            switch ((int)(number % 10))
+            {
+                case 0:
+                case 1:
+                case 4:
+                case 5:
+                case 6:
+                case 9:
+                    {
+                        switch (NumericDigitSum(number, true))
+                        {
+                            case 1:
+                            case 4:
+                            case 7:
+                            case 9:
+                                {
+                                    return true;
+                                }
+                        }
+                        return false;
+                    }
+            }
+            
+            return false;
+        }
+
         public static bool IsPerferctSquare(double number)
         {
             for (int i = 1; i * i <= number; i++)
             {
-                // If (i * i = n) 
+                // if (i * i = n) 
                 if ((number % i == 0) && (number / i == i))
                 {
                     return true;
                 }
             }
             return false;
-            //var isMatch = Math.Sqrt(number) % 1 == 0;
-
-            //return isMatch;
         }
 
+        public static bool IsPerferctSquare(BigInteger number)
+        {
+            for (int i = 1; i * i <= number; i++)
+            {
+                if ((number % i == 0) && (number / i == i))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+                            
+
         /// <summary>
-        /// Implementing algorith described in https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Continued_fraction_expansion
+        /// Implementing algorithm described in https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Continued_fraction_expansion
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
@@ -2914,6 +3003,36 @@ namespace JuanMartin.Kernel.Utilities
             return sum;
         }
 
+        /// <summary>
+        /// Get digits  in numbeil them and/or those in its sum add up to a  single digit.
+        /// E.g: 637 -> 6+3+7=1+6=7
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static int NumericDigitSum<T>(T number, bool addUpToSingleDigit = false)
+        {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new ArgumentException("NumericDigitSum can only be used on numeric arguments.");
+
+            long sum = 0;
+            dynamic n = number;
+
+            while (n > 0)
+            {
+                sum += (n % 10);
+                n /= 10;
+            }
+
+            if(addUpToSingleDigit)
+                while (sum > 10)
+                    sum = NumericDigitSum(sum);
+
+            return (int)sum;
+
+        }
         public static List<Tuple<int, int>> TwoDigitSummation(List<int> digits, int fix, int target)
         {
             var sums = new List<Tuple<int, int>>();
@@ -2938,7 +3057,7 @@ namespace JuanMartin.Kernel.Utilities
                 trial++;
 
                 if (digits.Count < 2)
-                    break;
+                    break;                           
                 if (trial == digits.Count)
                     break;
             }
@@ -3095,7 +3214,7 @@ namespace JuanMartin.Kernel.Utilities
                     return sequence;
                 else
                     continue;
-            }
+            }                                            
             return string.Empty;
         }
 
@@ -3126,24 +3245,21 @@ namespace JuanMartin.Kernel.Utilities
         #endregion
 
         #region Support Methods
-        public static string AddLargeNumbers(string r, string l)
+        public static string AddLargeNumbers(string rightValue, string leftValue)
         {
             var result = new StringBuilder();
             var carryOn = 0;
 
-            var max = (r.Length > l.Length) ? r.Length : l.Length;
+            int sumDecimalPoint = AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
 
-            //pad numbers with zeroes to make them of equal length
-            r = r.PadLeft(max, '0');
-            l = l.PadLeft(max, '0');
-
-            var right = r.ToCharArray();
-            var left = l.ToCharArray();
-
+            int max = Math.Max(rightValue.Length, leftValue.Length);
             for (int i = max - 1; i >= 0; i--)
             {
-                var digitRight = (i < r.Length) ? right[i] - 48 : 0;
-                var digitLeft = (i < l.Length) ? left[i] - 48 : 0;
+                if (rightValue[i] == '.')
+                    continue;
+
+                var digitRight = (i < rightValue.Length) ? rightValue[i] - 48 : 0;
+                var digitLeft = (i < leftValue.Length) ? leftValue[i] - 48 : 0;
                 var sum = (digitRight + digitLeft + carryOn).ToString();
                 string digit;
 
@@ -3160,12 +3276,20 @@ namespace JuanMartin.Kernel.Utilities
                 if (i == 0)
                 {
                     result.Insert(0, digit);
-                    if (carryOn != 0) result.Insert(0, carryOn);
+                    if (carryOn != 0)
+                    {
+                        result.Insert(0, carryOn);
+                        if (sumDecimalPoint != -1)
+                            sumDecimalPoint++;
+                    }
                 }
                 else
                     result.Insert(0, digit);
             }
-            return result.ToString();
+
+           var addition = ProcessOperationOutput(sumDecimalPoint, result.ToString());
+
+            return addition;
         }
 
         public static string AddLargeNumbers(string[] numbers)
@@ -3185,15 +3309,13 @@ namespace JuanMartin.Kernel.Utilities
 
             var max = (rightValue.Length > leftValue.Length) ? rightValue.Length : leftValue.Length;
 
-            //pad numbers with zeroes to make them of equal length
-            rightValue = rightValue.PadLeft(max, '0');
-            leftValue = leftValue.PadLeft(max, '0');
-
-            //var right = r.ToCharArray();
-            //var left = l.ToCharArray();
+            int subsDecimalPoint = AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
 
             for (int i = max - 1; i >= 0; i--)
             {
+                if (rightValue[i] == '.')
+                    continue;
+
                 var digitLeft = leftValue[i] - 48;
                 var digitRight = rightValue[i] - 48;
 
@@ -3226,7 +3348,10 @@ namespace JuanMartin.Kernel.Utilities
                 result.Insert(0, digit);
             }
 
-            return result.ToString().TrimStart('0');
+
+            var substraction = ProcessOperationOutput(subsDecimalPoint, result.ToString());
+
+            return substraction;
         }
 
         public static string MultiplyLargeNumbers(ulong r, ulong l)
@@ -3349,56 +3474,6 @@ namespace JuanMartin.Kernel.Utilities
 
                 return EvaluateSimpleArithmeticOerations(originalExpression.Replace(pattern, result.ToString()), NumberOfDecimalsAllowedForArithmeticOperationParsing);
             }
-        }
-        /// <summary>
-        /// Check if expression, using parentheses to specify  precedence
-        /// of operations: +, -, *, /
-        /// <see cref="https://stackoverflow.com/questions/1631820/regular-expression-to-match-digits-and-basic-math-operators"/>
-        /// <seealso cref="http://javaonlineguide.net/2013/03/how-to-check-parentheses-in-string-exp.html"/>
-        /// </summary>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        private static bool CheckForValidArithmeticSyntax(string expression, int NumberOfDecimalsAllowed)
-        {
-            // check opeeeeerands and operations without parentheses
-            string pattern = $@"[-?(\d +)(\.\d\{{1,{NumberOfDecimalsAllowed}}})?)\-*\/\(\)]*$";
-            var regexExpression = new Regex(pattern);
-            var match = regexExpression.Match(expression);
-
-            // check parentheses are baanced
-            var stack = new DataStructures.Stack<char>();
-
-            foreach (var c in expression)
-            {
-                switch (c)
-                {
-                    case '(': stack.Push(')'); break;
-                    case ')':
-                        {
-                            if (stack.IsEmpty())
-                                return false;
-
-                            else if (stack.Peek() == c)
-                            {
-                                stack.Pop();
-                            }
-                            break;
-                        }
-                    default: 
-                        break;
-                }
-            }
-            return match.Success && stack.IsEmpty();
-        }
-
-        private static (double a, double b, char op) ParseOperation(Match matches, int NumberOfDecimals)
-        {
-            // groups 2 and 5 are the decimal parts, 1 and 4 have the complete numbers
-            double x = Math.Round(Convert.ToDouble(matches.Groups[1].Value), NumberOfDecimals);
-            double y = Math.Round(Convert.ToDouble(matches.Groups[4].Value), NumberOfDecimals);
-            char o = Convert.ToChar(matches.Groups[3].Value);
-
-            return (x, y, o);
         }
 
         /// <summary>
@@ -3687,6 +3762,140 @@ namespace JuanMartin.Kernel.Utilities
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sumDecimalPoint"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private static string ProcessOperationOutput(int sumDecimalPoint, string result)
+        {
+            if (sumDecimalPoint != -1)
+            {
+                result = result.Insert(sumDecimalPoint, ".");
+
+                var noDecimal = new Regex(@"\d+\.0+$");
+                var match = noDecimal.Match(result);
+
+                if (match.Success)
+                {
+                    result = result.TrimEnd('0');
+                    result = result.Remove(result.Length - 1);
+                }
+            }
+
+            var allZeroes = new Regex(@"^0{2,}$");
+            //var match = allZeroes.Match(result);
+            if (allZeroes.IsMatch(result))
+                result = result.TrimStart('0');
+            if (result == "")
+                result = "0";
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rightValue"></param>
+        /// <param name="leftValue"></param>
+        /// <returns></returns>
+        private static int AlignValuesOfBinaryOpertation(ref string rightValue, ref string leftValue)
+        {
+            int sumDecimalPoint;
+
+            // First align real and decimal parts
+            var rightDecimalPoint = rightValue.IndexOf('.');
+            var leftDecimalPoint = leftValue.IndexOf('.');
+            // if both parts have no decimal neither the sum
+            sumDecimalPoint = (rightDecimalPoint == -1 && leftDecimalPoint == -1) ? -1 : Math.Max(rightDecimalPoint, leftDecimalPoint);
+
+            // if one side has decimal point then add it
+            if (rightDecimalPoint == -1)
+            {
+                rightValue += ".";
+                rightDecimalPoint = rightValue.Length - 1;
+            }
+            if (leftDecimalPoint == -1)
+            {
+                leftValue += ".";
+                leftDecimalPoint = leftValue.Length - 1;
+            }
+            sumDecimalPoint = (sumDecimalPoint == -1) ? -1 : Math.Max(rightDecimalPoint, leftDecimalPoint);
+
+            var rightDecimalPart = rightValue.Substring(rightDecimalPoint + 1);
+            var leftDecimalPart = leftValue.Substring(leftDecimalPoint + 1);
+
+            //  align decimal parts: pad numbers with zeroes to make them of equal length
+            var max = Math.Max(rightDecimalPart.Length, leftDecimalPart.Length);
+            var padRight = max - rightDecimalPart.Length;
+            var padLeft = max - leftDecimalPart.Length;
+            rightValue += new string('0', padRight);
+            leftValue += new string('0', padLeft);
+
+            // align real parts
+            rightDecimalPoint = rightValue.IndexOf('.');
+            leftDecimalPoint = leftValue.IndexOf('.');
+            max = Math.Max(rightDecimalPoint, leftDecimalPoint);
+            padRight = max - rightDecimalPoint;
+            padLeft = max - leftDecimalPoint;
+            rightValue = new string('0', padRight) + rightValue;
+            leftValue = new string('0', padLeft) + leftValue;
+
+            return sumDecimalPoint;
+        }
+
+        /// <summary>
+        /// Check if expression, using parentheses to specify  precedence
+        /// of operations: +, -, *, /
+        /// <see cref="https://stackoverflow.com/questions/1631820/regular-expression-to-match-digits-and-basic-math-operators"/>
+        /// <seealso cref="http://javaonlineguide.net/2013/03/how-to-check-parentheses-in-string-exp.html"/>
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        private static bool CheckForValidArithmeticSyntax(string expression, int NumberOfDecimalsAllowed)
+        {
+            // check opeeeeerands and operations without parentheses
+            string pattern = $@"[-?(\d +)(\.\d\{{1,{NumberOfDecimalsAllowed}}})?)\-*\/\(\)]*$";
+            var regexExpression = new Regex(pattern);
+            var match = regexExpression.Match(expression);
+
+            // check parentheses are baanced
+            var stack = new DataStructures.Stack<char>();
+
+            foreach (var c in expression)
+            {
+                switch (c)
+                {
+                    case '(': stack.Push(')'); break;
+                    case ')':
+                        {
+                            if (stack.IsEmpty())
+                                return false;
+
+                            else if (stack.Peek() == c)
+                            {
+                                stack.Pop();
+                            }
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            return match.Success && stack.IsEmpty();
+        }
+
+        private static (double a, double b, char op) ParseOperation(Match matches, int NumberOfDecimals)
+        {
+            // groups 2 and 5 are the decimal parts, 1 and 4 have the complete numbers
+            double x = Math.Round(Convert.ToDouble(matches.Groups[1].Value), NumberOfDecimals);
+            double y = Math.Round(Convert.ToDouble(matches.Groups[4].Value), NumberOfDecimals);
+            char o = Convert.ToChar(matches.Groups[3].Value);
+
+            return (x, y, o);
+        }
 
         private static void CalculateProduct(Cells block, CellList blocks)
         {

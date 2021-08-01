@@ -52,7 +52,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 foreach (var expression in expressions)
                 {
-                    var actualValue = UtilityMath.EvaluateSimpleArithmeticOerations(expression,0);
+                    var actualValue = UtilityMath.EvaluateSimpleArithmeticOerations(expression, 0);
                     Assert.Greater(actualValue, expectedValue, $"Successful evaluation of {expression}.");
                 }
 
@@ -90,7 +90,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 //}
                 //int v = Evaluate(actualExpression, new ExpressionEvaluator());
                 var actualExpression = "(2-1)/(3*4)";
-                double actualValue = UtilityMath.EvaluateSimpleArithmeticOerations(actualExpression);
+                double actualValue = UtilityMath.EvaluateSimpleArithmeticOerations(actualExpression, 0);
                 double expectedValue = 0;
 
                 Assert.AreEqual(expectedValue, actualValue, "Small number operations.");
@@ -360,8 +360,8 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 var actualMethodDotNetDuration = UtilityHelper.Measure(() => DotNetSquareRootLoop(count));
                 var actualMethodOneDuration = UtilityHelper.Measure(() => BabylonianSquareRootLoop(count));
                 var actualMethodTwoDuration = UtilityHelper.Measure(() => NewtonSquareRootLoop(count));
-                Assert.Less(actualMethodDotNetDuration, actualMethodOneDuration, "Babylonian is faster  than .Net Sqrt.");
-                Assert.Less(actualMethodDotNetDuration, actualMethodTwoDuration, "Newton  method is faster  than .Net Sqrt.");
+                Assert.LessOrEqual(actualMethodDotNetDuration, actualMethodOneDuration, "Babylonian is faster  than .Net Sqrt.");
+                Assert.LessOrEqual(actualMethodDotNetDuration, actualMethodTwoDuration, "Newton  method is faster  than .Net Sqrt.");
             }
         }
 
@@ -617,5 +617,166 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
         }
 
+        [TestFixture]
+        public class GetIscocelesTriangleAreaAndPerimeterUsingSidesOnlyTests
+        {
+            [Test()]
+            public void ShouldReturnValidNumberForAreaOfIscocelesTriangleWithVeryBigSide()
+            {
+                int actualSide = 11;
+                int actualBase = actualSide + 1;
+                BigInteger expectedPerimeter = actualBase + 2 * actualSide;
+
+                var (actualArea, actualPerimeter) = UtilityMath.GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(actualBase, actualSide);
+
+                Assert.IsTrue(actualArea.HasValue, "Calulate Area as not NaN.");
+                Assert.AreEqual(expectedPerimeter, actualPerimeter, "Calulate Perimeter.");
+            }
+        }
+
+        [TestFixture]
+        public class DcimalSquereRootTests
+        {
+            [Test()]
+            public void ShouldCalculateSquareRootForLargeNumbers()
+            {
+                BigInteger big1 = new BigInteger(double.MaxValue);
+                BigInteger big2 = new BigInteger(double.MaxValue);
+
+                BigInteger x = new BigInteger(6);
+                BigInteger y = new BigInteger(5);
+                BigInteger r;
+                BigInteger rem = BigInteger.DivRem(y, x, out r);
+
+                // Add the 2 values together.
+                BigInteger actualNumber = BigInteger.Add(big1, big2);
+
+                BigInteger? actualRoot = UtilityMath.BigIntegerSquareRoot(actualNumber);
+
+                Assert.IsTrue(actualRoot.HasValue, $"Number {actualNumber} has s square root.");
+
+            }
+        }
+
+        [TestFixture]
+        public class IsLargeNumberPerferctSquareTests
+        {
+            [Test()]
+            public void ShouldIdentifyProductOfSameNumberTwiceAsPerfectSquare()
+            {
+                BigInteger actualNumber = 434 * 434;
+                Assert.IsTrue(UtilityMath.IsLargeNumberPerferctSquare(actualNumber), $"{actualNumber} is a perfect square.");
+            }
+        }
+
+
+        [TestFixture]
+        public class NumericDigitSumTests
+        {
+            [Test()]
+            public void ShouldFinSumOfDigitsInNumberAsSingleDigit()
+            {
+                BigInteger actualNumber = 321489;
+                int expectedSum = 9;
+
+                var actualSum = UtilityMath.NumericDigitSum(actualNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+        }
+
+        [TestFixture]
+        public class AddLargeNumbersTests
+        {
+            [Test()]
+            public void ShouldAddTwoNumbersWithoutDecimalTest()
+            {
+                var actualRightNumber = "987";
+                var actualLeftNumber = "65";
+                var expectedSum = "1052";
+
+                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+
+            [Test()]
+            public void ShouldAddTwoNumbersWithDecimalTest()
+            {
+                var actualRightNumber = "98.7";
+                var actualLeftNumber = "0.65";
+                var expectedSum = "99.35";
+
+                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+
+            [Test()]
+            public void ShouldAddTwoNumbersWithDecimalAndMoveDecimalPlaceUpAccordinglyTest()
+            {
+                var actualRightNumber = "1.5";
+                var actualLeftNumber = "1.5";
+                var expectedSum = "3";
+
+                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+
+            [Test()]
+            public void ShouldAddTwoNumbersWithDecimalAndIncreaseNumberOfDigitsTest()
+            {
+                var actualRightNumber = "99.9";
+                var actualLeftNumber = "0.11";
+                var expectedSum = "100.01";
+
+                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+
+
+            [Test()]
+            public void ShouldAddTwoNumbersOneWithOneWithoutDecimalTest()
+            {
+                var actualRightNumber = "987";
+                var actualLeftNumber = "0.65";
+                var expectedSum = "987.65";
+
+                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+
+        }
+
+        [TestFixture]
+        public class SubstractLargeNumbersTests
+        {
+            [Test()]
+            public void ShouldReturnZeroIfSubstractingSameTwoLargeNumbersTest()
+            {
+                var actualRightNumber = long.MaxValue.ToString();
+                var actualLeftNumber = actualRightNumber;
+                var expectedSubs = "0";
+
+                var actualSubs = UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSubs, actualSubs);
+            }
+
+            [Test()]
+            public void ShouldTest()
+            {
+                var actualRightNumber = "5.5";
+                var actualLeftNumber = "5";
+                var expectedSubs = "0.5";
+
+                var actualSubs = UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedSubs, actualSubs);
+            }
+        }
     }
 }

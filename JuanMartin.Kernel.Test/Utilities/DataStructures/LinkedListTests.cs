@@ -87,8 +87,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             var expectedIndex = 0;
             var actualList = new LinkedList<int>();
 
-            actualList.Add(1);                // index 1 element
-            actualList.Add(2);                // index 2 element
+            actualList.Add(1);                // index 2 element
+            actualList.Add(2);                // index 1 element
             actualList.Add(expectedValue);    // index 0 element, first element
 
             Assert.AreEqual(expectedValue, actualList[expectedIndex].Item);

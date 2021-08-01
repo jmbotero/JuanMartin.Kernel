@@ -40,20 +40,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test()]
-        public void ShouldPopElementsInReverseOrderTheyWerPushed()
+        public void ShouldReduceLegthAsElementsArePopped()
         {
-            var actualStack = new Stack<int>();
-            var expectedFirstItem = 3;
-            var expectedSecondItem = 2;
+            var actualStack = new Stack<int>(new int[] { 1, 2, 3 });
 
-            actualStack.Push(expectedFirstItem);
-            actualStack.Push(expectedSecondItem);
+            var expectedLength = 2;
 
-            Assert.AreEqual(expectedFirstItem, actualStack.Pop().Item, "Popped first value pushed.");
-            var expectedLength = 1;
+            actualStack.Pop();
             Assert.AreEqual(expectedLength, actualStack.Length, $"Stack length is {expectedLength}.");
-            Assert.AreEqual(expectedSecondItem, actualStack.Pop().Item, "Popped second value pushed.");
             expectedLength = 0;
+
+            actualStack.Pop();
+            actualStack.Pop();
             Assert.AreEqual(expectedLength, actualStack.Length, $"Stack length is {expectedLength}.");
         }
 
@@ -74,13 +72,31 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test()]
-        public void SholdThrowInvalidOperationExceptionWhenTryingToPopItemsFronEmptyList ()
+        public void ShouldThrowInvalidOperationExceptionWhenTryingToPopItemsFronEmptyList ()
         {
             var actualStack = new Stack<int>();
-
+             
             var actualOperationException = Assert.Throws<InvalidOperationException>(() => actualStack.Pop(), "Invalid Pop()");
             Assert.IsTrue(actualOperationException.Message.Contains("Cannot pop a item  from  an empty stack"), "Invalid Pop()");
             Assert.IsTrue(actualStack.IsEmpty(), "Stack is empty.");
+        }
+
+        [Test()]
+        public void  ShouldOutputPalindromeOfStringByPoppingAllCharactesPushedIntoStack()
+        {
+            var actualStack = new Stack<char>();
+            var baseWord = "abc";
+            var actualWord = "";
+            var expectedWord = "cba";
+
+            foreach (var letter in baseWord)
+                actualStack.Push(letter);
+
+            while(actualStack.Length>0)
+            //while(!actualStack.IsEmpty())
+                actualWord += actualStack.Pop().ToString();
+
+            Assert.AreEqual(expectedWord, actualWord);
         }
     }
 }

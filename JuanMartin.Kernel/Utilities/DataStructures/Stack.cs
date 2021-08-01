@@ -16,6 +16,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             filo = new LinkedList<T>("stack");
         }
 
+        public Stack(T[] values) : this()
+        {
+            foreach (var v in values)
+                Push(v);
+        }
+
         public bool IsEmpty()
         {
             return filo.IsEmpty();
@@ -56,9 +62,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (filo.IsEmpty())
                 throw new InvalidOperationException("Cannot pop a item  from  an empty stack.");
 
-            var node = filo.Last;
+            var node = filo.First;
 
-            filo.RemoveLast();
+            filo.RemoveFirst();
 
             return node;
         }
@@ -69,7 +75,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public T Peek()
         {
-            var node = filo[0];
+            var node = filo.First;
 
             return node.Item;
         }

@@ -15,61 +15,53 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         private const string LinkedListType = "LinkedList";
         private int _size;
         private readonly string _type;
-        private readonly Dictionary<Guid, Link<T>> _bag; // add link to dictionary to allow to store multiple values
+        private readonly Dictionary<Guid, Link<T>> _bag; // set Guid key to allow to store multiple values
+        private readonly List<Guid> _keys;
 
-        public LinkedList(string listType, T[] values)
+       public LinkedList(string listType)
         {
-            if (values == null)
-            {
-                _type = listType;
-                _size = 0;
-                First = null;
-                Last = null;
-                _bag = new Dictionary<Guid, Link<T>>();
-            }
-            else
-            {
-                var len = values.Length;
-                var nodes = new Link<T>[len];
-                _type = char.ToUpper(listType[0]) + listType.Substring(1);
-                _bag = new Dictionary<Guid, Link<T>>();
-
-                // initialize nodes with values and array index for key
-                for (int i = 0; i < len; i++)
-                {
-                    nodes[i] = new Link<T>(values[i]);
-                    _bag.Add(nodes[i].Key, nodes[i]);
-                }
-
-                // set node links set head and tail
-                for (int i = 0; i < len; i++)
-                {
-                    if (i == 0)
-                    {
-                        if (len > 1)
-                            nodes[i].Next = nodes[i + 1];
-                        First = nodes[i];
-                    }
-                    else if (i == len - 1)
-                    {
-                        if (len > 1)
-                            nodes[i].Previous = nodes[i - 1];
-                        Last = nodes[i];
-                    }
-                    else if (i > 0 && i < len)
-                    {
-                        nodes[i].Next = nodes[i + 1];
-                        nodes[i].Previous = nodes[i - 1];
-                    }
-                }
-                _size = len;
-            }
+            _type = char.ToUpper(listType[0]) + listType.Substring(1);
+            _size = 0;
+            First = null;
+            Last = null;
+            _bag = new Dictionary<Guid, Link<T>>();
+            _keys = new List<Guid>();
         }
 
-        public LinkedList(string listType) : this(listType, null)
-        { }
+        public LinkedList(string listType, T[] values):this(listType)
+        {
+            var len = values.Length;
+            _keys = new List<Guid>();
 
-        public LinkedList() : this(LinkedListType)
+            // initialize nodes with values and array index for key
+            for (int i = 0; i < len; i++)
+            {
+                AddWithGuidKey(values[i]); 
+            }
+
+            // set node links set head and tail
+            for(int i=0;i<len;i++)
+            {
+                var current = _keys[i];
+                var next = (i == len - 1) ?  Guid.Empty: _keys[i + 1];
+                var previous = (i == 0) ? Guid.Empty : _keys[i - 1];
+
+                if (i == 0) First = _bag[current];
+                else if (i == len - 1) Last = _bag[current];
+
+                if (i < len - 1)
+                {
+                    _bag[current].Next = _bag[next];
+                }
+                if (i > 0)
+                {
+                    _bag[current].Previous = _bag[previous];
+                }
+            }
+            _size = len;
+        }
+
+       public LinkedList() : this(LinkedListType)
         { }
 
         public LinkedList(T[] values) : this(LinkedListType, values)
@@ -87,10 +79,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns>Returns node just added coontaining the new value, last property of list pinting to it and it pointing to nothing.</returns>
         public Link<T> Append(T value)
         {
-            //if(value.GetType()!=this.GetType().GetGenericArguments().Single())
-            //{
-            //    throw new InvalidCastException(string.Format("Type of object being added to list ({0}) must be the same type as the " + type + "'s type ({1}). ", value.GetType(), this.GetType()));
-            //}
             var node = new Link<T>(value);
 
             if (node == null)
@@ -113,9 +101,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             {
                 First = node;
             }
-            _size++;
 
-            _bag.Add(node.Key, node);
+            AddWithGuidKey(node);
 
             return node;
         }
@@ -127,10 +114,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns>Returns node just added coontaining the value added and a pointer to the firrst element before the addition.</returns>
         public Link<T> Add(T value)
         {
-            //if (value.GetType() != this.GetType().GetGenericArguments().Single())
-            //{
-            //    throw new InvalidCastException(string.Format("Type of object being added to list ({0}) must be the same type as the " + type + "'s type ({1}). ", value.GetType(), this.GetType()));
-            //}
             var node = new Link<T>(value);
 
             if (node == null)
@@ -139,27 +122,25 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
             if (First == null)
             {
-                First = node;
                 node.Index = 0;
+                First = node;
             }
             else
             {
                 node.Next = First;
-                if (Last.Previous == null)
-                    Last.Previous = node;
-                First = node;
+                First.Previous = node;
                 //index  new node appropriately
                 node.Index = 0;
                 ReIndexListNodes(node);
+                First = node;
             }
-            if (Last == null)
+            if (Last == null) // the first node will eventually be the last
             {
                 Last = node;
             }
 
-            _size++;
-            _bag.Add(node.Key, node);
-
+            AddWithGuidKey(node, true);
+            
             return node;
         }
 
@@ -243,16 +224,43 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     _size--;
                     var previuos = Last.Previous;
                     Last = previuos;
-                    if(Last != null)
+                    if (Last != null)
                         Last.Next = null;
-                    if(_size == 0)
+                    if (_size == 0)
                     {
                         Last = null;
                         First = null;
                     }
                 }
-                else
-                    throw new ArgumentException("Last node is undefined:  result of  possible linking issue.");
+            }
+        }
+
+        /// <summary>
+        /// Remove the first node of the list, by making the current second node  the new first
+        /// </summary>
+        /// <returns></returns>
+        public void RemoveFirst()
+        {
+            if (IsEmpty())
+                throw new InvalidOperationException(_type + " is empty.");
+            else
+            {
+                if (First != null)
+                {
+                    if (First.Index == -1)
+                        throw new ArgumentException("node index has not been set.");
+                    _bag.Remove(First.Key);
+                    _size--;
+                    var next = First.Next;
+                    First = next;
+                    if (First != null)
+                        First.Previous = null;
+                    if (_size == 0)
+                    {
+                        Last = null;
+                        First = null;
+                    }
+                }
             }
         }
 
@@ -262,10 +270,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public override string ToString()
         {
-            var node = First;
             if (IsEmpty())
                 throw new InvalidOperationException(_type + " is empty.");
 
+            var node = First;
             var builder = new StringBuilder();
 
             while (node != null)
@@ -327,16 +335,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public T[] ToArray()
         {
             var array = new T[_size];
-            var i = 0;
+            int i = 0;
 
-            var node = First.Next;
-
-            array[i] = First.Item;
-            i++;
-            while (node != null)
+            foreach(var link in _bag)
             {
-                array[i] = node.Item;
-                node = node.Next;
+                array[i] = link.Value.Item;
                 i++;
             }
 
@@ -378,6 +381,25 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             //return this.MemberwiseClone();
         }
 
+        private void AddWithGuidKey(Link<T> link, bool insertAtTopKeys = false)
+        {
+            _size++;
+            var key = link.Key;
+            if (!insertAtTopKeys)
+                _keys.Add(key);
+            else
+                _keys.Insert(0, key);
+            _bag.Add(key, link);
+        }
+
+        private void AddWithGuidKey(T item, bool insertAtTopKeys=false)
+        {
+            var key = Guid.NewGuid();
+            var link = new Link<T>(item, _size + 1, key);
+
+            AddWithGuidKey(link, insertAtTopKeys);
+        }
+
         /// <summary>
         /// Get node indicated with index or position counting linked nodes from _first,
         /// its a zero-bsed count.
@@ -386,9 +408,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         private Link<T> Get(int position)
         {
-            var node = First;
-            var i = 0;
-
+       
             if (IsEmpty())
                 throw new IndexOutOfRangeException(_type + " cannot be inexed because it is empty.");
 
@@ -396,16 +416,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             {
                 throw new IndexOutOfRangeException($"Index specified [{position}] is out of list bounds 0...{_size - 1}.");
             }
-            while (node != null && i <= position)
-            {
-                if (i == position)
-                {
-                    return node;
-                }
-                i++;
-                node = node.Next;
-            }
-            return null;
+            var key = _keys[position];
+            var node = _bag[key];
+
+            return node;
         }
 
         /// <summary>
@@ -430,7 +444,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             {
                 var i = 0;
 
-                var pivot = (dynamic)list[new Random().Next(0, len)].Item;
+                var x = new Random().Next(0, len);
+                var pivot = (dynamic)list[x].Item;
 
                 var left = new LinkedList<T>();
                 var right = new LinkedList<T>();
