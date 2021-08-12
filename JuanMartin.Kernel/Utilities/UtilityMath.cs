@@ -2514,7 +2514,7 @@ namespace JuanMartin.Kernel.Utilities
             var result = number.ToString();
 
             for (int i = 1; i < exponent; i++)
-                result = MultiplyLargeNumberBySingleDigit(result.ToCharArray(), number);
+                result = MultiplyLargeNumberBySingleDigit(result, number);
 
             return result;
         }
@@ -3247,6 +3247,12 @@ namespace JuanMartin.Kernel.Utilities
         #region Support Methods
         public static string AddLargeNumbers(string rightValue, string leftValue)
         {
+            
+            if (leftValue == string.Empty)
+                return rightValue;
+            if (rightValue == string.Empty)
+                return leftValue;
+
             var result = new StringBuilder();
             var carryOn = 0;
 
@@ -3304,6 +3310,11 @@ namespace JuanMartin.Kernel.Utilities
 
         public static string SubstractLargeNumbers(string rightValue, string leftValue)
         {
+            if (leftValue == string.Empty)
+                return rightValue;
+            if (rightValue == string.Empty)
+                return leftValue;
+
             var result = new StringBuilder();
             var carryOn = 0;
 
@@ -3338,11 +3349,20 @@ namespace JuanMartin.Kernel.Utilities
                     {
                         digit = (10 + dif).ToString();
                         carryOn = Math.Abs(dif);
+
+                        if (i == 0 && carryOn > 0)
+                            throw new ArithmeticException($"{rightValue}-{leftValue}: generates a negative result.");
                     }
                 }
                 else
                 {
-                    digit = (digitRight - digitLeft + 10).ToString();
+                    int dif = digitRight - digitLeft;
+                    carryOn = Math.Abs(dif);
+
+                    if (i == 0 && carryOn > 0)
+                        throw new ArithmeticException($"{rightValue}-{leftValue}: generates a negative result.");
+
+                    digit = (dif + 10).ToString();
                     carryOn = 1;
                 }
                 result.Insert(0, digit);
@@ -3354,40 +3374,183 @@ namespace JuanMartin.Kernel.Utilities
             return substraction;
         }
 
-        public static string MultiplyLargeNumbers(ulong r, ulong l)
+        public static string MultiplyLargeNumbers(ulong rightValue, ulong leftValue)
         {
-            return MultiplyLargeNumbers(r.ToString(), l.ToString());
+            return MultiplyLargeNumbers(rightValue.ToString(), leftValue.ToString());
         }
-        public static string MultiplyLargeNumbers(string r, string l)
-        {
-            var right = r.TrimStart('0').ToCharArray();
-            var left = l.TrimStart('0').ToCharArray();
 
+        /// <summary>
+        /// Multiple one-by-one digits and then insert decimal place.
+        /// <see cref="https://www.mathsisfun.com/multiplying-decimals.html"/>
+        /// </summary>
+        /// <param name="rightValue"></param>
+        /// <param name="leftValue"></param>
+        /// <returns></returns>
+        public static string MultiplyLargeNumbers(string rightValue, string leftValue)
+        {
+            rightValue = rightValue.TrimStart('0');
+            leftValue = leftValue.TrimStart('0');
+
+            var rightDecimalPlace = rightValue.IndexOf('.');
+            var leftDecimalPlace = leftValue.IndexOf('.');
+
+            // remove decimal places on both sides
+            // note: indexof was needed to remove the '.'s but the decimal place counts from the end
+            if (rightDecimalPlace != -1)
+            {
+                rightValue = rightValue.Remove(rightDecimalPlace, 1);
+                rightDecimalPlace = rightValue.Length - rightDecimalPlace;
+            }
+            else
+            {
+                rightDecimalPlace++;
+            }
+
+            if (leftDecimalPlace != -1)
+            {
+                leftValue = leftValue.Remove(leftDecimalPlace, 1);
+                leftDecimalPlace = leftValue.Length - leftDecimalPlace;
+            }
+            else
+            {
+                leftDecimalPlace++;
+            }
+
+            //  calculate poduct decimal place
+            var productDecimalPlace = rightDecimalPlace + leftDecimalPlace;
+
+            var result = ProcessAsMatrixToMultiplyLargeNumbers(rightValue, leftValue);
+            result = InsertDecimalPlace(productDecimalPlace, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Return from numerical value comparison: 0 if rightValue = LeftValue, 1 if rightValue < LeftValue or -1 if rightValue > </LeftValue>LeftValue.
+        /// <see cref="https://docs.microsoft.com/en-us/dotnet/api/system.icomparable.compareto?view=net-5.0"/>
+        /// </summary>
+        /// <param name="rightValue"></param>
+        /// <param name="leftValue"></param>
+        /// <returns></returns>
+        public static int CompareLargeNumbers(string rightValue, string leftValue)
+        {
+            if (!leftValue.IsNumeric() || !rightValue.IsNumeric())
+                throw new ArithmeticException($"Both values been compared: {rightValue}, {leftValue} must be numeric.");
+
+            AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
+
+            var rightDecimalPlace = rightValue.IndexOf('.');
+            var leftDecimalPlace = leftValue.IndexOf('.');
+
+            var rightNumericPart = (rightDecimalPlace == -1) ? rightValue : rightValue.Substring(0, rightDecimalPlace);
+            var leftNumericPart = (leftDecimalPlace == -1) ? leftValue : leftValue.Substring(0, leftDecimalPlace);
+
+            var l = leftNumericPart.Length;
+            var r = rightNumericPart.Length;
+
+            if (l > r)
+                return 1;
+            else if (l < r)
+                return -1;
+            else
+            {
+                for(int i=r-1;i>=0;i--)
+                {
+                    if (leftNumericPart[i] > rightNumericPart[i])
+                        return 1;
+                    else if (leftNumericPart[i] < rightNumericPart[i])
+                        return -1;
+                }
+                // at this point numric part are identical if they had decimals then compare those
+                if (rightDecimalPlace > 0 || leftDecimalPlace > 0)
+                {
+                    var rightDecimalPart = (rightDecimalPlace == -1) ? rightValue : rightValue.Substring(rightDecimalPlace + 1);
+                    var leftDecimalPart = (leftDecimalPlace == -1) ? leftValue : leftValue.Substring(leftDecimalPlace + 1);
+
+                    l = leftDecimalPart.Length;
+                    r = rightDecimalPart.Length;
+
+                    if (r > l)
+                        return 1;
+                    else if (r < l)
+                        return -1;
+                    else
+                    {
+                        for (int i = 0; i < r; i++)
+                        {
+                            if (leftDecimalPart[i] < rightDecimalPart[i])
+                                return 1;
+                            else if (leftDecimalPart[i] > rightDecimalPart[i])
+                                return -1;
+                            }
+                        }
+                        return 0;
+                    }
+               
+                return 0;
+            }
+        }
+        private static string InsertDecimalPlace(int decimalPlaceCount, string number)
+        {
+            if (decimalPlaceCount > number.Length)
+                number = number.PadLeft(decimalPlaceCount, '0');
+
+            if (decimalPlaceCount > 0)
+            {
+                number = number.Insert(number.Length - decimalPlaceCount, ".");
+                number = number.TrimEnd('0');
+            }
+
+            if (number[0] == '.')
+                number = number.Insert(0, "0");
+
+            if (number[number.Length - 1] == '.')
+                number = number.TrimEnd('.');
+
+            return number;
+        }
+
+        public static string ProcessAsMatrixToMultiplyLargeNumbers(string rightValue, string leftValue)
+        {
             var operands = string.Empty;
             var stringOperands = new StringBuilder();
             stringOperands.Append(operands);
 
-            for (int i = left.Length - 1; i >= 0; i--)
-            {
-                var digit = int.Parse(left[i].ToString());
-                var number = MultiplyLargeNumberBySingleDigit(right, digit);
 
-                //pad with zeroes for multiplication for partials of 'left' digits 
-                var pad = number.Length + (left.Length - 1 - i);
-                var paddedNumber = number.PadRight(pad, '0');
+            for (int i = leftValue.Length - 1; i >= 0; i--)
+            {
+                if (leftValue[i] == '.')
+                    continue;
+
+                var digit = int.Parse(leftValue[i].ToString());
+                var number = MultiplyLargeNumberBySingleDigit(rightValue, digit);
+                
+                //pad with zeroes for multiplication for partials of 'left' digits    
+                var padRight = number.Length + (leftValue.Length - 1 - i);
+                var paddedNumber = number.PadRight(padRight, '0');
 
                 if (operands.Length > 0)
                     stringOperands.Append(",");
 
                 stringOperands.Append(paddedNumber);
+
                 operands = stringOperands.ToString();
-            }
+            } 
 
             var numbers = operands.Split(',').ToArray<string>();
 
-            var numericMatrix = LoadMatrix(numbers);
+            var numericMatrix = LoadAsMatrix(numbers);
 
-            return AddMatrix(numericMatrix);
+            //return AddMatrix(numericMatrix);
+            string[] m = null;
+            if (!numericMatrix.Any(row => row == null))
+                m = numericMatrix.Select(r => string.Join("", r.ToArray())).ToArray();
+            //var m = new List<string>();
+            //foreach (var n in numericMatrix)
+            //{
+            //    if (n != null)
+            //        m.Add(string.Join("", n));
+            //}
+            return AddLargeNumbers(m.ToArray());
         }
 
         /// <summary>
@@ -3683,20 +3846,28 @@ namespace JuanMartin.Kernel.Utilities
             return maxProduct;
         }
 
-        public static T[,] InitializeMatrix<T>(int x, int y, T initialValue)
+        #endregion
+
+        #region Private Methods
+        private static T[][] InitializeMatrix<T>(int x, int y, T initialValue)
         {
-            var nums = new T[x, y];
-            for (int i = 0; i < x * y; i++) nums[i % x, i / x] = initialValue;
+            var nums = new T[x][];
+            for (int i = 0; i < x; i++)
+            {
+                nums[i] = new T[y];
+                for (int j = 0; j < y; j++)
+                    nums[i][j] = initialValue;
+            }
             return nums;
         }
 
         /// <summary>
-        /// Insert numbers into matrix, top to bottom
+        /// Insert numbers into matrix  of single digits, top to bottom, using the fact that 
+        /// maytis pre-initialized
         /// </summary>
         /// <param name="numbers"></param>
-        /// <param name="height"></param>
         /// <returns></returns>
-        public static int[,] LoadMatrix(string[] numbers)
+        private static int[][] LoadAsMatrix(string[] numbers)
         {
             // get matrix widtth
             int width = 0;
@@ -3708,38 +3879,44 @@ namespace JuanMartin.Kernel.Utilities
             }
             var height = numbers.Length;
 
-            var matrix = new int[width, height];
+            var matrix = InitializeMatrix<int>(height, width, 0);
             // by default matrix is initialized with zeros therfore 
             // addressing trail number in matrix with zeros to align values of different magnitudes,
             // then load numbers right to left
-            for (int j = 0; j < height; j++)
+            for (int i = 0; i < height; i++)
             {
-                var number = numbers[j];
+                var number = numbers[i];
 
-                for (int i = number.Length - 1; i >= 0; i--)
+                int index = width - 1;
+
+                for (int j = number.Length - 1; j >= 0; j--)
                 {
-                    matrix[i , j] = number[i] - 48;
+                    if (j <= index)
+                    {
+                        matrix[i][index] = number[j] - 48;
+                        index--;
+                    }
                 }
             }
 
             return matrix;
         }
 
-        public static string AddMatrix(int[,] matrix)
+        private static string AddMatrix(int[][] matrix)
         {
-            var width = matrix.GetLength(0);
-            var height = matrix.GetLength(1);
+            var height = matrix.Length - 1;
+            var width = matrix[height].Length - 1;
             var column = 0;
             var value = string.Empty;
             var carryon = string.Empty;
 
-            for (int i = width - 1; i >= 0; i--)
+            for (int j = width; j >= 0; j--)
             {
                 carryon = string.Empty;
 
-                for (int j = 0; j < height; j++)
+                for (int i = 0; i < height; i++)
                 {
-                    column += matrix[i, j];
+                    column += matrix[i][j];
                 }
 
                 var number = column.ToString();
@@ -3758,10 +3935,6 @@ namespace JuanMartin.Kernel.Utilities
 
             return value.ToString();
         }
-
-        #endregion
-
-        #region Private Methods
 
         /// <summary>
         /// 
@@ -3785,11 +3958,11 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
-            var allZeroes = new Regex(@"^0{2,}$");
+            var allZeroes = new Regex(@"^0{2,}.+$");
             //var match = allZeroes.Match(result);
             if (allZeroes.IsMatch(result))
                 result = result.TrimStart('0');
-            if (result == "")
+            if (result == "" || result == ".")
                 result = "0";
 
             return result;
@@ -3803,49 +3976,47 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         private static int AlignValuesOfBinaryOpertation(ref string rightValue, ref string leftValue)
         {
-            int sumDecimalPoint;
-
             // First align real and decimal parts
             var rightDecimalPoint = rightValue.IndexOf('.');
             var leftDecimalPoint = leftValue.IndexOf('.');
-            // if both parts have no decimal neither the sum
-            sumDecimalPoint = (rightDecimalPoint == -1 && leftDecimalPoint == -1) ? -1 : Math.Max(rightDecimalPoint, leftDecimalPoint);
 
-            // if one side has decimal point then add it
-            if (rightDecimalPoint == -1)
-            {
-                rightValue += ".";
-                rightDecimalPoint = rightValue.Length - 1;
-            }
             if (leftDecimalPoint == -1)
             {
-                leftValue += ".";
-                leftDecimalPoint = leftValue.Length - 1;
+                leftValue = leftValue + ".0";
+                leftDecimalPoint = leftValue.IndexOf('.');
             }
-            sumDecimalPoint = (sumDecimalPoint == -1) ? -1 : Math.Max(rightDecimalPoint, leftDecimalPoint);
+            if (rightDecimalPoint == -1)
+            {
+                rightValue = rightValue + ".0";
+                rightDecimalPoint = rightValue.IndexOf('.');
+            }
 
-            var rightDecimalPart = rightValue.Substring(rightDecimalPoint + 1);
-            var leftDecimalPart = leftValue.Substring(leftDecimalPoint + 1);
+            int max;
+            string rightDecimalPart = string.Empty, leftDecimalPart =string.Empty;
+            // if both parts have no decimal neither the +/- result
+            int decimalPointIndex = (rightDecimalPoint == -1 && leftDecimalPoint == -1) ? -1 : Math.Max(rightDecimalPoint, leftDecimalPoint);
 
-            //  align decimal parts: pad numbers with zeroes to make them of equal length
-            var max = Math.Max(rightDecimalPart.Length, leftDecimalPart.Length);
-            var padRight = max - rightDecimalPart.Length;
-            var padLeft = max - leftDecimalPart.Length;
-            rightValue += new string('0', padRight);
-            leftValue += new string('0', padLeft);
-
+            if (decimalPointIndex != -1)
+            {
+                //  align decimal parts: pad numbers with zeroes to make them of equal length
+                rightDecimalPart = rightValue.Substring(rightDecimalPoint + 1);
+                leftDecimalPart = leftValue.Substring(leftDecimalPoint + 1);
+                max = Math.Max(rightDecimalPart.Length, leftDecimalPart.Length);
+                rightDecimalPart = rightDecimalPart.PadRight(max, '0');
+                leftDecimalPart = leftDecimalPart.PadRight(max, '0');
+            }
             // align real parts
-            rightDecimalPoint = rightValue.IndexOf('.');
-            leftDecimalPoint = leftValue.IndexOf('.');
-            max = Math.Max(rightDecimalPoint, leftDecimalPoint);
-            padRight = max - rightDecimalPoint;
-            padLeft = max - leftDecimalPoint;
-            rightValue = new string('0', padRight) + rightValue;
-            leftValue = new string('0', padLeft) + leftValue;
+            var rightNumericPart = (rightDecimalPoint == -1) ? rightValue : rightValue.Substring(0, rightDecimalPoint);
+            var leftNumericPart = (leftDecimalPoint == -1) ? leftValue : leftValue.Substring(0, leftDecimalPoint);
+            max = Math.Max(rightNumericPart.Length, leftNumericPart.Length);
+            rightNumericPart = rightNumericPart.PadLeft(max, '0');
+            leftNumericPart = leftNumericPart.PadLeft(max, '0');
 
-            return sumDecimalPoint;
+            rightValue = $"{rightNumericPart}.{rightDecimalPart}";
+            leftValue = $"{leftNumericPart}.{leftDecimalPart}";
+
+            return decimalPointIndex;
         }
-
         /// <summary>
         /// Check if expression, using parentheses to specify  precedence
         /// of operations: +, -, *, /
@@ -4155,7 +4326,14 @@ namespace JuanMartin.Kernel.Utilities
             return parts;
         }
 
-        private static string MultiplyLargeNumberBySingleDigit(Char[] n, int d)
+        /// <summary>
+        /// Multiyply a sttrimng of numbers using its carryover between single digit multiplications
+        /// with 'd', while adding them to calculate total
+        /// </summary>
+        /// <param name="n"></param>
+        /// <param name="d"></param>
+        /// <returns></returns>
+        private static string MultiplyLargeNumberBySingleDigit(string n, int d)
         {
             var c = 0; //carry over
             var result = string.Empty;
@@ -4163,10 +4341,13 @@ namespace JuanMartin.Kernel.Utilities
             if (d == 0)
                 return "0";
             if (d == 1)
-                return new string(n);
+                return new string(n.ToCharArray());
 
             for (int i = n.Length - 1; i >= 0; i--)
             {
+                if (n[i] == '.')
+                    continue;
+
                 int digit = int.Parse(n[i].ToString());
                 int m = (digit * d) + c;
                 string s;

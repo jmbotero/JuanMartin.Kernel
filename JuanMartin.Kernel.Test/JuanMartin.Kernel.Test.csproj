@@ -51,11 +51,13 @@
     <Compile Include="Adapters\AdapterMySqlMock.cs" />
     <Compile Include="Adapters\AdapterMySqlTests.cs" />
     <Compile Include="Extesions\CollectionExtensionsTests.cs" />
+    <Compile Include="Extesions\StringExtensionsTests.cs" />
     <Compile Include="Formatters\ValueHolderTests.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuleEngine\ExpressionEvaluatorTests.cs" />
     <Compile Include="RuleEngine\RuleEngineTests.cs" />
+    <Compile Include="Utilities\DataStructures\BigDecimalTests.cs" />
     <Compile Include="Utilities\DataStructures\DirectedAcyclicGraphTests.cs" />
     <Compile Include="Utilities\DataStructures\LinkedListTests.cs" />
     <Compile Include="Utilities\DataStructures\QueueTests.cs" />

@@ -2,12 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace JuanMartin.Kernel.Extesions
 {
     public static class StringExtensions
     {
+        /// <summary>
+        /// Using regular expressions is slower than a decimal.TryParse but  can operate on very large
+        /// numbers. Note this is limited to use off '.' so check string locale settings
+        /// <see cref="https://stackoverflow.com/questions/11431945/regular-expression-for-decimal-value"/>
+        /// </summary>
+        public static bool IsNumeric(this string value)
+        {
+            bool match;
+
+            var numeric = new Regex(@"^-?[\d]+([.][\d]+)?$");
+            match = numeric.IsMatch(value);
+            match &= (value.Count(c => c == '.') <= 1);
+            return match;
+        }
+
         public static char[] To(this char start, char end)
         {
             return Enumerable.Range(start, (end - start)).ToArray().Select(x => Convert.ToChar(x)).ToArray();

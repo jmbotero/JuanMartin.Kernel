@@ -1,0 +1,94 @@
+<Playlist Version="2.0">
+  <Rule Name="Includes" Match="Any">
+    <Rule Match="All">
+      <Property Name="Solution" />
+      <Rule Match="Any">
+        <Rule Match="All">
+          <Property Name="Project" Value="JuanMartin.Kernel.Test" />
+          <Rule Match="Any">
+            <Rule Match="All">
+              <Property Name="Namespace" Value="JuanMartin.Kernel.Utilities.Tests" />
+              <Rule Match="Any">
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+MultiplyLargeNumbersTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+MultiplyLargeNumbersTests.ShoulProcessDecimalShiftsInMultiplicationOperandsTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulProcessDecimalShiftsInMultiplicationOperandsTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+MultiplyLargeNumbersTests.ShoulRemoveDecimalPintIfGoingFromDecimalOnlyToIntegerOnlyTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulRemoveDecimalPintIfGoingFromDecimalOnlyToIntegerOnlyTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+AddLargeNumbersTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNumbersOneWithOneWithoutDecimalTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddTwoNumbersOneWithOneWithoutDecimalTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNumbersWithDecimalAndIncreaseNumberOfDigitsTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddTwoNumbersWithDecimalAndIncreaseNumberOfDigitsTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNumbersWithDecimalAndMoveDecimalPlaceUpAccordinglyTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddTwoNumbersWithDecimalAndMoveDecimalPlaceUpAccordinglyTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNumbersWithDecimalTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddTwoNumbersWithDecimalTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNumbersWithoutDecimalTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddTwoNumbersWithoutDecimalTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+SubstractLargeNumbersTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldProcessSubstractionsOfValuesLessThanOneTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldProcessSubstractionsOfValuesLessThanOneTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldReturnZeroIfSubstractingSameTwoLargeNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldReturnZeroIfSubstractingSameTwoLargeNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldThrowArithmeticExceptionWhenResultOfSubstractionIsNegativeTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldThrowArithmeticExceptionWhenResultOfSubstractionIsNegativeTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+              </Rule>
+            </Rule>
+          </Rule>
+        </Rule>
+      </Rule>
+    </Rule>
+  </Rule>
+</Playlist>

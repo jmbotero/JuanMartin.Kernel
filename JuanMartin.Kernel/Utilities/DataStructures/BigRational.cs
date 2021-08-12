@@ -5,8 +5,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 {
     public struct BigRational : IComparable<BigRational>
     {
-        private string _display;
-        private decimal _value;
+        private readonly string _display;
 
         public BigInteger Numerator { get; set; }
         public BigInteger Denominator { get; set; }
@@ -19,17 +18,14 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (fractionDenominator == 0)
                 throw new ArgumentOutOfRangeException("A fraction cannot be defined with a denominator of zero.");
 
-            _value = GetValue();
-
             _display = String.Format("{0}/{1}", fractionNumerator, fractionDenominator);
         }
 
         private decimal GetValue()
         {
             BigInteger quotient;
-            BigInteger remainder;
 
-            quotient = BigInteger.DivRem(Numerator, Denominator, out remainder);
+            quotient = BigInteger.DivRem(Numerator, Denominator, out BigInteger remainder);
 
             return (decimal)quotient + (decimal)remainder / (decimal)Denominator;
         }

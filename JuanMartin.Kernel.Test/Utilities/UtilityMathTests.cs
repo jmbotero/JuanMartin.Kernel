@@ -767,15 +767,91 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
 
             [Test()]
-            public void ShouldTest()
+            public void ShouldProcessSubstractionsOfValuesLessThanOneTest()
             {
-                var actualRightNumber = "5.5";
-                var actualLeftNumber = "5";
-                var expectedSubs = "0.5";
+                var actualRightNumber = "1";
+                var actualLeftNumber = "0.09";
+                var expectedSubs = "0.91";
 
                 var actualSubs = UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber);
 
                 Assert.AreEqual(expectedSubs, actualSubs);
+            }
+
+            [Test()]
+            public void ShouldThrowArithmeticExceptionWhenResultOfSubstractionIsNegativeTest()
+            {
+                var actualRightNumber = "8";
+                var actualLeftNumber = "12";
+
+                //Assert.AreEqual("1", UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), $"lt last digit greater than ri ght last digit.");
+                var actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), "and right last digit greater than left last digit.");
+                Assert.IsTrue(actualOperationException.Message.Contains(": generates a negative result."));
+
+                actualRightNumber = "28";
+                actualLeftNumber = "32";
+
+                actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), "and right first digit less than left first digit and last digit greater than left last digit.");
+                Assert.IsTrue(actualOperationException.Message.Contains(": generates a negative result."));
+
+                actualRightNumber = "0";
+                actualLeftNumber = ".15";
+
+                //Assert.AreEqual("1", UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), $"less than one substraction");
+                actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), "for less than one substraction.");
+                Assert.IsTrue(actualOperationException.Message.Contains(": generates a negative result."));
+            }
+        }
+
+        [TestFixture]
+        public class MultiplyLargeNumbersTests
+        {
+            [Test()]
+            public void ShoulProcessDecimalShiftsInMultiplicationOperandsTest()
+            {
+                var actualRightNumber = "123";
+                var actualLeftNumber = "456";
+                var expectedMult = "56088";
+
+                var actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
+
+                actualRightNumber = "123";
+                actualLeftNumber = "4.56";
+                expectedMult = "560.88";
+
+                actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
+
+                actualRightNumber = "1.23";
+                actualLeftNumber = "4.56";
+                expectedMult = "5.6088";
+
+                actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
+
+                actualRightNumber = "0.123";
+                actualLeftNumber = "0.456";
+                expectedMult = "0.056088";
+
+                actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
+            }
+
+            [Test()]
+            public void ShoulRemoveDecimalPintIfGoingFromDecimalOnlyToIntegerOnlyTest()
+            {
+                var actualRightNumber = "1.5";
+                var actualLeftNumber = "2";
+                var expectedMult = "3";
+
+                var actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+
+                Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
             }
         }
     }
