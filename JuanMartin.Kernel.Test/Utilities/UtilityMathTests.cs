@@ -691,11 +691,23 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldAddTwoNumbersWithoutDecimalTest()
             {
-                var actualRightNumber = "987";
                 var actualLeftNumber = "65";
+                var actualRightNumber = "987";
                 var expectedSum = "1052";
 
-                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSum = UtilityMath.AddLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedSum, actualSum);
+            }
+
+            [Test()]
+            public void ShouldAddOneNegativeAndOnePositveNumbersWithoutDecimalsTest()
+            {
+                var actualLeftNumber = "5";
+                var actualRightNumber = "-4";
+                var expectedSum = "1";
+
+                var actualSum = UtilityMath.AddLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSum, actualSum);
             }
@@ -703,11 +715,11 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldAddTwoNumbersWithDecimalTest()
             {
-                var actualRightNumber = "98.7";
                 var actualLeftNumber = "0.65";
+                var actualRightNumber = "98.7";
                 var expectedSum = "99.35";
 
-                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSum = UtilityMath.AddLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSum, actualSum);
             }
@@ -719,7 +731,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 var actualLeftNumber = "1.5";
                 var expectedSum = "3";
 
-                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSum = UtilityMath.AddLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSum, actualSum);
             }
@@ -731,7 +743,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 var actualLeftNumber = "0.11";
                 var expectedSum = "100.01";
 
-                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSum = UtilityMath.AddLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSum, actualSum);
             }
@@ -740,11 +752,11 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldAddTwoNumbersOneWithOneWithoutDecimalTest()
             {
-                var actualRightNumber = "987";
                 var actualLeftNumber = "0.65";
+                var actualRightNumber = "987";
                 var expectedSum = "987.65";
 
-                var actualSum = UtilityMath.AddLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSum = UtilityMath.AddLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSum, actualSum);
             }
@@ -757,11 +769,35 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldReturnZeroIfSubstractingSameTwoLargeNumbersTest()
             {
-                var actualRightNumber = long.MaxValue.ToString();
-                var actualLeftNumber = actualRightNumber;
+                var actualLeftNumber = long.MaxValue.ToString();
+                var actualRightNumber = actualLeftNumber;
                 var expectedSubs = "0";
 
-                var actualSubs = UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSubs = UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedSubs, actualSubs);
+            }
+
+            [Test()]
+            public void ShouldSubstractTwoNumbersTest()
+            {
+                var actualLeftNumber = "12";
+                var actualRightNumber = "8";
+                var expectedSubs = "4";
+
+                var actualSubs = UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedSubs, actualSubs);
+            }
+
+            [Test()]
+            public void ShouldSubstractTwoLargeNumbersTest()
+            {
+                var actualLeftNumber = long.MaxValue.ToString();
+                var actualRightNumber = (long.MaxValue - 1).ToString();
+                var expectedSubs = "1";
+
+                var actualSubs = UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSubs, actualSubs);
             }
@@ -769,11 +805,11 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldProcessSubstractionsOfValuesLessThanOneTest()
             {
-                var actualRightNumber = "1";
-                var actualLeftNumber = "0.09";
+                var actualLeftNumber = "1";
+                var actualRightNumber = "0.09";
                 var expectedSubs = "0.91";
 
-                var actualSubs = UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualSubs = UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedSubs, actualSubs);
             }
@@ -781,24 +817,22 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldThrowArithmeticExceptionWhenResultOfSubstractionIsNegativeTest()
             {
-                var actualRightNumber = "8";
-                var actualLeftNumber = "12";
+                var actualLeftNumber = "8";
+                var actualRightNumber = "12";
 
-                //Assert.AreEqual("1", UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), $"lt last digit greater than ri ght last digit.");
-                var actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), "and right last digit greater than left last digit.");
+                var actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber), "and right last digit greater than left last digit.");
                 Assert.IsTrue(actualOperationException.Message.Contains(": generates a negative result."));
 
-                actualRightNumber = "28";
-                actualLeftNumber = "32";
+                actualLeftNumber = "28";
+                actualRightNumber = "32";
 
-                actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), "and right first digit less than left first digit and last digit greater than left last digit.");
+                actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber), "and right first digit less than left first digit and last digit greater than left last digit.");
                 Assert.IsTrue(actualOperationException.Message.Contains(": generates a negative result."));
 
-                actualRightNumber = "0";
-                actualLeftNumber = ".15";
+                actualLeftNumber = "0";
+                actualRightNumber = ".15";
 
-                //Assert.AreEqual("1", UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), $"less than one substraction");
-                actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualRightNumber, actualLeftNumber), "for less than one substraction.");
+                actualOperationException = Assert.Throws<ArithmeticException>(() => UtilityMath.SubstractLargeNumbers(actualLeftNumber, actualRightNumber), "for less than one substraction.");
                 Assert.IsTrue(actualOperationException.Message.Contains(": generates a negative result."));
             }
         }
@@ -809,35 +843,35 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShoulProcessDecimalShiftsInMultiplicationOperandsTest()
             {
-                var actualRightNumber = "123";
                 var actualLeftNumber = "456";
+                var actualRightNumber = "123";
                 var expectedMult = "56088";
 
-                var actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualMult = UtilityMath.MultiplyLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
 
-                actualRightNumber = "123";
                 actualLeftNumber = "4.56";
+                actualRightNumber = "123";
                 expectedMult = "560.88";
 
-                actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+                actualMult = UtilityMath.MultiplyLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
 
-                actualRightNumber = "1.23";
                 actualLeftNumber = "4.56";
+                actualRightNumber = "1.23";
                 expectedMult = "5.6088";
 
-                actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+                actualMult = UtilityMath.MultiplyLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
 
-                actualRightNumber = "0.123";
                 actualLeftNumber = "0.456";
+                actualRightNumber = "0.123";
                 expectedMult = "0.056088";
 
-                actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+                actualMult = UtilityMath.MultiplyLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
             }
@@ -845,11 +879,11 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShoulRemoveDecimalPintIfGoingFromDecimalOnlyToIntegerOnlyTest()
             {
-                var actualRightNumber = "1.5";
                 var actualLeftNumber = "2";
+                var actualRightNumber = "1.5";
                 var expectedMult = "3";
 
-                var actualMult = UtilityMath.MultiplyLargeNumbers(actualRightNumber, actualLeftNumber);
+                var actualMult = UtilityMath.MultiplyLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedMult, actualMult, $"{actualRightNumber}x{actualLeftNumber}");
             }

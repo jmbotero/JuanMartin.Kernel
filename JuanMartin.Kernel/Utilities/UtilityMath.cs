@@ -3242,10 +3242,7 @@ namespace JuanMartin.Kernel.Utilities
             }
             return encryptedMessage;
         }
-        #endregion
-
-        #region Support Methods
-        public static string AddLargeNumbers(string rightValue, string leftValue)
+        public static string AddLargeNumbers(string leftValue, string rightValue)
         {
             
             if (leftValue == string.Empty)
@@ -3308,7 +3305,7 @@ namespace JuanMartin.Kernel.Utilities
             return result;
         }
 
-        public static string SubstractLargeNumbers(string rightValue, string leftValue)
+        public static string SubstractLargeNumbers(string leftValue, string rightValue)
         {
             if (leftValue == string.Empty)
                 return rightValue;
@@ -3317,11 +3314,9 @@ namespace JuanMartin.Kernel.Utilities
 
             var result = new StringBuilder();
             var carryOn = 0;
-
-            var max = (rightValue.Length > leftValue.Length) ? rightValue.Length : leftValue.Length;
-
             int subsDecimalPoint = AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
 
+            var max = (rightValue.Length > leftValue.Length) ? rightValue.Length : leftValue.Length;
             for (int i = max - 1; i >= 0; i--)
             {
                 if (rightValue[i] == '.')
@@ -3330,41 +3325,33 @@ namespace JuanMartin.Kernel.Utilities
                 var digitLeft = leftValue[i] - 48;
                 var digitRight = rightValue[i] - 48;
 
+                // process carry-on
+                var originalDigitLeft = digitLeft;
+                digitLeft = (digitLeft == 0 && carryOn == 1) ? 10  : digitLeft;
+                digitLeft -= carryOn;
+
+                int dif;
                 string digit;
-
-                if (digitLeft <= digitRight)
+                if (digitLeft == digitRight)
                 {
-                    var dif = digitRight - digitLeft - carryOn;
-                    if (dif > 0)
-                    {
-                        digit = dif.ToString();
-                        carryOn = 0;
-                    }
-                    else if (dif == 0)
-                    {
-                        digit = "0";
-                        carryOn = 0;
-                    }
-                    else
-                    {
-                        digit = (10 + dif).ToString();
-                        carryOn = Math.Abs(dif);
-
-                        if (i == 0 && carryOn > 0)
-                            throw new ArithmeticException($"{rightValue}-{leftValue}: generates a negative result.");
-                    }
+                    digit = "0";
+                    carryOn = 0;
+                }
+                else if (digitLeft > digitRight)
+                {
+                    dif = digitLeft - digitRight;
+                    digit = dif.ToString();
+                    carryOn = (originalDigitLeft == 0) ? 1 : 0;
                 }
                 else
                 {
-                    int dif = digitRight - digitLeft;
-                    carryOn = Math.Abs(dif);
-
-                    if (i == 0 && carryOn > 0)
-                        throw new ArithmeticException($"{rightValue}-{leftValue}: generates a negative result.");
-
-                    digit = (dif + 10).ToString();
+                    dif = 10 + (digitLeft - digitRight);
+                    digit = dif.ToString();
                     carryOn = 1;
                 }
+                if (i == 0 && carryOn == 1)
+                    throw new ArithmeticException($"{leftValue}-{rightValue}: generates a negative result.");
+
                 result.Insert(0, digit);
             }
 
@@ -3374,9 +3361,9 @@ namespace JuanMartin.Kernel.Utilities
             return substraction;
         }
 
-        public static string MultiplyLargeNumbers(ulong rightValue, ulong leftValue)
+        public static string MultiplyLargeNumbers(ulong leftValue, ulong rightValue)
         {
-            return MultiplyLargeNumbers(rightValue.ToString(), leftValue.ToString());
+            return MultiplyLargeNumbers(leftValue.ToString(), rightValue.ToString());
         }
 
         /// <summary>
@@ -3386,7 +3373,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
         /// <returns></returns>
-        public static string MultiplyLargeNumbers(string rightValue, string leftValue)
+        public static string MultiplyLargeNumbers(string leftValue, string rightValue)
         {
             rightValue = rightValue.TrimStart('0');
             leftValue = leftValue.TrimStart('0');
@@ -3425,18 +3412,43 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
+        /// Perform dision of two big  string numbers using long division
+        /// <see cref="https://www.dummies.com/education/math/basic-math/how-to-divide-big-numbers-with-long-division/"/>
+        /// </summary>
+        /// <param name="rightValue"></param>
+        /// <param name="leftValue"></param>
+        /// <returns></returns>
+        public static string DivideLargeNumbers(string leftValue, string rightValue)
+        {
+            var quotient = string.Empty;
+            string m = CalculateMaximumFactor(leftValue, rightValue);
+
+            return quotient;
+        }
+
+        private static string CalculateMaximumFactor(string leftValue, string rightValue)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Return from numerical value comparison: 0 if rightValue = LeftValue, 1 if rightValue < LeftValue or -1 if rightValue > </LeftValue>LeftValue.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/api/system.icomparable.compareto?view=net-5.0"/>
         /// </summary>
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
         /// <returns></returns>
-        public static int CompareLargeNumbers(string rightValue, string leftValue)
+        public static int CompareLargeNumbers(string leftValue, string rightValue)
         {
             if (!leftValue.IsNumeric() || !rightValue.IsNumeric())
                 throw new ArithmeticException($"Both values been compared: {rightValue}, {leftValue} must be numeric.");
 
             AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
+
+            if (rightValue[0] == '-' && leftValue[0] != '-')
+                return 1;
+            else if (rightValue[0] != '-' && leftValue[0] == '-')
+                return -1;
 
             var rightDecimalPlace = rightValue.IndexOf('.');
             var leftDecimalPlace = leftValue.IndexOf('.');
@@ -3454,7 +3466,7 @@ namespace JuanMartin.Kernel.Utilities
             else
             {
                 for(int i=r-1;i>=0;i--)
-                {
+                {                       
                     if (leftNumericPart[i] > rightNumericPart[i])
                         return 1;
                     else if (leftNumericPart[i] < rightNumericPart[i])
@@ -3489,26 +3501,6 @@ namespace JuanMartin.Kernel.Utilities
                 return 0;
             }
         }
-        private static string InsertDecimalPlace(int decimalPlaceCount, string number)
-        {
-            if (decimalPlaceCount > number.Length)
-                number = number.PadLeft(decimalPlaceCount, '0');
-
-            if (decimalPlaceCount > 0)
-            {
-                number = number.Insert(number.Length - decimalPlaceCount, ".");
-                number = number.TrimEnd('0');
-            }
-
-            if (number[0] == '.')
-                number = number.Insert(0, "0");
-
-            if (number[number.Length - 1] == '.')
-                number = number.TrimEnd('.');
-
-            return number;
-        }
-
         public static string ProcessAsMatrixToMultiplyLargeNumbers(string rightValue, string leftValue)
         {
             var operands = string.Empty;
@@ -3849,6 +3841,26 @@ namespace JuanMartin.Kernel.Utilities
         #endregion
 
         #region Private Methods
+        private static string InsertDecimalPlace(int decimalPlaceCount, string number)
+        {
+            if (decimalPlaceCount > number.Length)
+                number = number.PadLeft(decimalPlaceCount, '0');
+
+            if (decimalPlaceCount > 0)
+            {
+                number = number.Insert(number.Length - decimalPlaceCount, ".");
+                number = number.TrimEnd('0');
+            }
+
+            if (number[0] == '.')
+                number = number.Insert(0, "0");
+
+            if (number[number.Length - 1] == '.')
+                number = number.TrimEnd('.');
+
+            return number;
+        }
+
         private static T[][] InitializeMatrix<T>(int x, int y, T initialValue)
         {
             var nums = new T[x][];
@@ -3958,12 +3970,13 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
-            var allZeroes = new Regex(@"^0{2,}.+$");
-            //var match = allZeroes.Match(result);
-            if (allZeroes.IsMatch(result))
+            var allLeadingZeroes = new Regex(@"^0{1,}.+$");
+            if (allLeadingZeroes.IsMatch(result))
                 result = result.TrimStart('0');
             if (result == "" || result == ".")
                 result = "0";
+            else if (result[0] == '.')
+                result = result.Insert(0, "0");
 
             return result;
         }

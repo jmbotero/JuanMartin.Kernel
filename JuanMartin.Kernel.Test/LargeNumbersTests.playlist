@@ -82,6 +82,46 @@
                         <Property Name="DisplayName" Value="ShouldThrowArithmeticExceptionWhenResultOfSubstractionIsNegativeTest" />
                       </Rule>
                     </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldSubstractTwoNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldSubstractTwoNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldSubstractTwoLargeNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldSubstractTwoLargeNumbersTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+              </Rule>
+            </Rule>
+            <Rule Match="All">
+              <Property Name="Namespace" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests" />
+              <Rule Match="Any">
+                <Rule Match="All">
+                  <Property Name="Class" Value="BigDecimalTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateEqualityOfSimpleNonDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateEqualityOfSimpleNonDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateGreaterThanComparisonOfSimpleNonDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateGreaterThanComparisonOfSimpleNonDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateLessThanComparisonOfSimpleNonDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateLessThanComparisonOfSimpleNonDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
                   </Rule>
                 </Rule>
               </Rule>

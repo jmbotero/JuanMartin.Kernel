@@ -45,6 +45,10 @@ namespace JuanMartin.Kernel.Extesions.Tests
             string actualNumber = "-123";
 
             Assert.IsTrue(actualNumber.IsNumeric());
+
+            actualNumber = "1-23";
+
+            Assert.IsFalse(actualNumber.IsNumeric());
         }
 
         [Test()]
