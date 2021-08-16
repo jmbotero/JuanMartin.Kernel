@@ -3253,7 +3253,7 @@ namespace JuanMartin.Kernel.Utilities
             var result = new StringBuilder();
             var carryOn = 0;
 
-            int sumDecimalPoint = AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
+            int sumDecimalPoint = AlignValuesOfBinaryOpertation(ref leftValue, ref rightValue);
 
             int max = Math.Max(rightValue.Length, leftValue.Length);
             for (int i = max - 1; i >= 0; i--)
@@ -3314,7 +3314,7 @@ namespace JuanMartin.Kernel.Utilities
 
             var result = new StringBuilder();
             var carryOn = 0;
-            int subsDecimalPoint = AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
+            int subsDecimalPoint = AlignValuesOfBinaryOpertation(ref leftValue, ref rightValue);
 
             var max = (rightValue.Length > leftValue.Length) ? rightValue.Length : leftValue.Length;
             for (int i = max - 1; i >= 0; i--)
@@ -3406,7 +3406,7 @@ namespace JuanMartin.Kernel.Utilities
             //  calculate poduct decimal place
             var productDecimalPlace = rightDecimalPlace + leftDecimalPlace;
 
-            var result = ProcessAsMatrixToMultiplyLargeNumbers(rightValue, leftValue);
+            var result = ProcessAsMatrixToMultiplyLargeNumbers(leftValue, rightValue);
             result = InsertDecimalPlace(productDecimalPlace, result);
             return result;
         }
@@ -3443,7 +3443,7 @@ namespace JuanMartin.Kernel.Utilities
             if (!leftValue.IsNumeric() || !rightValue.IsNumeric())
                 throw new ArithmeticException($"Both values been compared: {rightValue}, {leftValue} must be numeric.");
 
-            AlignValuesOfBinaryOpertation(ref rightValue, ref leftValue);
+            AlignValuesOfBinaryOpertation(ref leftValue, ref rightValue);
 
             if (rightValue[0] == '-' && leftValue[0] != '-')
                 return 1;
@@ -3501,7 +3501,7 @@ namespace JuanMartin.Kernel.Utilities
                 return 0;
             }
         }
-        public static string ProcessAsMatrixToMultiplyLargeNumbers(string rightValue, string leftValue)
+        public static string ProcessAsMatrixToMultiplyLargeNumbers(string leftValue, string rightValue)
         {
             var operands = string.Empty;
             var stringOperands = new StringBuilder();
@@ -3989,47 +3989,50 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         private static int AlignValuesOfBinaryOpertation(ref string rightValue, ref string leftValue)
         {
-            // First align real and decimal parts
-            var rightDecimalPoint = rightValue.IndexOf('.');
-            var leftDecimalPoint = leftValue.IndexOf('.');
+            var rightDecimalPointIndex = AlignStringArithmeticValues(ref rightValue, leftValue);
+            var leftDecimalPointIndex = AlignStringArithmeticValues(ref leftValue, rightValue);
 
-            if (leftDecimalPoint == -1)
-            {
-                leftValue = leftValue + ".0";
-                leftDecimalPoint = leftValue.IndexOf('.');
-            }
-            if (rightDecimalPoint == -1)
-            {
-                rightValue = rightValue + ".0";
-                rightDecimalPoint = rightValue.IndexOf('.');
-            }
-
-            int max;
-            string rightDecimalPart = string.Empty, leftDecimalPart =string.Empty;
             // if both parts have no decimal neither the +/- result
-            int decimalPointIndex = (rightDecimalPoint == -1 && leftDecimalPoint == -1) ? -1 : Math.Max(rightDecimalPoint, leftDecimalPoint);
-
-            if (decimalPointIndex != -1)
-            {
-                //  align decimal parts: pad numbers with zeroes to make them of equal length
-                rightDecimalPart = rightValue.Substring(rightDecimalPoint + 1);
-                leftDecimalPart = leftValue.Substring(leftDecimalPoint + 1);
-                max = Math.Max(rightDecimalPart.Length, leftDecimalPart.Length);
-                rightDecimalPart = rightDecimalPart.PadRight(max, '0');
-                leftDecimalPart = leftDecimalPart.PadRight(max, '0');
-            }
-            // align real parts
-            var rightNumericPart = (rightDecimalPoint == -1) ? rightValue : rightValue.Substring(0, rightDecimalPoint);
-            var leftNumericPart = (leftDecimalPoint == -1) ? leftValue : leftValue.Substring(0, leftDecimalPoint);
-            max = Math.Max(rightNumericPart.Length, leftNumericPart.Length);
-            rightNumericPart = rightNumericPart.PadLeft(max, '0');
-            leftNumericPart = leftNumericPart.PadLeft(max, '0');
-
-            rightValue = $"{rightNumericPart}.{rightDecimalPart}";
-            leftValue = $"{leftNumericPart}.{leftDecimalPart}";
+            int decimalPointIndex = (rightDecimalPointIndex == -1 && leftDecimalPointIndex == -1) ? -1 : Math.Max(rightDecimalPointIndex, leftDecimalPointIndex);
 
             return decimalPointIndex;
         }
+
+        private static int AlignStringArithmeticValues(ref string value, string secondaryValue)
+        {
+            int i = secondaryValue.IndexOf('.');
+            int secondaryNumeriPartValueLength = (i != -1) ? secondaryValue.Substring(0, i).Length : secondaryValue.Length;
+            int secondaryDecimalPartValueLength = (i != -1) ? secondaryValue.Substring(i + 1).Length : 0;
+
+            // First align real and decimal parts
+            var valueDecimalPointIndex = value.IndexOf('.');
+
+            if (valueDecimalPointIndex == -1)
+            {
+                value += ".0";
+                valueDecimalPointIndex = value.IndexOf('.');
+            }
+
+            int max;
+            string decimalPart = string.Empty;
+
+            if (valueDecimalPointIndex != -1)
+            {
+                //  align decimal parts: pad numbers with zeroes to make them of equal length
+                decimalPart = value.Substring(valueDecimalPointIndex + 1);
+                max = Math.Max(decimalPart.Length, secondaryDecimalPartValueLength);
+                decimalPart = decimalPart.PadRight(max, '0');
+            }
+            // align real parts
+            var numericPart = (valueDecimalPointIndex == -1) ? value : value.Substring(0, valueDecimalPointIndex);
+            max = Math.Max(numericPart.Length, secondaryNumeriPartValueLength);
+            numericPart = numericPart.PadLeft(max, '0');
+
+            value = $"{numericPart}.{decimalPart}";
+
+            return valueDecimalPointIndex;
+        }
+
         /// <summary>
         /// Check if expression, using parentheses to specify  precedence
         /// of operations: +, -, *, /
