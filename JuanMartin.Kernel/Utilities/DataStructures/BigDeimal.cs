@@ -27,23 +27,26 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             private set { }
         }
 
+        public string DecimalPart => (DecimalPlaces > 0) ? Number.Substring(Number.Length - DecimalPlaces) : string.Empty;
+        public string NumericPart => (DecimalPlaces > 0) ? Number.Substring(0, Number.Length - DecimalPlaces - 1) : Number;
+        public bool IsNegative { get; private set; }
 
         public BigDecimal(string n) : this()
         {
             if (!n.IsNumeric())
                 throw new ArgumentException($"String {n} does not represent a number.");
 
-            Number = n;
             DecimalPlaces = 0;
             Decimal = "";
+            IsNegative = false;
 
-            if (n.Contains('.'))
-            {
-                Decimal = n.Substring(n.IndexOf('.') + 1);
-            }
+            Parse(n);
         }
 
         public BigDecimal(int n) : this(n.ToString())
+        { }
+
+        public BigDecimal(long n) : this(n.ToString())
         { }
 
         public BigDecimal(decimal n) : this(n.ToString())
@@ -52,12 +55,26 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public static BigDecimal operator +(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.AddLargeNumbers(a.Number, b.Number));
         public static BigDecimal operator -(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.Number, b.Number));
         public static BigDecimal operator *(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.Number, b.Number));
+        public static BigDecimal operator /(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.Number, b.Number));
 
         public static bool operator ==(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) == 0;
         public static bool operator !=(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) != 0;
         public static bool operator <(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) == -1;
         public static bool operator >(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) == 1;
 
+        public BigDecimal Parse(string value)
+        {
+            Number = value;
+
+            if (value.Contains('.'))
+            {
+                Decimal = value.Substring(value.IndexOf('.') + 1);
+            }
+            if (value.Contains('-'))
+                IsNegative = true;
+
+            return this;
+        }
         public override bool Equals(object obj)
         {
             return UtilityMath.CompareLargeNumbers(this.Number, ((BigDecimal)obj).Number) == 0;

@@ -24,6 +24,24 @@
                         <Property Name="DisplayName" Value="ShoulRemoveDecimalPintIfGoingFromDecimalOnlyToIntegerOnlyTest" />
                       </Rule>
                     </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+MultiplyLargeNumbersTests.ShoulRemoveDecimalPointIfGoingFromDecimalOnlyToIntegerOnlyTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulRemoveDecimalPointIfGoingFromDecimalOnlyToIntegerOnlyTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+MultiplyLargeNumbersTests.ShoulEliminateNegativeSignFromResultIfBothOperandsAreNegativeTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulEliminateNegativeSignFromResultIfBothOperandsAreNegativeTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+MultiplyLargeNumbersTests.ShoulReturnNegativeResultIfOneOfTheOperandsIsNegativeTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulReturnNegativeResultIfOneOfTheOperandsIsNegativeTest" />
+                      </Rule>
+                    </Rule>
                   </Rule>
                 </Rule>
                 <Rule Match="All">
@@ -57,6 +75,24 @@
                       <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNumbersWithoutDecimalTest" />
                       <Rule Match="Any">
                         <Property Name="DisplayName" Value="ShouldAddTwoNumbersWithoutDecimalTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddOneNegativeAndOnePositveNumbersWithoutDecimalsTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddOneNegativeAndOnePositveNumbersWithoutDecimalsTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldPreserveOriginalNumberIfAddingZeroToOriginalTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldPreserveOriginalNumberIfAddingZeroToOriginalTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddLargeNumbersTests.ShouldAddTwoNegativeNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddTwoNegativeNumbersTest" />
                       </Rule>
                     </Rule>
                   </Rule>
@@ -94,6 +130,87 @@
                         <Property Name="DisplayName" Value="ShouldSubstractTwoLargeNumbersTest" />
                       </Rule>
                     </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldSubstractTwoNumbersWhenRightNumberIsGreaterThanLeftOneTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldSubstractTwoNumbersWhenRightNumberIsGreaterThanLeftOneTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldSubstractNegativeNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldSubstractNegativeNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+SubstractLargeNumbersTests.ShouldGenerateNegativeResultTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldGenerateNegativeResultTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+aLargeNumbersTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldDivideTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldDivideTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+IntegerDivisionTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+IntegerDivisionTests.ShouldCalculateHowManyTimesOneNumberFitsInAnotherTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldCalculateHowManyTimesOneNumberFitsInAnotherTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+IntegerDivisionTests.ShouldCalculateModulusOfOneNumberFromAnotherTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldCalculateModulusOfOneNumberFromAnotherTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+DivideLargeNumbersTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldDivideTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldDivideTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldDivideSuccessfullyExactNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldDivideSuccessfullyExactNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldHandleNegativeNumbersForDivisionTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldHandleNegativeNumbersForDivisionTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldDivideSuccessfullyWholeNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldDivideSuccessfullyWholeNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldProcessDivisionsOfAndByDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldProcessDivisionsOfAndByDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
                   </Rule>
                 </Rule>
               </Rule>
@@ -120,6 +237,36 @@
                       <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateLessThanComparisonOfSimpleNonDecimalNumbersTest" />
                       <Rule Match="Any">
                         <Property Name="DisplayName" Value="ShouldEvaluateLessThanComparisonOfSimpleNonDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateGreaterThanComparisonOfDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateGreaterThanComparisonOfDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateLessThanComparisonOfDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateLessThanComparisonOfDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateLessThanComparisonOfNegativeDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateLessThanComparisonOfNegativeDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateLessThanComparisonOfNonDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateLessThanComparisonOfNonDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateGreaterThanComparisonOfNonDecimalNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldEvaluateGreaterThanComparisonOfNonDecimalNumbersTest" />
                       </Rule>
                     </Rule>
                   </Rule>
