@@ -3386,11 +3386,14 @@ namespace JuanMartin.Kernel.Utilities
             var productDecimalPlace = rightDecimalPlace + leftDecimalPlace;
 
             var result = ProcessAsMatrixToMultiplyLargeNumbers(leftValue, rightValue);
-            result = InsertDecimalPlace(productDecimalPlace, result);
-            if (isNegative)
-                result = result.Insert(0, "-");
-
+            result = InsertDecimalPlace(productDecimalPlace, result,isNegative);
+            //result = ProcessArithmeticOperationOutput(ConvertLengthToIndex(productDecimalPlace, result), result, isNegative);
             return result;
+        }
+
+        private static int ConvertLengthToIndex(int decimalPlace, string number)
+        {
+            return ((number != null) ? number.Length : 0) - decimalPlace;
         }
 
         /// <summary>
@@ -3410,15 +3413,23 @@ namespace JuanMartin.Kernel.Utilities
 
             // process decimal
             int divisorDecimalIndex = rightValue.IndexOf('.');
-            int decimalShift = (divisorDecimalIndex == -1) ? 0 : (rightValue.Length - 1) - divisorDecimalIndex;
+            int decimalShift = rightValue.DecimalNumberPart().Length; //(divisorDecimalIndex == -1) ? 0 : (rightValue.Length - 1) - divisorDecimalIndex;
 
             // move divisor decimal to the right
             int dividendDecimalIndex = leftValue.IndexOf('.');
-            int divisionDecimalIndex = (dividendDecimalIndex == -1) ? (leftValue.Length + decimalShift) : dividendDecimalIndex + decimalShift;
+
+
+            // if no dividend decimal add it, only if neede when divisor has decimal
+            if (dividendDecimalIndex == -1 && divisorDecimalIndex  != -1)
+            {
+                leftValue += ".0";
+                dividendDecimalIndex = leftValue.WholeNumberPart().Length;
+            }
+            int divisionDecimalIndex = dividendDecimalIndex + decimalShift;
 
             // if dividend has not enough decimal placess to address shift then add zeroes
-            if (dividendDecimalIndex == -1 || divisionDecimalIndex > leftValue.Length - 1)
-                leftValue = leftValue.PadRight(leftValue.Length + decimalShift, '0');
+            if (dividendDecimalIndex == -1 || leftValue.DecimalNumberPart(dividendDecimalIndex).Length < decimalShift)
+                leftValue += "0".Repeat(decimalShift);
 
             // do not conider decimal positions
             if (dividendDecimalIndex > 0)
@@ -3474,7 +3485,7 @@ namespace JuanMartin.Kernel.Utilities
             quotient += IntegerDivision(dividend, rightValue).quotient;
             if (isNegative)
                 quotient = quotient.Insert(0, "-");
-            if (quotient != "" && quotient != "0" & divisionDecimalIndex != -1)
+            if (quotient != "" && quotient != "0" && divisionDecimalIndex != -1 && divisionDecimalIndex < quotient.Length)
             {
                 quotient = quotient.Insert(divisionDecimalIndex, ".");
                 if (quotient.IndexOf('.') == quotient.Length - 1)
@@ -4014,7 +4025,7 @@ namespace JuanMartin.Kernel.Utilities
                     result.Insert(0, digit);
             }
 
-            return ProcessOperationOutput(sumDecimalPoint, result.ToString()); ;
+            return ProcessArithmeticOperationOutput(sumDecimalPoint, result.ToString()); ;
         }
         private static string StringNumberSubstraction(string leftValue, string rightValue)
         {
@@ -4066,10 +4077,10 @@ namespace JuanMartin.Kernel.Utilities
                 result.Insert(0, digit);
             }
 
-            return ProcessOperationOutput(subsDecimalPoint, result.ToString());
+            return ProcessArithmeticOperationOutput(subsDecimalPoint, result.ToString());
         }
 
-        private static string InsertDecimalPlace(int decimalPlaceCount, string number)
+        private static string InsertDecimalPlace(int decimalPlaceCount, string number, bool isNegativeResult=false)
         {
             if (decimalPlaceCount > number.Length)
                 number = number.PadLeft(decimalPlaceCount, '0');
@@ -4085,6 +4096,9 @@ namespace JuanMartin.Kernel.Utilities
 
             if (number[number.Length - 1] == '.')
                 number = number.TrimEnd('.');
+
+            if (isNegativeResult)
+                number = number.Insert(0, "-");
 
             return number;
         }
@@ -4179,14 +4193,17 @@ namespace JuanMartin.Kernel.Utilities
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sumDecimalPoint"></param>
+        /// <param name="decimalPointIndex"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static string ProcessOperationOutput(int sumDecimalPoint, string result)
+        private static string ProcessArithmeticOperationOutput(int decimalPointIndex, string result, bool isNegativeResult=false)
         {
-            if (sumDecimalPoint != -1)
+            if (decimalPointIndex > result.Length)
+                result = result.PadLeft(decimalPointIndex, '0');
+
+            if (decimalPointIndex != -1)
             {
-                result = result.Insert(sumDecimalPoint, ".");
+                result = result.Insert(decimalPointIndex, ".");
 
                 var noDecimal = new Regex(@"\d+\.0+$");
                 var match = noDecimal.Match(result);
@@ -4201,10 +4218,16 @@ namespace JuanMartin.Kernel.Utilities
             var allLeadingZeroes = new Regex(@"^0{1,}.+$");
             if (allLeadingZeroes.IsMatch(result))
                 result = result.TrimStart('0');
+
             if (result == "" || result == ".")
                 result = "0";
             else if (result[0] == '.')
                 result = result.Insert(0, "0");
+            else if (result[result.Length - 1] == '.')
+                result = result.TrimEnd('.');
+
+            if (isNegativeResult)
+                result = result.Insert(0, "-");
 
             return result;
         }
@@ -4237,6 +4260,10 @@ namespace JuanMartin.Kernel.Utilities
                 isNegative = true;
                 value = value.Remove(0, 1);
             }
+            // still before starting remove leading zeroes
+            //value = value.TrimStart('0');
+            //if (value.WholeNumberPart().Length == 0)
+            //    value = value.Insert(0, "0");
 
             int i = secondaryValue.IndexOf('.');
             int secondaryNumeriPartValueLength = (i != -1) ? secondaryValue.Substring(0, i).Length : secondaryValue.Length;

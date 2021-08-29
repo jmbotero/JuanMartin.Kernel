@@ -1016,7 +1016,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
                 actualLeftNumber = "5676";
                 actualRightNumber = "12";
@@ -1024,7 +1024,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
                 actualLeftNumber = "1328652";
                 actualRightNumber = "234";
@@ -1032,7 +1032,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
             }
 
             [Test()]
@@ -1044,23 +1044,23 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
                 actualLeftNumber = "5";
                 actualRightNumber = "0.5";
-                expectedDiv = "10.0";
+                expectedDiv = "10";
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-               Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+               Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
-                //actualLeftNumber = "1328652";
-                //actualRightNumber = "234";
-                //expectedDiv = "5678";
+                actualLeftNumber = "1328652";
+                actualRightNumber = "234";
+                expectedDiv = "5678";
 
-                //actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                //Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
             }
 
             [Test()]
@@ -1072,7 +1072,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
                 actualLeftNumber = "-10";
                 actualRightNumber = "5";
@@ -1080,7 +1080,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
                 actualLeftNumber = "-10";
                 actualRightNumber = "-5";
@@ -1088,7 +1088,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-                Assert.AreEqual(expectedDiv, actualDiv, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
             }
         }
 
@@ -1103,7 +1103,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 (string actualQuotient, _) = UtilityMath.IntegerDivision(actualLeftNumber, actualRightNumber);
                 var expectedQuotient = "3";
 
-                Assert.AreEqual(expectedQuotient, actualQuotient, $"{actualRightNumber}/{actualLeftNumber}");
+                Assert.AreEqual(expectedQuotient, actualQuotient, $"{actualLeftNumber}/{actualRightNumber}");
             }
 
             [Test()]

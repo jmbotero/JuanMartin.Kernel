@@ -24,6 +24,21 @@ namespace JuanMartin.Kernel.Extesions
             return match;
         }
 
+        public static string WholeNumberPart(this string source, int index = -1)
+        {
+            if (index == -1)
+                index = source.IndexOf('.');
+
+            return (index != -1) ? source.Substring(0, index) : source;
+        }
+
+        public static string DecimalNumberPart(this string source, int index = -1)
+        {
+            if (index == -1)
+                index = source.IndexOf('.');
+
+            return (index != -1) ? source.Substring(index + 1) : string.Empty;
+        }
         public static char[] To(this char start, char end)
         {
             return Enumerable.Range(start, (end - start)).ToArray().Select(x => Convert.ToChar(x)).ToArray();
