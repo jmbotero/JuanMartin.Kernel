@@ -3386,8 +3386,19 @@ namespace JuanMartin.Kernel.Utilities
             var productDecimalPlace = rightDecimalPlace + leftDecimalPlace;
 
             var result = ProcessAsMatrixToMultiplyLargeNumbers(leftValue, rightValue);
-            result = InsertDecimalPlace(productDecimalPlace, result,isNegative);
-            //result = ProcessArithmeticOperationOutput(ConvertLengthToIndex(productDecimalPlace, result), result, isNegative);
+
+            // add multiplication decimal place
+            if (productDecimalPlace > result.Length)
+                result = result.PadLeft(productDecimalPlace, '0');
+
+            if (productDecimalPlace > 0)
+            {
+                result = result.Insert(result.Length - productDecimalPlace, ".");
+                result = result.TrimEnd('0');
+            }
+
+            int productDecimalIndex = ConvertLengthToIndex(productDecimalPlace, result);
+            result = FormatArithmeticStringValue(result, productDecimalIndex, isNegative);
             return result;
         }
 
@@ -3483,14 +3494,8 @@ namespace JuanMartin.Kernel.Utilities
                 i++;
             }
             quotient += IntegerDivision(dividend, rightValue).quotient;
-            if (isNegative)
-                quotient = quotient.Insert(0, "-");
-            if (quotient != "" && quotient != "0" && divisionDecimalIndex != -1 && divisionDecimalIndex < quotient.Length)
-            {
-                quotient = quotient.Insert(divisionDecimalIndex, ".");
-                if (quotient.IndexOf('.') == quotient.Length - 1)
-                    quotient += "0";
-            }
+
+            quotient = FormatArithmeticStringValue(quotient, divisionDecimalIndex, isNegative);
             return quotient;
         }
 
@@ -3564,6 +3569,9 @@ namespace JuanMartin.Kernel.Utilities
                 leftValue = rightValue.Remove(0, 1);
                 rightValue = temp.Remove(0, 1);
             }
+
+            leftValue = FormatArithmeticStringValue(leftValue);
+            rightValue = FormatArithmeticStringValue(rightValue);
 
             var rightDecimalPlace = rightValue.IndexOf('.');
             var leftDecimalPlace = leftValue.IndexOf('.');
@@ -3669,12 +3677,7 @@ namespace JuanMartin.Kernel.Utilities
             string[] m = null;
             if (!numericMatrix.Any(row => row == null))
                 m = numericMatrix.Select(r => string.Join("", r.ToArray())).ToArray();
-            //var m = new List<string>();
-            //foreach (var n in numericMatrix)
-            //{
-            //    if (n != null)
-            //        m.Add(string.Join("", n));
-            //}
+
             return AddLargeNumbers(m.ToArray());
         }
 
@@ -4025,7 +4028,7 @@ namespace JuanMartin.Kernel.Utilities
                     result.Insert(0, digit);
             }
 
-            return ProcessArithmeticOperationOutput(sumDecimalPoint, result.ToString()); ;
+            return FormatArithmeticStringValue(result.ToString(), sumDecimalPoint); ;
         }
         private static string StringNumberSubstraction(string leftValue, string rightValue)
         {
@@ -4077,30 +4080,7 @@ namespace JuanMartin.Kernel.Utilities
                 result.Insert(0, digit);
             }
 
-            return ProcessArithmeticOperationOutput(subsDecimalPoint, result.ToString());
-        }
-
-        private static string InsertDecimalPlace(int decimalPlaceCount, string number, bool isNegativeResult=false)
-        {
-            if (decimalPlaceCount > number.Length)
-                number = number.PadLeft(decimalPlaceCount, '0');
-
-            if (decimalPlaceCount > 0)
-            {
-                number = number.Insert(number.Length - decimalPlaceCount, ".");
-                number = number.TrimEnd('0');
-            }
-
-            if (number[0] == '.')
-                number = number.Insert(0, "0");
-
-            if (number[number.Length - 1] == '.')
-                number = number.TrimEnd('.');
-
-            if (isNegativeResult)
-                number = number.Insert(0, "-");
-
-            return number;
+            return FormatArithmeticStringValue(result.ToString(), subsDecimalPoint);
         }
 
         private static T[][] InitializeMatrix<T>(int x, int y, T initialValue)
@@ -4121,7 +4101,7 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="numbers"></param>
         /// <returns></returns>
-        private static int[][] LoadAsMatrix(string[] numbers)
+        public static int[][] LoadAsMatrix(string[] numbers)
         {
             // get matrix widtth
             int width = 0;
@@ -4156,80 +4136,76 @@ namespace JuanMartin.Kernel.Utilities
             return matrix;
         }
 
-        private static string AddMatrix(int[][] matrix)
+        public static string AddMatrix(int[][] matrix)
         {
             var height = matrix.Length - 1;
             var width = matrix[height].Length - 1;
-            var column = 0;
             var value = string.Empty;
-            var carryon = string.Empty;
+            var carryon = 0;
 
             for (int j = width; j >= 0; j--)
             {
-                carryon = string.Empty;
+                int column = 0;
 
-                for (int i = 0; i < height; i++)
+                for (int i = 0; i <= height; i++)
                 {
                     column += matrix[i][j];
                 }
 
-                var number = column.ToString();
+                var number = (column + carryon).ToString();
                 //column value
-                value = string.Concat(number[number.Length - 1], value);
+                value = value.Insert(0, number[number.Length - 1].ToString());
                 //carry-on
-                for (int k = 0; k < number.Length - 1; k++)
-                {
-                    carryon = string.Concat(carryon, number[k]);
-                }
-
-                int.TryParse(carryon.ToString(), out column);
+                number = number.Remove(number.Length - 1, 1); // last
+                carryon = Convert.ToInt32(number);
             }
             //if is the last column include the carry-on as part of the value
-            value = string.Concat(carryon, value);
+            value = carryon.ToString()  + value;
 
-            return value.ToString();
+            return value;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="decimalPointIndex"></param>
-        /// <param name="result"></param>
+        /// <param name="valueDecimalPointIndex"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        private static string ProcessArithmeticOperationOutput(int decimalPointIndex, string result, bool isNegativeResult=false)
+        private static string FormatArithmeticStringValue(string value, int valueDecimalPointIndex=-1, bool isNegativeResult=false)
         {
-            if (decimalPointIndex > result.Length)
-                result = result.PadLeft(decimalPointIndex, '0');
+            if (value.Contains("-"))
+                isNegativeResult = true;
 
-            if (decimalPointIndex != -1)
+            if (valueDecimalPointIndex != -1)
             {
-                result = result.Insert(decimalPointIndex, ".");
+                if(!value.Contains("."))
+                    value = value.Insert(valueDecimalPointIndex, ".");
 
                 var noDecimal = new Regex(@"\d+\.0+$");
-                var match = noDecimal.Match(result);
+                var match = noDecimal.Match(value);
 
                 if (match.Success)
                 {
-                    result = result.TrimEnd('0');
-                    result = result.Remove(result.Length - 1);
+                    value = value.TrimEnd('0');
+                    value = value.Remove(value.Length - 1);
                 }
             }
 
             var allLeadingZeroes = new Regex(@"^0{1,}.+$");
-            if (allLeadingZeroes.IsMatch(result))
-                result = result.TrimStart('0');
+            if (allLeadingZeroes.IsMatch(value))
+                value = value.TrimStart('0');
 
-            if (result == "" || result == ".")
-                result = "0";
-            else if (result[0] == '.')
-                result = result.Insert(0, "0");
-            else if (result[result.Length - 1] == '.')
-                result = result.TrimEnd('.');
+            if (value == "" || value == ".")
+                value = "0";
+            else if (value[0] == '.')
+                value = value.Insert(0, "0");
+            else if (value[value.Length - 1] == '.')
+                value = value.TrimEnd('.');
 
-            if (isNegativeResult)
-                result = result.Insert(0, "-");
+            if (isNegativeResult && !value.Contains("-"))
+                value = value.Insert(0, "-");
 
-            return result;
+            return value;
         }
 
         /// <summary>
@@ -4260,10 +4236,6 @@ namespace JuanMartin.Kernel.Utilities
                 isNegative = true;
                 value = value.Remove(0, 1);
             }
-            // still before starting remove leading zeroes
-            //value = value.TrimStart('0');
-            //if (value.WholeNumberPart().Length == 0)
-            //    value = value.Insert(0, "0");
 
             int i = secondaryValue.IndexOf('.');
             int secondaryNumeriPartValueLength = (i != -1) ? secondaryValue.Substring(0, i).Length : secondaryValue.Length;

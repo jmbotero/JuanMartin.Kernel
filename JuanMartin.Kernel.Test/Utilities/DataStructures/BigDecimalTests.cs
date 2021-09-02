@@ -20,11 +20,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualRightNumber = new BigDecimal("4.5");
 
             Assert.IsTrue(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}={actualRightNumber}");
-  
-            //actualLeftNumber = new BigDecimal("0");
-            //actualRightNumber = new BigDecimal("000.0");
 
-            //Assert.IsTrue(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}={actualRightNumber}");
+            actualLeftNumber = new BigDecimal("15.0");
+            actualRightNumber = new BigDecimal("15");
+
+            Assert.IsTrue(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}={actualRightNumber}");
+
+            actualLeftNumber = new BigDecimal("0");
+            actualRightNumber = new BigDecimal("000.0");
+
+            Assert.IsTrue(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}={actualRightNumber}");
 
             actualLeftNumber = new BigDecimal("456");
             actualRightNumber = new BigDecimal("123");

@@ -1052,7 +1052,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
-               Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
                 actualLeftNumber = "1328652";
                 actualRightNumber = "234";
@@ -1111,11 +1111,48 @@ namespace JuanMartin.Kernel.Utilities.Tests
             {
                 var actualLeftNumber = "126";
                 var actualRightNumber = "37";
-                (_ , string actualRemainder) = UtilityMath.IntegerDivision(actualLeftNumber, actualRightNumber);
+                (_, string actualRemainder) = UtilityMath.IntegerDivision(actualLeftNumber, actualRightNumber);
                 var expectedRemainder = "15";
 
                 Assert.AreEqual(expectedRemainder, actualRemainder, $"{actualRightNumber}%{actualLeftNumber}");
             }
         }
+
+        [TestFixture]
+        public class LoadAsMatrixTests
+        {
+            [Test()]
+            public void ShouldConvertStringArrayOfNumbersIntoMatrixOfSingleDigitsTest()
+            {
+                var actualNumbers = new string[] { "123", "456" };
+                var expectdedHeight = 2;
+                var expectdedWidth = 3;
+                var expectedTopLeft = 1;
+                var expextedBottomRight = 6;
+
+                var actualMatrix = UtilityMath.LoadAsMatrix(actualNumbers);
+
+                Assert.AreEqual(expectdedHeight, actualMatrix.Length, "Height");
+                Assert.AreEqual(expectdedWidth, actualMatrix[0].Length, "Width");
+                Assert.AreEqual(expectedTopLeft, actualMatrix[0][0], "Top-left corner");
+                Assert.AreEqual(expextedBottomRight, actualMatrix[1][2], "Bottom-right  corner");
+            }
+        }
+
+        [TestFixture]
+        public class AddMatrixTests
+        {
+            [Test()]
+            public void ShouldAddArrayOfStringNumbersTest()
+            {
+                var actuaalNumbers = new string[] { "555", "666" };
+                var expectdedSum = "1221";
+
+                var actualSum = UtilityMath.AddMatrix(UtilityMath.LoadAsMatrix(actuaalNumbers)); // .AddLargeNumbers(actuaalNumbers);
+
+                Assert.AreEqual(expectdedSum, actualSum);
+            }
+        }
     }
+
 }

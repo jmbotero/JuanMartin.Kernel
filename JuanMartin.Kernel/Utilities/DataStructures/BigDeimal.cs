@@ -5,7 +5,11 @@ using JuanMartin.Kernel.Extesions;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
-    public struct BigDecimal
+    /// <summary>
+    /// Represents an arbitrarily large signed decimal
+    /// not usign the E notation
+    /// </summary>
+    public struct BigDecimal : IComparable<BigDecimal>
     {
         public string Number { get; set; }
         public string Decimal { get; private set; }
@@ -88,6 +92,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public override string ToString()
         {
             return Number;
+        }
+
+        public int CompareTo(BigDecimal other)
+        {
+            return UtilityMath.CompareLargeNumbers(other.Number, this.Number);
         }
     }
 
