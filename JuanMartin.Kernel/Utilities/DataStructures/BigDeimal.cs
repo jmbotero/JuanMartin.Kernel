@@ -2,6 +2,7 @@
 using System.Linq;
 using JuanMartin.Kernel.Utilities;
 using JuanMartin.Kernel.Extesions;
+using System.Numerics;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
@@ -11,17 +12,17 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     /// </summary>
     public struct BigDecimal : IComparable<BigDecimal>
     {
-        public string Number { get; set; }
+        public string Whole { get; set; }
         public string Decimal { get; private set; }
         public int DecimalPlaces
         {
             get
             {
-                var i = Number.IndexOf('.');
+                var i = Whole.IndexOf('.');
 
                 // note: indexof was needed to remove the '.'s but the decimal place counts from the end
                 if (i != -1)
-                    i = Number.Length - i;
+                    i = Whole.Length - i;
                 else
                     i++;
 
@@ -31,8 +32,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             private set { }
         }
 
-        public string DecimalPart => (DecimalPlaces > 0) ? Number.Substring(Number.Length - DecimalPlaces) : string.Empty;
-        public string NumericPart => (DecimalPlaces > 0) ? Number.Substring(0, Number.Length - DecimalPlaces - 1) : Number;
+        public static BigDecimal Zero => new BigDecimal("0"); 
         public bool IsNegative { get; private set; }
 
         public BigDecimal(string n) : this()
@@ -56,19 +56,37 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public BigDecimal(decimal n) : this(n.ToString())
         { }
 
-        public static BigDecimal operator +(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.AddLargeNumbers(a.Number, b.Number));
-        public static BigDecimal operator -(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.Number, b.Number));
-        public static BigDecimal operator *(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.Number, b.Number));
-        public static BigDecimal operator /(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.Number, b.Number));
+        public static BigDecimal operator +(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.AddLargeNumbers(a.Whole, b.Whole));
+        public static BigDecimal operator -(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.Whole, b.Whole));
+        public static BigDecimal operator *(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.Whole, b.Whole));
+        public static BigDecimal operator /(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.Whole, b.Whole));
 
-        public static bool operator ==(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) == 0;
-        public static bool operator !=(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) != 0;
-        public static bool operator <(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) == -1;
-        public static bool operator >(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Number, b.Number) == 1;
+        // operate with integers
+        public static BigDecimal operator +(BigDecimal a, int b) => new BigDecimal(UtilityMath.AddLargeNumbers(a.Whole, b.ToString()));
+        public static BigDecimal operator -(BigDecimal a, int b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.Whole, b.ToString()));
+        public static BigDecimal operator *(BigDecimal a, int b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.Whole, b.ToString()));
+        public static BigDecimal operator /(BigDecimal a, int b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.Whole, b.ToString()));
+
+        public static bool operator ==(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Whole, b.Whole) == 0;
+        public static bool operator !=(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Whole, b.Whole) != 0;
+        public static bool operator <(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Whole, b.Whole) == -1;
+        public static bool operator >(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.Whole, b.Whole) == 1;
+
+        // boolean comparisons with integers
+        public static bool operator ==(BigDecimal a, int b) => UtilityMath.CompareLargeNumbers(a.Whole, b.ToString()) == 0;
+        public static bool operator !=(BigDecimal a, int b) => UtilityMath.CompareLargeNumbers(a.Whole, b.ToString()) != 0;
+        public static bool operator <(BigDecimal a, int b) => UtilityMath.CompareLargeNumbers(a.Whole, b.ToString()) == -1;
+        public static bool operator >(BigDecimal a, int b) => UtilityMath.CompareLargeNumbers(a.Whole, b.ToString()) == 1;
+
+
+        public BigInteger GetWholePartAsBigInteger()
+        {
+            return BigInteger.Parse(Whole);
+        }
 
         public BigDecimal Parse(string value)
         {
-            Number = value;
+            Whole = value;
 
             if (value.Contains('.'))
             {
@@ -81,22 +99,22 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
         public override bool Equals(object obj)
         {
-            return UtilityMath.CompareLargeNumbers(this.Number, ((BigDecimal)obj).Number) == 0;
+            return UtilityMath.CompareLargeNumbers(this.Whole, ((BigDecimal)obj).Whole) == 0;
         }
 
         public override int GetHashCode()
         {
-            return this.Number.GetHashCode();
+            return this.Whole.GetHashCode();
         }
 
         public override string ToString()
         {
-            return Number;
+            return Whole;
         }
 
         public int CompareTo(BigDecimal other)
         {
-            return UtilityMath.CompareLargeNumbers(other.Number, this.Number);
+            return UtilityMath.CompareLargeNumbers(other.Whole, this.Whole);
         }
     }
 

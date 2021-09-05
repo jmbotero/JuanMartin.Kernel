@@ -552,10 +552,10 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldContainOnlyPrimes()
             {
-                var fileName = @"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\primes_under_100000.txt";
-                var actualPrimes = UtilityFile.ReadTextToStringEnumerable(fileName).ToHashSet(); // load 100000 primes
+                var fileName = @"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\first_million_primes.txt";
+                var actualPrimes = UtilityFile.ReadTextToStringEnumerable(fileName).ToHashSet(); 
 
-                var actualSieve = UtilityMath.ErathostenesSieve(10000);
+                var actualSieve = UtilityMath.ErathostenesSieve(1000000);
 
                 foreach (var n in actualSieve)
                     Assert.IsTrue(actualPrimes.Contains(n.ToString()), $"{n} is prime."); //UtilityMath.IsPrime(n),$"{n} is prime.");

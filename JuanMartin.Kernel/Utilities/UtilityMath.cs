@@ -1374,11 +1374,22 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
-        public static BigInteger? BigIntegerSquareRoot(BigInteger number)
+        public static BigInteger? BigNumberSquareRoot(BigInteger number)
         {
             if (number < 0) return null;
-            
+
             BigInteger root = number / 3;
+            int i;
+            for (i = 0; i < 32; i++)
+                root = (root + number / root) / 2;
+            return root;
+        }
+
+        public static BigDecimal? BigNumberSquareRoot(BigDecimal number)
+        {
+            if (number < 0) return null;
+
+            BigDecimal root = number / 3;
             int i;
             for (i = 0; i < 32; i++)
                 root = (root + number / root) / 2;
@@ -1756,12 +1767,18 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="b">base of the isosceles triangle</param>
         /// <paramns></returns>
-        public static (BigInteger? area,BigInteger? perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
+        public static (BigDecimal? area, BigDecimal? perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
         {
-            BigInteger A = new BigInteger(a);
-            BigInteger B = new BigInteger(b);
-            BigInteger? area = BigIntegerSquareRoot((A * A) - (B * B) / 4) * B / 2;
-            BigInteger? perimeter = B + (2 * A);
+            BigDecimal A = new BigDecimal(a);
+            BigDecimal B = new BigDecimal(b);
+            BigDecimal x = B * B;
+            x /= 4;
+            x = (A * A) - x;
+            x *= B;
+            x /= 2;
+
+            BigDecimal? area = BigNumberSquareRoot(x);
+            BigDecimal? perimeter = B + (A * 2);
             
             return (area, perimeter);
         }
@@ -1959,16 +1976,18 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static int NumericConcat(int a, int b)
+        public static T NumericConcat<T>(T a, T b)
         {
-            int c = b;
-            while (c > 0)
+            dynamic A = a;
+            dynamic B = b;
+            dynamic C = b;
+            while (C > 0)
             {
-                a *= 10;
-                c /= 10;
+                A *= 10;
+                C /= 10;
             }
 
-            return a + b;
+            return A + B;
         }
 
         public static int DigitLength<T>(T number)
@@ -2365,9 +2384,8 @@ namespace JuanMartin.Kernel.Utilities
             return ascending || descending;
         }
 
-        public static int[] ErathostenesSieve(int upperLimit, int lowerLimit=2, int threadCount=-1)
+        public static long[] ErathostenesSieve(int upperLimit, int lowerLimit=2, int threadCount=-1)
         {
-            // TODO: fix bug, when upperlimit=1000 add some non-prime numbers
             var sieveBound = (int)(upperLimit - 1) / 2;
             var upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
 
@@ -2392,7 +2410,7 @@ namespace JuanMartin.Kernel.Utilities
                 }
             });
 
-            var numbers = new List<int>((int)(upperLimit / (Math.Log(upperLimit) - 1.08366)));
+            var numbers = new List<long>((int)(upperLimit / (Math.Log(upperLimit) - 1.08366)));
             if (2 >= lowerLimit)
                 numbers.Add(2);
 
@@ -2410,11 +2428,54 @@ namespace JuanMartin.Kernel.Utilities
             return numbers.ToArray();
         }
 
-        public static int[] CompositeErathostenesSieve(int upperLimit, int lowerlimit=4)
+        /// <summary>
+        /// Source code from <see cref="https://www.mathblog.dk/files/euler/Problem50.cs"/>
+        /// </summary>
+        /// <param name="lowerLimit"></param>
+        /// <param name="upperLimit"></param>
+        /// <returns></returns>
+        public static long[] ESieve(int lowerLimit, int upperLimit)
+        {
+
+            int sieveBound = (int)(upperLimit - 1) / 2;
+            int upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
+
+            BitArray PrimeBits = new BitArray(sieveBound + 1, true);
+
+            for (int i = 1; i <= upperSqrt; i++)
+            {
+                if (PrimeBits.Get(i))
+                {
+                    for (int j = i * 2 * (i + 1); j <= sieveBound; j += 2 * i + 1)
+                    {
+                        PrimeBits.Set(j, false);
+                    }
+                }
+            }
+
+            List<long> numbers = new List<long>((int)(upperLimit / (Math.Log(upperLimit) - 1.08366)));
+
+            if (lowerLimit < 3)
+            {
+                numbers.Add(2);
+                lowerLimit = 3;
+            }
+
+            for (int i = (lowerLimit - 1) / 2; i <= sieveBound; i++)
+            {
+                if (PrimeBits.Get(i))
+                {
+                    numbers.Add(2 * i + 1);
+                }
+            }
+
+            return numbers.ToArray();
+        }
+        public static long[] CompositeErathostenesSieve(int upperLimit, int lowerlimit=4)
         {
             var lower = (lowerlimit < 4) ? 4 : lowerlimit;
             var primes = ErathostenesSieve(upperLimit, lowerlimit);
-            var numbers = Enumerable.Range(lower, upperLimit - 3);
+            List<long> numbers = (List<long>)Enumerable.Range(lower, upperLimit - 3);
 
             var composites = numbers.Except(primes);
 
@@ -2423,10 +2484,7 @@ namespace JuanMartin.Kernel.Utilities
 
         public static int[] GeneratePrimes(int n)
         {
-            var primes = new List<int>
-            {
-                2
-            };
+            var primes = new List<int> { 2 };
             var nextPrime = 3;
             while (primes.Count < n)
             {
@@ -2449,7 +2507,7 @@ namespace JuanMartin.Kernel.Utilities
             return primes.ToArray();
         }
 
-        public static IEnumerable<int> GeneratePrimes(int lowerLimit, int upperLimit)
+        public static IEnumerable<int> GeneratePrimesUsingSquares(int upperLimit, int lowerLimit=2  )
         {
             for(var number=lowerLimit;number<upperLimit;number++)
             {
