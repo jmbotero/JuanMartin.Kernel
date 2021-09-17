@@ -1392,6 +1392,11 @@ namespace JuanMartin.Kernel.Utilities
             BigDecimal root = number / 3;
             int i;
             for (i = 0; i < 32; i++)
+            {
+                var x = number / root;
+                x += root;
+                root = x / 2;
+            }
                 root = (root + number / root) / 2;
             return root;
         }
@@ -1761,12 +1766,13 @@ namespace JuanMartin.Kernel.Utilities
             return number;
         }
         /// <summary>
-        /// Calculate the area   and perimete name="a">length of the two equal sides</param>
-        /// <returr of a triangle with two equal sides.
+        /// Calculate the area   and perimete of a triangle with two equal sides.
         /// <see cref="https://byjus.com/maths/area-of-isosceles-triangle/"/>
-        /// </summary>
+        /// <seealso cref=" https://www.omnicalculator.com/math/isosceles-triangle"/>
+        /// </summary 
         /// <param name="b">base of the isosceles triangle</param>
-        /// <paramns></returns>
+        /// <param name="a">length of the two equal sides</param>
+        /// <returns></returns>
         public static (BigDecimal? area, BigDecimal? perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
         {
             BigDecimal A = new BigDecimal(a);
@@ -1774,10 +1780,11 @@ namespace JuanMartin.Kernel.Utilities
             BigDecimal x = B * B;
             x /= 4;
             x = (A * A) - x;
-            x *= B;
-            x /= 2;
 
             BigDecimal? area = BigNumberSquareRoot(x);
+            area *= B;
+            area /= 2;
+
             BigDecimal? perimeter = B + (A * 2);
             
             return (area, perimeter);
@@ -3302,7 +3309,13 @@ namespace JuanMartin.Kernel.Utilities
         }
         public static string AddLargeNumbers(string leftValue, string rightValue)
         {
+
             string addition;
+
+            // supportRepetendSyntax in iputs == false
+            leftValue = leftValue.RemoveParenthesis();
+            rightValue = rightValue.RemoveParenthesis();
+
             if (leftValue[0] == '-' && rightValue[0] == '-')
             {
                 // addition rule: when adding  same sign values, add the vallus ang keep  the sign
@@ -3342,6 +3355,11 @@ namespace JuanMartin.Kernel.Utilities
         public static string SubstractLargeNumbers(string leftValue, string rightValue)
         {            
             string substraction;
+
+            // supportRepetendSyntax in iputs == false
+            leftValue = leftValue.RemoveParenthesis();
+            rightValue = rightValue.RemoveParenthesis();
+
             if (leftValue[0] == '-' && rightValue[0] == '-')
             {
                 // addition rule: when  substracting  same sign values, substract the alues ang keep  the sign
@@ -3397,8 +3415,12 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
         /// <returns></returns>
-        public static string MultiplyLargeNumbers(string leftValue, string rightValue)
+        public static string MultiplyLargeNumbers(string leftValue, string rightValue, bool supportRepetendSyntax=true)
         {
+            // supportRepetendSyntax in iputs == false
+            leftValue = leftValue.RemoveParenthesis();
+            rightValue = rightValue.RemoveParenthesis();
+
             // process negative signs first
             bool isNegative = false;
             if (rightValue[0] == '-')
@@ -3443,21 +3465,21 @@ namespace JuanMartin.Kernel.Utilities
             //  calculate poduct decimal place
             var productDecimalPlace = rightDecimalPlace + leftDecimalPlace;
 
-            var result = ProcessAsMatrixToMultiplyLargeNumbers(leftValue, rightValue);
+            var multiplication = ProcessAsMatrixToMultiplyLargeNumbers(leftValue, rightValue);
 
             // add multiplication decimal place
-            if (productDecimalPlace > result.Length)
-                result = result.PadLeft(productDecimalPlace, '0');
+            if (productDecimalPlace > multiplication.Length)
+                multiplication = multiplication.PadLeft(productDecimalPlace, '0');
 
             if (productDecimalPlace > 0)
             {
-                result = result.Insert(result.Length - productDecimalPlace, ".");
-                result = result.TrimEnd('0');
+                multiplication = multiplication.Insert(multiplication.Length - productDecimalPlace, ".");
+                multiplication = multiplication.TrimEnd('0');
             }
 
-            int productDecimalIndex = ConvertLengthToIndex(productDecimalPlace, result);
-            result = FormatArithmeticStringValue(result, productDecimalIndex, isNegative);
-            return result;
+            int productDecimalIndex = ConvertLengthToIndex(productDecimalPlace, multiplication);
+            multiplication = FormatArithmeticStringValue(multiplication, productDecimalIndex, isNegative);
+            return multiplication;
         }
 
         private static int ConvertLengthToIndex(int decimalPlace, string number)
@@ -3472,9 +3494,15 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
-        /// <returns></returns>
-        public static string DivideLargeNumbers(string leftValue, string rightValue)
+        /// <param name=" round">Some divisions have a great number of  decimals so truncate the
+        /// response if it is above this number, by default do not tound</param>
+        /// <returns></returns> 
+        public static string DivideLargeNumbers(string leftValue, string rightValue, int round=0, bool supportRepetendSyntax=true)
         {
+            // supportRepetendSyntax in iputs == false
+            leftValue = leftValue.RemoveParenthesis();
+            rightValue = rightValue.RemoveParenthesis();
+
             if (rightValue == "0")
                 throw new ArithmeticException("Cannot divide by zero.");
             if (leftValue == "0")
@@ -3485,10 +3513,10 @@ namespace JuanMartin.Kernel.Utilities
             int decimalShift = rightValue.DecimalNumberPart().Length; //(divisorDecimalIndex == -1) ? 0 : (rightValue.Length - 1) - divisorDecimalIndex;
 
             // move divisor decimal to the right
-            int dividendDecimalIndex = leftValue.IndexOf('.');
+             int dividendDecimalIndex = leftValue.IndexOf('.');
 
 
-            // if no dividend decimal add it, only if neede when divisor has decimal
+            // if no dividend decimal add it, only if needed when divisor has decimal
             if (dividendDecimalIndex == -1 && divisorDecimalIndex  != -1)
             {
                 leftValue += ".0";
@@ -3526,15 +3554,24 @@ namespace JuanMartin.Kernel.Utilities
             }
 
             var quotient = string.Empty;
-            string dividend = "0";
-            int i = rightValue.Length  - 1;
+            int i = rightValue.Length;
+            string dividend = leftValue.Substring(0, i);
 
-            // find prefix of leftValue that is larger than rightValue (divisor).
-            while (CompareLargeNumbers(dividend,rightValue) == -1)
+            //  find prefix of leftValue that is larger than rightValue (divisor).
+            while (CompareLargeNumbers(dividend, rightValue) == -1)
             {
-                i++;
+                if (i >= leftValue.Length)
+                {
+                    leftValue += "0";
+                    decimalShift++;
+                }
+
+                    i++;
                 dividend = leftValue.Substring(0, i);
             }
+
+            // for every position skipped for devidend insert left side zero
+            quotient += "0".Repeat(i - 1);
 
             // repeatedly divide dividend with ightValue. After
             // every division, update dividend to include one
@@ -3542,19 +3579,96 @@ namespace JuanMartin.Kernel.Utilities
             while (leftValue.Length > i)
             {
                 (string q, string r) = IntegerDivision(dividend, rightValue);
-                // keep     result in answer i.e. dividend / rightValue
+                // keep result in answer i.e. dividend / rightValue
                 quotient += q;
 
-                // take remainder and add next digit of number
+                 // take remainder and add next digit of number
                 dividend = (r == "0") ? string.Empty : r;
                 dividend += leftValue[i];
 
                 i++;
             }
-            quotient += IntegerDivision(dividend, rightValue).quotient;
+            (string quot, string rem) = IntegerDivision(dividend, rightValue);
+            quotient += quot;
 
-            quotient = FormatArithmeticStringValue(quotient, divisionDecimalIndex, isNegative);
-            return quotient;
+            // process decimal quotient
+             string sequence = string.Empty;
+            if (new BigDecimal(rem) > BigDecimal.Zero)
+            {
+
+                if (dividendDecimalIndex == -1)
+                    divisionDecimalIndex = quotient.Length - decimalShift;
+
+                string remainderDigits = string.Empty; //track cyclic decimals
+                bool isCyclic;
+                do
+                {
+                    remainderDigits += quot;
+                    (isCyclic, sequence) = DetermineNumericCyclicalSequence(remainderDigits, quot);
+                    // add zeroes until rightValue fits in dividend
+                    dividend = rem + "0";
+
+                    while (UtilityMath.CompareLargeNumbers(dividend, rightValue) == -1)
+                    {
+                        dividend += "0";
+                        quotient += "0";
+                        remainderDigits += "0";
+                    }
+
+                    (quot, rem) = IntegerDivision(dividend, rightValue);
+                    quotient += quot;
+
+                    if (round > 0 && remainderDigits.Length == round)
+                        break;
+                }
+                while (rem != "0" && !isCyclic);
+            }
+
+            //if round numbr is specified or repetend  syntax is not supported, do not evaluate recurring syntax
+            if (round >  0  || !supportRepetendSyntax)
+                sequence = string.Empty;
+
+            string division = FormatArithmeticStringValue(quotient, divisionDecimalIndex, isNegative, sequence);
+            return division;
+        }
+
+        /// </summary>
+        /// A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic 
+        /// (repeating its values at regular intervals) and the infinitely repeated portion is not zero, this method tells
+        /// if a string of digits contains a sequence like  this and returns it too. 
+        /// Start searching after sequence has been aappended at  least three times.
+        /// </summary>
+        /// <param name="digits"></param>
+        /// <param name="quot"></param>
+        /// <returns></returns>
+        public static (bool IsCyclic, string Sequence) DetermineNumericCyclicalSequence(string digits, string quot)
+        {
+            bool match = false;
+            char digit = quot[0];
+            string sequence = string.Empty;
+
+            // to determine a sequence asssume repeating group already starts three times
+            if (digits.Count(c => c == digit) > 2)
+            {
+                var mark1 = digits.IndexOf(digit);
+                var start1 = mark1 + 1;
+                var mark2 = (mark1 != -1) ? digits.Substring(start1).IndexOf(digit) : -1;
+                var start2 = start1 + mark2 + 1;
+                var mark3 = (mark2 != -1) ? digits.Substring(start2).IndexOf(digit) : -1;
+
+                int i = mark1;
+                int j = start1 + mark2;
+                var k = start2 + mark3;
+
+                sequence = digits.Substring(i, j - i);
+                var repeat = digits.Substring(j, k - j);
+
+                if (repeat == sequence)
+                    match = true;
+                else
+                    sequence = string.Empty;
+            }
+            return (match, sequence);
         }
 
         /// <summary>
@@ -4228,15 +4342,17 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="valueDecimalPointIndex"></param>
         /// <param name="value"></param>
+        /// <param name="repetend">A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic (repeating its values at regular intervals) and the infinitely repeated portion is not zero.
+        /// Normallyonly a division may pass this.</param>
         /// <returns></returns>
-        private static string FormatArithmeticStringValue(string value, int valueDecimalPointIndex=-1, bool isNegativeResult=false)
+        private static string FormatArithmeticStringValue(string value, int valueDecimalPointIndex = -1, bool isNegativeResult = false, string repetend = "")
         {
             if (value.Contains("-"))
                 isNegativeResult = true;
 
             if (valueDecimalPointIndex != -1)
             {
-                if(!value.Contains("."))
+                if (!value.Contains("."))
                     value = value.Insert(valueDecimalPointIndex, ".");
 
                 var noDecimal = new Regex(@"\d+\.0+$");
@@ -4263,6 +4379,16 @@ namespace JuanMartin.Kernel.Utilities
             if (isNegativeResult && !value.Contains("-"))
                 value = value.Insert(0, "-");
 
+            // if a repetend is specified show in number using parennthesis notation
+            if (repetend != string.Empty)
+            {
+                var i = value.IndexOf(repetend);
+                if (i > -1)
+                {
+                    value = value.Remove(i);
+                    value = $"{value}({repetend})";
+                }
+            }
             return value;
         }
 

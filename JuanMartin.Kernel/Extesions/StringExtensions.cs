@@ -205,5 +205,27 @@ namespace JuanMartin.Kernel.Extesions
                 yield return Convert.ToInt32(s.Substring(i, Math.Min(partLength, s.Length - i)));
             }
         }
-    }
+
+        public static string RemoveParenthesis(this string s)
+        {
+            char[] sResultChars = new char[s.Length];
+            int sResultCharsIndex = 0;
+
+            if (s.IndexOfAny(new char[] { '(', ')' }) != -1)
+            {
+                for (int i = 0; i < s.Length; i++)
+                {
+                    if (s[i] != '(' && s[i] != ')')
+                    {
+                        sResultChars[sResultCharsIndex] = s[i];
+                        sResultCharsIndex++;
+                    }
+                }
+
+                return new string(sResultChars, 0, sResultCharsIndex);
+            }
+            else
+                return s;
+        } 
+     }
 }

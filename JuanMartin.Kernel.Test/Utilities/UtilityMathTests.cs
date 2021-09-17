@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Numerics;
 using System.Collections.Generic;
 using JuanMartin.Kernel.RuleEngine;
+using JuanMartin.Kernel.Utilities.DataStructures;
 
 namespace JuanMartin.Kernel.Utilities.Tests
 {
@@ -623,13 +624,14 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldReturnValidNumberForAreaOfIscocelesTriangleWithVeryBigSide()
             {
-                int actualSide = 11;
+                int actualSide = 5;
                 int actualBase = actualSide + 1;
-                BigInteger expectedPerimeter = actualBase + 2 * actualSide;
+                BigDecimal expectedPerimeter = new BigDecimal(actualBase + 2 * actualSide);
+                BigDecimal expectedArea = new BigDecimal(12);
 
                 var (actualArea, actualPerimeter) = UtilityMath.GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(actualBase, actualSide);
 
-                Assert.IsTrue(actualArea.HasValue, "Calulate Area as not NaN.");
+                Assert.AreEqual(expectedArea, actualArea, "Calulate Area.");
                 Assert.AreEqual(expectedPerimeter, actualPerimeter, "Calulate Perimeter.");
             }
         }
@@ -651,7 +653,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 // Add the 2 values together.
                 BigInteger actualNumber = BigInteger.Add(big1, big2);
 
-                BigInteger? actualRoot = UtilityMath.BigIntegerSquareRoot(actualNumber);
+                BigInteger? actualRoot = UtilityMath.BigNumberSquareRoot(actualNumber);
 
                 Assert.IsTrue(actualRoot.HasValue, $"Number {actualNumber} has s square root.");
 
@@ -1038,11 +1040,19 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldProcessDivisionsOfAndByDecimalNumbersTest()
             {
-                var actualLeftNumber = "9.152";
-                var actualRightNumber = "0.8";
-                var expectedDiv = "11.44";
+                var actualLeftNumber = "16";
+                var actualRightNumber = "5.3333";
+                var expectedDiv = "";
 
                 var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "9.152";
+                actualRightNumber = "0.8";
+                expectedDiv = "11.44";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
@@ -1057,6 +1067,114 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 actualLeftNumber = "1328652";
                 actualRightNumber = "234";
                 expectedDiv = "5678";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+            }
+
+            [Test()]
+            public void Should()
+            {
+                string digits = "42232";
+                string quot = "2";
+                string sequence;
+                bool match;
+                // to determine a sequence asssume repeating group already starts three times
+                (match, sequence) = UtilityMath.DetermineNumericCyclicalSequence(digits, quot);
+                Console.WriteLine($"{match}:{sequence}");
+                digits = "333";
+                quot = "3";
+                (match, sequence) = UtilityMath.DetermineNumericCyclicalSequence(digits, quot);
+                Console.WriteLine($"{match}:{sequence}");
+                digits = "714285714285714285";
+                quot = "7";
+                (match, sequence) = UtilityMath.DetermineNumericCyclicalSequence(digits, quot);
+                Console.WriteLine($"{match}:{sequence}");
+            }
+
+            [Test()]
+            public void ShouldHandleCyclicalDecimalsInTheResults()
+            {
+                var actualLeftNumber = "5";
+                var actualRightNumber = "7";
+                var expectedDiv = "0.(714285)";
+                
+                var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "3147";
+                actualRightNumber = "990";
+                expectedDiv = "3.1(78)";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "29";
+                actualRightNumber = "46";
+                expectedDiv = "0.630434(782608695652234)";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "5";
+                actualRightNumber = "9";
+                expectedDiv = "0.(5)";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "2423";
+                actualRightNumber = "450";
+                expectedDiv = "5.38(4)";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+            }
+
+            [Test()]
+            public void ShouldExpressRemaindersAsDecimalsTest()
+            {
+                var actualLeftNumber = "5";
+                var actualRightNumber = "2";
+                var expectedDiv = "2.5";
+
+                var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "106408";
+                actualRightNumber = "1139";
+                expectedDiv = "93.42230026338893766";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber, 17);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "2.87";
+                actualRightNumber = "5";
+                expectedDiv = "0.574";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "121";
+                actualRightNumber = "8";
+                expectedDiv = "15.125";
+
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+
+                Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
+
+                actualLeftNumber = "471";
+                actualRightNumber = "32";
+                expectedDiv = "14.71875";
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 

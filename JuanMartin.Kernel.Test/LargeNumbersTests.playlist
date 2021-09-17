@@ -211,6 +211,52 @@
                         <Property Name="DisplayName" Value="ShouldProcessDivisionsOfAndByDecimalNumbersTest" />
                       </Rule>
                     </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldExpressRemaindersAsDecimalsTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldExpressRemaindersAsDecimalsTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.Should" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="Should" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+DivideLargeNumbersTests.ShouldHandleCyclicalDecimalsInTheResults" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldHandleCyclicalDecimalsInTheResults" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+AddMatrixTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+AddMatrixTests.ShouldAddArrayOfStringNumbersTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldAddArrayOfStringNumbersTest" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+LoadAsMatrixTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+LoadAsMatrixTests.ShouldConvertStringArrayOfNumbersIntoMatrixOfSingleDigitsTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldConvertStringArrayOfNumbersIntoMatrixOfSingleDigitsTest" />
+                      </Rule>
+                    </Rule>
                   </Rule>
                 </Rule>
               </Rule>
