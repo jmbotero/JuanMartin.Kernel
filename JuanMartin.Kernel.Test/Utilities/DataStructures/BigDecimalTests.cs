@@ -8,13 +8,40 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
     [TestFixture]
     class BigDecimalTests
     {
+
+        [Test]
+        public static void ShouldRoundNumbersWithDecimalValuesTest()
+        {
+            BigDecimal actualNumber;
+            string expectedNumber;
+            int actualDigits;
+
+            actualNumber = new BigDecimal("5.3996578");
+            actualDigits = 3;
+            expectedNumber = "5.4";
+
+            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+
+            actualNumber = new BigDecimal("5.3993578");
+            actualDigits = 3;
+            expectedNumber = "5.399";
+
+            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+
+            actualNumber = new BigDecimal("5.9996578");
+            actualDigits = 3;
+            expectedNumber = "6";
+
+            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+        }
+
         [Test]
         public static void ShouldEvaluateEqualityOfSimpleNonDecimalNumbersTest()
         {
             var actualLeftNumber = new BigDecimal("123");
             var actualRightNumber = new BigDecimal("123");
 
-            Assert.IsTrue(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}={actualLeftNumber}");
+            Assert.IsTrue(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}={actualRightNumber}");
 
             actualLeftNumber = new BigDecimal("4.5");
             actualRightNumber = new BigDecimal("4.5");

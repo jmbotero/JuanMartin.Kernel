@@ -1379,17 +1379,7 @@ namespace JuanMartin.Kernel.Utilities
             if (number < 0) return null;
 
             BigInteger root = number / 3;
-            int i;
-            for (i = 0; i < 32; i++)
-                root = (root + number / root) / 2;
-            return root;
-        }
 
-        public static BigDecimal? BigNumberSquareRoot(BigDecimal number)
-        {
-            if (number < 0) return null;
-
-            BigDecimal root = number / 3;
             int i;
             for (i = 0; i < 32; i++)
             {
@@ -1397,7 +1387,8 @@ namespace JuanMartin.Kernel.Utilities
                 x += root;
                 root = x / 2;
             }
-                root = (root + number / root) / 2;
+
+            root = (root + number / root) / 2;
             return root;
         }
 
@@ -1773,7 +1764,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="b">base of the isosceles triangle</param>
         /// <param name="a">length of the two equal sides</param>
         /// <returns></returns>
-        public static (BigDecimal? area, BigDecimal? perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
+        public static (BigDecimal area, BigDecimal perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
         {
             BigDecimal A = new BigDecimal(a);
             BigDecimal B = new BigDecimal(b);
@@ -1781,11 +1772,12 @@ namespace JuanMartin.Kernel.Utilities
             x /= 4;
             x = (A * A) - x;
 
-            BigDecimal? area = BigNumberSquareRoot(x);
+            BigDecimal area = x.Sqrt();
             area *= B;
             area /= 2;
+            area.Round();
 
-            BigDecimal? perimeter = B + (A * 2);
+            BigDecimal perimeter = B + (A * 2);
             
             return (area, perimeter);
         }
@@ -3497,9 +3489,11 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name=" round">Some divisions have a great number of  decimals so truncate the
         /// response if it is above this number, by default do not tound</param>
         /// <returns></returns> 
-        public static string DivideLargeNumbers(string leftValue, string rightValue, int round=0, bool supportRepetendSyntax=true)
+        public static string DivideLargeNumbers(string leftValue, string rightValue, int round=40, bool supportRepetendSyntax=true)
         {
-            // supportRepetendSyntax in iputs == false
+            // TOO: Address issue when cycle-anal.yisis quooootioent lenght ids leww than round default
+
+            //supportRepetendSyntax in iputs == false
             leftValue = leftValue.RemoveParenthesis();
             rightValue = rightValue.RemoveParenthesis();
 
@@ -3510,23 +3504,19 @@ namespace JuanMartin.Kernel.Utilities
 
             // process decimal
             int divisorDecimalIndex = rightValue.IndexOf('.');
-            int decimalShift = rightValue.DecimalNumberPart().Length; //(divisorDecimalIndex == -1) ? 0 : (rightValue.Length - 1) - divisorDecimalIndex;
+            int decimalShift = rightValue.DecimalNumberPart(divisorDecimalIndex).Length; 
 
             // move divisor decimal to the right
              int dividendDecimalIndex = leftValue.IndexOf('.');
-
 
             // if no dividend decimal add it, only if needed when divisor has decimal
             if (dividendDecimalIndex == -1 && divisorDecimalIndex  != -1)
             {
                 leftValue += ".0";
-                dividendDecimalIndex = leftValue.WholeNumberPart().Length;
+                dividendDecimalIndex = leftValue.WholeNumberPart(dividendDecimalIndex).Length;
             }
             int divisionDecimalIndex = dividendDecimalIndex + decimalShift;
 
-            // if dividend has not enough decimal placess to address shift then add zeroes
-            if (dividendDecimalIndex == -1 || leftValue.DecimalNumberPart(dividendDecimalIndex).Length < decimalShift)
-                leftValue += "0".Repeat(decimalShift);
 
             // do not conider decimal positions
             if (dividendDecimalIndex > 0)
@@ -3554,10 +3544,11 @@ namespace JuanMartin.Kernel.Utilities
             }
 
             var quotient = string.Empty;
-            int i = rightValue.Length;
+            int i = 1;
             string dividend = leftValue.Substring(0, i);
 
             //  find prefix of leftValue that is larger than rightValue (divisor).
+            // if dividend has not enough decimal placess to address shift then add zeroes
             while (CompareLargeNumbers(dividend, rightValue) == -1)
             {
                 if (i >= leftValue.Length)
@@ -3566,7 +3557,7 @@ namespace JuanMartin.Kernel.Utilities
                     decimalShift++;
                 }
 
-                    i++;
+                i++;
                 dividend = leftValue.Substring(0, i);
             }
 
@@ -3600,11 +3591,13 @@ namespace JuanMartin.Kernel.Utilities
                     divisionDecimalIndex = quotient.Length - decimalShift;
 
                 string remainderDigits = string.Empty; //track cyclic decimals
-                bool isCyclic;
+                bool isCyclic = false;
                 do
                 {
                     remainderDigits += quot;
-                    (isCyclic, sequence) = DetermineNumericCyclicalSequence(remainderDigits, quot);
+                    if(supportRepetendSyntax)
+                        (isCyclic, sequence) = DetermineNumericCyclicalSequence(remainderDigits, quot);
+
                     // add zeroes until rightValue fits in dividend
                     dividend = rem + "0";
 
@@ -3624,8 +3617,8 @@ namespace JuanMartin.Kernel.Utilities
                 while (rem != "0" && !isCyclic);
             }
 
-            //if round numbr is specified or repetend  syntax is not supported, do not evaluate recurring syntax
-            if (round >  0  || !supportRepetendSyntax)
+            //if repetend  syntax is not supported, make sure there is no sequence evaluated
+            if (!supportRepetendSyntax)
                 sequence = string.Empty;
 
             string division = FormatArithmeticStringValue(quotient, divisionDecimalIndex, isNegative, sequence);
@@ -4389,6 +4382,7 @@ namespace JuanMartin.Kernel.Utilities
                     value = $"{value}({repetend})";
                 }
             }
+
             return value;
         }
 

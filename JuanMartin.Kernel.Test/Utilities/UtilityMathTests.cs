@@ -554,7 +554,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             public void ShouldContainOnlyPrimes()
             {
                 var fileName = @"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\first_million_primes.txt";
-                var actualPrimes = UtilityFile.ReadTextToStringEnumerable(fileName).ToHashSet(); 
+                var actualPrimes = UtilityFile.ReadTextToStringEnumerable(fileName).ToHashSet();
 
                 var actualSieve = UtilityMath.ErathostenesSieve(1000000);
 
@@ -1042,9 +1042,9 @@ namespace JuanMartin.Kernel.Utilities.Tests
             {
                 var actualLeftNumber = "16";
                 var actualRightNumber = "5.3333";
-                var expectedDiv = "";
+                var expectedDiv = "3.18941368383552397";
 
-                var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
+                var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber, 17);
 
                 Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
@@ -1076,21 +1076,6 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void Should()
             {
-                string digits = "42232";
-                string quot = "2";
-                string sequence;
-                bool match;
-                // to determine a sequence asssume repeating group already starts three times
-                (match, sequence) = UtilityMath.DetermineNumericCyclicalSequence(digits, quot);
-                Console.WriteLine($"{match}:{sequence}");
-                digits = "333";
-                quot = "3";
-                (match, sequence) = UtilityMath.DetermineNumericCyclicalSequence(digits, quot);
-                Console.WriteLine($"{match}:{sequence}");
-                digits = "714285714285714285";
-                quot = "7";
-                (match, sequence) = UtilityMath.DetermineNumericCyclicalSequence(digits, quot);
-                Console.WriteLine($"{match}:{sequence}");
             }
 
             [Test()]
@@ -1099,7 +1084,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 var actualLeftNumber = "5";
                 var actualRightNumber = "7";
                 var expectedDiv = "0.(714285)";
-                
+
                 var actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
@@ -1150,9 +1135,9 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualLeftNumber = "106408";
                 actualRightNumber = "1139";
-                expectedDiv = "93.42230026338893766";
+                expectedDiv = "93.422300263388937";
 
-                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber, 17);
+                actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber, 15);
 
                 Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
@@ -1271,6 +1256,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 Assert.AreEqual(expectdedSum, actualSum);
             }
         }
+
     }
 
 }

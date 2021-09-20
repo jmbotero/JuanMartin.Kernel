@@ -259,6 +259,17 @@
                     </Rule>
                   </Rule>
                 </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+GetIscocelesTriangleAreaAndPerimeterUsingSidesOnlyTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+GetIscocelesTriangleAreaAndPerimeterUsingSidesOnlyTests.ShouldReturnValidNumberForAreaOfIscocelesTriangleWithVeryBigSide" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldReturnValidNumberForAreaOfIscocelesTriangleWithVeryBigSide" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
               </Rule>
             </Rule>
             <Rule Match="All">
@@ -313,6 +324,12 @@
                       <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldEvaluateGreaterThanComparisonOfNonDecimalNumbersTest" />
                       <Rule Match="Any">
                         <Property Name="DisplayName" Value="ShouldEvaluateGreaterThanComparisonOfNonDecimalNumbersTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldRoundNumbersWithDecimalValuesTest" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldRoundNumbersWithDecimalValuesTest" />
                       </Rule>
                     </Rule>
                   </Rule>
