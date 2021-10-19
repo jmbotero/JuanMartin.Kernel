@@ -1,5 +1,4 @@
-﻿using JuanMartin.Kernel.Utilities.DataStructures;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
@@ -8,31 +7,35 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
     [TestFixture]
     class BigDecimalTests
     {
-
         [Test]
         public static void ShouldRoundNumbersWithDecimalValuesTest()
         {
             BigDecimal actualNumber;
-            string expectedNumber;
+            BigDecimal expectedNumber;
             int actualDigits;
 
             actualNumber = new BigDecimal("5.3996578");
             actualDigits = 3;
-            expectedNumber = "5.4";
+            expectedNumber = new BigDecimal("5.4");
 
             Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
 
             actualNumber = new BigDecimal("5.3993578");
             actualDigits = 3;
-            expectedNumber = "5.399";
+            expectedNumber = new BigDecimal("5.399");
 
             Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
 
             actualNumber = new BigDecimal("5.9996578");
             actualDigits = 3;
-            expectedNumber = "6";
+            expectedNumber = new BigDecimal("6");
 
             Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+
+            actualNumber = new BigDecimal(Math.Sqrt(2));
+            expectedNumber = new BigDecimal("1");
+            
+            Assert.AreEqual(expectedNumber, actualNumber.Round(), $"Round {actualNumber.ToString()}");
         }
 
         [Test]
@@ -62,6 +65,87 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualRightNumber = new BigDecimal("123");
 
             Assert.IsFalse(actualLeftNumber == actualRightNumber, $"{actualLeftNumber}!={actualRightNumber}");
+        }
+
+
+        [Test]
+        public static void ShouldConvertLongBinaryToBigDecimal()
+        {
+            string actualBinary = "110001001100100011001111000100110010001100111100010011001000110011";
+            BigDecimal expectedNumber=new BigDecimal("56719244431513956915");
+
+            Assert.AreEqual(BigDecimal.ConvertFromBinary(actualBinary), expectedNumber);
+        }
+
+        [Test]
+        public static  void ShoulPerformLeftBitShiftingOnBigDecimal()
+        {
+            BigDecimal actualNumber;
+            int actualShift;
+            BigDecimal expectedNumber;
+            BigDecimal actualOperationResult;
+
+            actualNumber = new BigDecimal(1);
+            actualShift = 9;
+            expectedNumber = new BigDecimal(512);
+
+            actualOperationResult = actualNumber << actualShift;
+
+            Assert.AreEqual(expectedNumber, actualOperationResult, $"{actualNumber} << { actualShift}");
+
+            actualNumber = new BigDecimal(1000);
+            actualShift = 2;
+            expectedNumber = new BigDecimal(4000);
+
+            actualOperationResult = actualNumber << actualShift;
+
+            Assert.AreEqual(expectedNumber, actualOperationResult, $"{actualNumber} << { actualShift}");
+        }
+
+        [Test]
+        public static void ShouldConvertBigDecimalToBinary()
+        {
+            BigDecimal actualNumber;
+            string actualBinaryRepresentation;
+            string expectedBinaryRepresentation;
+
+            actualNumber = new BigDecimal(10);
+            actualBinaryRepresentation = actualNumber.ToBinary();
+            expectedBinaryRepresentation = "1010";
+            Assert.AreEqual(expectedBinaryRepresentation, actualBinaryRepresentation, $"{actualNumber.ToString()}");
+
+            actualNumber = new BigDecimal("12345678901234567890123456789012345678901234567890");
+            actualBinaryRepresentation = actualNumber.ToBinary();
+
+            expectedBinaryRepresentation = "10000111001001111111011000110110100110101010111110000011110010100001010100000010011001110100011110101111100011000111111100011001011011001110001111110000101011010010";
+            Assert.AreEqual(expectedBinaryRepresentation, actualBinaryRepresentation, $"{actualNumber.ToString()}");
+        }
+
+        [Test]
+        public static void ShouldCalculateSqrtSameAsNettSqrt()
+        {
+            Assert.Pass();
+
+            BigDecimal actualSqrt;
+            double actualNetSqrt;
+            double actualNumber;// = 153;
+            //var expectedNumber = new BigDecimal(12.36931687685298);
+            for (actualNumber = 2; actualNumber <= 1000000; actualNumber++)
+            {
+                actualNetSqrt = Math.Sqrt(actualNumber);
+                actualSqrt = new BigDecimal(actualNumber).Sqrt_Babylonian();
+
+                 var bigDecimalHasFraction = (actualSqrt.GetDecimal().Length > 0);
+                var netHasFraction = (actualNetSqrt - Math.Round(actualNetSqrt)) != 0; 
+          
+                if(!netHasFraction && bigDecimalHasFraction)
+                {
+                    actualSqrt = new BigDecimal(actualNumber).Sqrt_BigInteger(); 
+                    Assert.AreEqual(new BigDecimal(actualNetSqrt), actualSqrt, $"integer sqrt of {actualNumber}:{actualSqrt},{actualNetSqrt}");
+                }
+                else
+                    Assert.AreEqual(netHasFraction, bigDecimalHasFraction, $"sqrt of {actualNumber}:{actualSqrt},{actualNetSqrt} has fractions");
+            }
         }
 
         [Test]

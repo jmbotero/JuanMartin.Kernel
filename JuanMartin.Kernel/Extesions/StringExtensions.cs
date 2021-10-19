@@ -24,6 +24,18 @@ namespace JuanMartin.Kernel.Extesions
             return match;
         }
 
+        public static bool IsNullOrEmptyOrZero(this string source)
+        {
+            bool match = false;
+            
+            if(source!=null  && source != string.Empty)
+            {
+                var zeroes = new Regex(@"^0+$");
+                match = zeroes.IsMatch(source);
+            }
+
+            return match;
+        }
         public static string WholeNumberPart(this string source, int index = -1)
         {
             if (index == -1)

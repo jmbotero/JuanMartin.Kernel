@@ -1756,6 +1756,7 @@ namespace JuanMartin.Kernel.Utilities
 
             return number;
         }
+        
         /// <summary>
         /// Calculate the area   and perimete of a triangle with two equal sides.
         /// <see cref="https://byjus.com/maths/area-of-isosceles-triangle/"/>
@@ -1764,7 +1765,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="b">base of the isosceles triangle</param>
         /// <param name="a">length of the two equal sides</param>
         /// <returns></returns>
-        public static (BigDecimal area, BigDecimal perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a)
+        public static (BigDecimal area, BigDecimal perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a, bool useIntegerCorrection=true)
         {
             BigDecimal A = new BigDecimal(a);
             BigDecimal B = new BigDecimal(b);
@@ -1772,10 +1773,18 @@ namespace JuanMartin.Kernel.Utilities
             x /= 4;
             x = (A * A) - x;
 
-            BigDecimal area = x.Sqrt();
+            BigDecimal area = x.Sqrt_Babylonian(true);
+
+            if (useIntegerCorrection)
+            {
+                // sqrt  approximation is not accurate, use integer version
+                if (!UtilityMath.IsPerferctSquare(x.GetWholePartAsBigInteger(), area.GetWholePartAsBigInteger()))
+                {
+                    area = x.Sqrt_BigInteger();
+                }
+            }
             area *= B;
             area /= 2;
-            area.Round();
 
             BigDecimal perimeter = B + (A * 2);
             
@@ -2919,7 +2928,18 @@ namespace JuanMartin.Kernel.Utilities
             }
             return false;
         }
-                            
+
+        public static bool IsPerferctSquare(BigInteger number,BigInteger actualSqtr)
+        {
+            var expectedSqrt = number * number;
+            if (expectedSqrt == actualSqtr)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
 
         /// <summary>
         /// Implementing algorithm described in https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Continued_fraction_expansion
@@ -3409,6 +3429,9 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         public static string MultiplyLargeNumbers(string leftValue, string rightValue, bool supportRepetendSyntax=true)
         {
+            if (leftValue == "0" || rightValue == "0")
+                return "0";
+
             // supportRepetendSyntax in iputs == false
             leftValue = leftValue.RemoveParenthesis();
             rightValue = rightValue.RemoveParenthesis();
@@ -3483,15 +3506,18 @@ namespace JuanMartin.Kernel.Utilities
         /// Perform dision of two big  string numbers using long division
         /// <see cref="https://www.dummies.com/education/math/basic-math/how-to-divide-big-numbers-with-long-division/"/>
         /// <seealso cref="https://www.geeksforgeeks.org/divide-large-number-represented-string/"/>
+        /// <seealso cref="https://www.dummies.com/education/math/pre-algebra/how-to-divide-decimals/"/>
+        /// TODO: Address issue when for cycle-analyisis quotioent length is less than round default
         /// </summary>
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
         /// <param name=" round">Some divisions have a great number of  decimals so truncate the
-        /// response if it is above this number, by default do not tound</param>
+        /// response if it is above this number, by default do not round</param>
         /// <returns></returns> 
-        public static string DivideLargeNumbers(string leftValue, string rightValue, int round=40, bool supportRepetendSyntax=true)
+        public static string DivideLargeNumbers(string leftValue, string rightValue, out string remainder, int round=40, bool processRemainder=true, bool supportRepetendSyntax=true)
         {
-            // TOO: Address issue when cycle-anal.yisis quooootioent lenght ids leww than round default
+            // only output a remainder as below when processReminder=false
+            remainder = string.Empty;
 
             //supportRepetendSyntax in iputs == false
             leftValue = leftValue.RemoveParenthesis();
@@ -3516,7 +3542,6 @@ namespace JuanMartin.Kernel.Utilities
                 dividendDecimalIndex = leftValue.WholeNumberPart(dividendDecimalIndex).Length;
             }
             int divisionDecimalIndex = dividendDecimalIndex + decimalShift;
-
 
             // do not conider decimal positions
             if (dividendDecimalIndex > 0)
@@ -3584,39 +3609,44 @@ namespace JuanMartin.Kernel.Utilities
 
             // process decimal quotient
              string sequence = string.Empty;
-            if (new BigDecimal(rem) > BigDecimal.Zero)
+            if (processRemainder)
             {
-
-                if (dividendDecimalIndex == -1)
-                    divisionDecimalIndex = quotient.Length - decimalShift;
-
-                string remainderDigits = string.Empty; //track cyclic decimals
-                bool isCyclic = false;
-                do
+                if (new BigDecimal(rem) > BigDecimal.Zero)
                 {
-                    remainderDigits += quot;
-                    if(supportRepetendSyntax)
-                        (isCyclic, sequence) = DetermineNumericCyclicalSequence(remainderDigits, quot);
 
-                    // add zeroes until rightValue fits in dividend
-                    dividend = rem + "0";
+                    if (dividendDecimalIndex == -1)
+                        divisionDecimalIndex = quotient.Length - decimalShift;
 
-                    while (UtilityMath.CompareLargeNumbers(dividend, rightValue) == -1)
+                    string remainderDigits = string.Empty; //track cyclic decimals
+                    bool isCyclic = false;
+                    do
                     {
-                        dividend += "0";
-                        quotient += "0";
-                        remainderDigits += "0";
+                        remainderDigits += quot;
+                        if (supportRepetendSyntax)
+                            (isCyclic, sequence) = DetermineNumericCyclicalSequence(remainderDigits, quot);
+
+                        // add zeroes until rightValue fits in dividend
+                        dividend = rem + "0";
+
+                        while (UtilityMath.CompareLargeNumbers(dividend, rightValue) == -1)
+                        {
+                            dividend += "0";
+                            quotient += "0";
+                            remainderDigits += "0";
+                        }
+
+                        (quot, rem) = IntegerDivision(dividend, rightValue);
+                        quotient += quot;
+
+                        if (round > 0 && remainderDigits.Length >= round)
+                            break;
                     }
-
-                    (quot, rem) = IntegerDivision(dividend, rightValue);
-                    quotient += quot;
-
-                    if (round > 0 && remainderDigits.Length == round)
-                        break;
+                    while (rem != "0" && !isCyclic);
                 }
-                while (rem != "0" && !isCyclic);
             }
-
+            else
+                remainder = rem;
+   
             //if repetend  syntax is not supported, make sure there is no sequence evaluated
             if (!supportRepetendSyntax)
                 sequence = string.Empty;
@@ -3625,16 +3655,21 @@ namespace JuanMartin.Kernel.Utilities
             return division;
         }
 
-        /// </summary>
-        /// A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic 
-        /// (repeating its values at regular intervals) and the infinitely repeated portion is not zero, this method tells
-        /// if a string of digits contains a sequence like  this and returns it too. 
-        /// Start searching after sequence has been aappended at  least three times.
-        /// </summary>
-        /// <param name="digits"></param>
-        /// <param name="quot"></param>
-        /// <returns></returns>
-        public static (bool IsCyclic, string Sequence) DetermineNumericCyclicalSequence(string digits, string quot)
+        public static string DivideLargeNumbers(string leftValue, string rightValue, int round = 40, bool processRemainder = true, bool supportRepetendSyntax = true)
+        {
+            return DivideLargeNumbers(leftValue, rightValue, out string r, round, processRemainder, supportRepetendSyntax);
+        }
+
+            /// </summary>
+            /// A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic 
+            /// (repeating its values at regular intervals) and the infinitely repeated portion is not zero, this method tells
+            /// if a string of digits contains a sequence like  this and returns it too. 
+            /// Start searching after sequence has been aappended at  least three times.
+            /// </summary>
+            /// <param name="digits"></param>
+            /// <param name="quot"></param>
+            /// <returns></returns>
+            public static (bool IsCyclic, string Sequence) DetermineNumericCyclicalSequence(string digits, string quot)
         {
             bool match = false;
             char digit = quot[0];
@@ -3688,6 +3723,13 @@ namespace JuanMartin.Kernel.Utilities
             do
             {
                  lastRemainder = (aux == "0") ? "0" : SubstractLargeNumbers(leftValue, aux);
+
+                if (CompareLargeNumbers(lastRemainder, "0") == -1)
+                {
+                    lastRemainder = lastRemainder.Remove(0, 1);
+                    return ("0", lastRemainder);
+                }
+
                 aux = MultiplyLargeNumberBySingleDigit(rightValue, i);
                 i++;
             }
@@ -3844,6 +3886,57 @@ namespace JuanMartin.Kernel.Utilities
                 m = numericMatrix.Select(r => string.Join("", r.ToArray())).ToArray();
 
             return AddLargeNumbers(m.ToArray());
+        }
+
+        /// <summary>
+        /// The left-shift operator causes the bits in shift-expression to be shifted to the left by the number of positions specified by
+        /// additive-expression. The bit positions that have been vacated by the shift operation are zero-filled. A left shift is a logical
+        /// shift (the bits that are shifted off the end are discarded, including the sign bit)
+        /// <see cref="https://docs.microsoft.com/en-us/cpp/cpp/left-shift-and-right-shift-operators-input-and-output?view=msvc-160"/>
+        /// </summary>
+        /// <param name="shiftExpression"></param>
+        /// <param name="additiveExpressdion"></param>
+        /// <param name="length"> minimal length of bits of original number</param>
+        /// <returns></returns>
+        public static BigDecimal BitLeftShift(BigDecimal  shiftExpression , int additiveExpressdion, int length=1000)
+        {
+            var binary = shiftExpression.ToBinary();
+            BigDecimal result;
+
+            binary = binary.PadLeft(length, '0');
+
+            binary = binary.Remove(0, additiveExpressdion) + "0".Repeat(additiveExpressdion);
+            result = BigDecimal.ConvertFromBinary(binary);
+
+            return result;
+        }
+
+        /// <summary>
+        /// When shifting right with a right shift, the least-significant bit is lost and  with 1s for negative values, else zeros inserted on the other end.
+        /// <see cref="https://www.interviewcake.com/concept/java/bit-shift"/>
+        /// </summary>
+        /// <param name="shiftExpression"></param>
+        /// <param name="additiveExpressdion"></param>
+        /// <param name="type"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static BigDecimal BitRightShift(BigDecimal shiftExpression, int additiveExpressdion, int length = 1000)
+        {
+            var binary = shiftExpression.ToBinary();
+            BigDecimal result;
+
+            binary = binary.PadLeft(length, '0');
+            
+            string prefix;
+            if (shiftExpression.IsNegative)
+                prefix = "1".Repeat(additiveExpressdion);
+            else
+                prefix = "0".Repeat(additiveExpressdion);
+            binary = prefix + binary.Remove(binary.Length - 1 - additiveExpressdion);
+            
+            result = BigDecimal.ConvertFromBinary(binary);
+
+            return result;
         }
 
         /// <summary>

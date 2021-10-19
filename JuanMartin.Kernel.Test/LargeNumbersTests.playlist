@@ -268,6 +268,18 @@
                         <Property Name="DisplayName" Value="ShouldReturnValidNumberForAreaOfIscocelesTriangleWithVeryBigSide" />
                       </Rule>
                     </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+GetIscocelesTriangleAreaAndPerimeterUsingSidesOnlyTests.ShouldReturnValidNumberForAreaOfIscocelesTriangle" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldReturnValidNumberForAreaOfIscocelesTriangle" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+GetIscocelesTriangleAreaAndPerimeterUsingSidesOnlyTests.ShouldReturnValidNumberForAreaOfIscocelesTriangleWithLongSide" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldReturnValidNumberForAreaOfIscocelesTriangleWithLongSide" />
+                      </Rule>
+                    </Rule>
                   </Rule>
                 </Rule>
               </Rule>
@@ -330,6 +342,36 @@
                       <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldRoundNumbersWithDecimalValuesTest" />
                       <Rule Match="Any">
                         <Property Name="DisplayName" Value="ShouldRoundNumbersWithDecimalValuesTest" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldCalculateSqrtSameAsNettSqrt" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldCalculateSqrtSameAsNettSqrt" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldConvertToBinary" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldConvertToBinary" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldConvertLongBinaryToBigDecimal" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldConvertLongBinaryToBigDecimal" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShouldConvertBigDecimalToBinary" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldConvertBigDecimalToBinary" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.DataStructures.Tests.BigDecimalTests.ShoulPerformLeftBitShiftingOnBigDecimal" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulPerformLeftBitShiftingOnBigDecimal" />
                       </Rule>
                     </Rule>
                   </Rule>

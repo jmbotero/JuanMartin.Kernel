@@ -621,18 +621,18 @@ namespace JuanMartin.Kernel.Utilities.Tests
         [TestFixture]
         public class GetIscocelesTriangleAreaAndPerimeterUsingSidesOnlyTests
         {
-            [Test()]
-            public void ShouldReturnValidNumberForAreaOfIscocelesTriangleWithVeryBigSide()
+            [Test]
+            public void ShouldReturnValidNumberForAreaOfIscocelesTriangleWithLongSide()
             {
-                int actualSide = 5;
-                int actualBase = actualSide + 1;
-                BigDecimal expectedPerimeter = new BigDecimal(actualBase + 2 * actualSide);
-                BigDecimal expectedArea = new BigDecimal(12);
+                int actualSide, actualBase;
+                BigDecimal actualArea;
 
-                var (actualArea, actualPerimeter) = UtilityMath.GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(actualBase, actualSide);
+                actualSide = 333333333;
+                actualBase = actualSide + 1;
 
-                Assert.AreEqual(expectedArea, actualArea, "Calulate Area.");
-                Assert.AreEqual(expectedPerimeter, actualPerimeter, "Calulate Perimeter.");
+                (actualArea, _) = UtilityMath.GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(actualBase, actualSide,false);
+
+                Assert. IsTrue(actualArea.DecimalPlaces > 0, $"Area has a fraction, {actualArea}");
             }
         }
 
@@ -1056,17 +1056,17 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
-                actualLeftNumber = "5";
-                actualRightNumber = "0.5";
-                expectedDiv = "10";
+                actualLeftNumber = "1328652";
+                actualRightNumber = "234";
+                expectedDiv = "5678";
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
                 Assert.AreEqual(expectedDiv, actualDiv, $"{actualLeftNumber}/{actualRightNumber}");
 
-                actualLeftNumber = "1328652";
-                actualRightNumber = "234";
-                expectedDiv = "5678";
+                actualLeftNumber = "5";
+                actualRightNumber = "0.5";
+                expectedDiv = "10";
 
                 actualDiv = UtilityMath.DivideLargeNumbers(actualLeftNumber, actualRightNumber);
 
