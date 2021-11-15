@@ -86,6 +86,13 @@ namespace JuanMartin.Kernel.Extesions
 
             return false;
         }
+        public static IEnumerable<long> Range(long start, long count)
+        {
+            for (long current = 0; current < count; ++current)
+            {
+                yield return start + current;
+            }
+        }
         public static IEnumerable<(T item, int index)> Enumerate<T>(this IEnumerable<T> self)
              => self?.Select((item, index) => (item, index)) ?? new List<(T, int)>();
 

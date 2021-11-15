@@ -1,4 +1,4 @@
-using JuanMartin.Kernel.Extesions;
+   using JuanMartin.Kernel.Extesions;
 using JuanMartin.Kernel.RuleEngine;
 using JuanMartin.Kernel.Utilities.DataStructures;
 using System;
@@ -1142,10 +1142,6 @@ namespace JuanMartin.Kernel.Utilities
                     sides.Add(side);
                 }
             }
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-            subs = null;
-            digitPermuatations = null;
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
 
             // now filter side sequences which do not join in ring
             // perimeter contains all possible value permutations for node values for each
@@ -1166,9 +1162,6 @@ namespace JuanMartin.Kernel.Utilities
                 }
                 groupedSides[current].Add(s);
             }
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-            sides = null;
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
 
             var a = digits.Max();
             var b = -1;
@@ -1838,25 +1831,73 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public static bool IsAmicableNumber(long number)
+        /// <summary>
+        /// Use cahe which is to avoid recalculating factors.
+        /// </summary> 
+        /// <param name="number"></param>
+        /// <param name="cache"></param>
+        /// <returns></returns>
+        public static bool IsAmicableNumber(long number, Dictionary<long, long> cache = null)
         {
-            long d(long n)
-            {
-                var divisors = GetFactors(n);
+            long sum = ProperDivisorSum(number, cache);
+            long aux = ProperDivisorSum(sum, cache);
 
-                return divisors.Sum();
-            }
-            
-            //d(n)=sum and d(sum)=n, and n!=sum
-            var sum = d(number);
-            var s = d(sum);
-
-            return (s == number && s != sum);
+            return (aux == number && aux != sum);
         }
 
+        public static List<long> GetAmicableNumbersChain(long number, long l, Dictionary<long, long> factorsSumCache)
+        {
+            var amicableNumbers = new List<long>();
+
+            // create cictionary cache of factor sums, chain elements, as we go building chain
+            do
+            {
+                if ((amicableNumbers.Count > 0 && number < amicableNumbers[0]) || number > l)
+                    break;
+
+                amicableNumbers.Add(number);
+                if (factorsSumCache.TryGetValue(number, out long temp))
+                {
+                    number = temp;
+                }
+                else
+                {
+                    var sum = ProperDivisorSum(number, factorsSumCache);
+                    number = sum;
+                }
+
+                if (amicableNumbers.Contains(number))
+                    break;
+
+            } while (number > 1 && number < l);
+
+            return amicableNumbers;
+        }
+
+        private static long ProperDivisorSum(long n, Dictionary<long, long> cache = null)
+        {
+            long sum;
+            if (cache == null || (cache != null && !cache.TryGetValue(n, out _)))
+            {
+                var divisors = GetFactors(n);
+                sum = divisors.Sum();
+                if(cache != null)  cache.Add(n, sum);
+            }
+            else
+            {
+                sum = -1;
+            }
+
+            return sum;
+        }
 
         public static bool IsPandigital<T>(T number)
         {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new ArgumentException("Both arguments must be numeric.");
+
             return IsPandigital(number.ToString());
         }
 
@@ -1918,32 +1959,34 @@ namespace JuanMartin.Kernel.Utilities
             return (GetFactors(number).Sum() > number);
         }
 
+          public static IEnumerable<long> GetFactors(long number, bool includeSelf = false, bool includeOne = true)
+        {
+//            if (number > 2 && !IsPrimeUsingSquares(number))
+                long start = (includeSelf) ? 1 : 2;
+
+                if (includeOne)
+                    yield return 1;
+
+                foreach (long n in GetFactors(number, start))
+                    yield return n;
+        }
+
         /// <summary>
         /// Get list of positive multiples of 'x'. This is faster than GetFactorList
-        /// .
+        /// 
         /// </summary>
-        /// <param name="x"></param>
+        /// <param name="number"></param>
         /// <param name="includeSelf"></param>
         /// <param name="includeOne"></param>
         /// <returns></returns>
-        public static IEnumerable<long> GetFactors(long x, bool includeSelf = false, bool includeOne = true)
+        public static IEnumerable<long> GetFactors(long number, long start)
         {
-            var start = (includeSelf) ? 1 : 2;
-
-            if (includeOne)
-                yield return 1;
-
-            for (long i = start; i * i <= x; i++)
+            for (long i = start; i * i <= number; i++)
             {
-                if (0 == (x % i))
+                if ((number % i) == 0)
                 {
-                    if (i != 1)
-                        yield return i;
-                    if (i != (x / i))
-                    {
-                        if ((x / i) != 1)
-                            yield return x / i;
-                    }
+                    yield return i;
+                    if(number != i * i) yield return number / i;
                 }
             }
         }
@@ -1959,8 +2002,46 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
+        public static List<long> GetPrimeFactors(long number, HashSet<long> primes)
+        {
+            List<long> factors = new List<long>();
 
-        public static int[] GenerateDigitReplacementArray(string[] mask)
+            if (!primes.Contains(number))
+            {
+                int i = 0;
+                long p = 0;
+
+                while (p <= number)
+                {
+                    if (number % p == 0)
+                    {
+                        factors.Add(p);
+                        number /= p;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                    p = primes.ElementAt(i);
+                }
+            }
+            return factors;
+        }
+
+        /// <summary>
+        /// All factors except self,
+        /// <see cref="https://stackoverflow.com/questions/5793009/efficiently-finding-all-divisors-of-a-number"/>
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static IEnumerable<long> GetProperDivisors(long n)
+        {
+            return from a in CollectionExtensions.Range((long)1, n / 2)
+                   where n % a == 0
+                   select a;
+        }
+
+        public static int[] GetDigitReplacementArray(string[] mask)
         {
             var numbers = new List<int>();
 
@@ -2969,11 +3050,21 @@ namespace JuanMartin.Kernel.Utilities
 
         public static bool IsOdd<T>(T number)
         {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new ArgumentException("The odd/even distribution can only be determined for numereric types.");
+
             return (dynamic)number % 2 != 0;
         }
 
         public static bool IsEven<T>(T number)
         {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new ArgumentException("The odd/even distribution can only be determined for numereric types.");
+
             return (dynamic)number % 2 == 0;
         }
 
@@ -2987,7 +3078,7 @@ namespace JuanMartin.Kernel.Utilities
             return FibonacciRecursive(number - 1) + FibonacciRecursive(number - 2);
         };
 
-        public static BigInteger FibonnaciCached(int number)
+        public static BigInteger FibonacciCached(int number)
         {
             var fibonacci = FibonacciRecursive.Memoize();
 

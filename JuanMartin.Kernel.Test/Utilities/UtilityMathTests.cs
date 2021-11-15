@@ -545,6 +545,24 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 var actualFibonacciAsString = UtilityMath.FibonacciLoop(100);
                 Assert.AreEqual(expectedFibonacciAsString, actualFibonacciAsString);
             }
+
+            [Test()]
+            public void ShouldBeFasterIfFibonacciIsMemoized()
+            {
+                void RegularFibonacci(int n)
+                {
+                    var f = Enumerable.Range(1, n).Select(i => UtilityMath.FibonacciRecursive(i)).ToList();
+                }
+                void MemoizedFibonacci(int n)
+                {
+                    var f = Enumerable.Range(1, n).Select(i => UtilityMath.FibonacciCached(i)).ToList();
+                }
+                var actualNumber = 10;
+                var actualRegularFibonacciDuration = UtilityHelper.Measure(() => RegularFibonacci(actualNumber));
+                var actualMemoizedFibonacciDuration = UtilityHelper.Measure(() => MemoizedFibonacci(actualNumber));
+                Console.WriteLine($"{actualMemoizedFibonacciDuration} ms <= {actualRegularFibonacciDuration} ms");
+                Assert.LessOrEqual(actualMemoizedFibonacciDuration, actualRegularFibonacciDuration);
+            }
         }
 
         [TestFixture]
@@ -630,9 +648,9 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 actualSide = 333333333;
                 actualBase = actualSide + 1;
 
-                (actualArea, _) = UtilityMath.GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(actualBase, actualSide,false);
+                (actualArea, _) = UtilityMath.GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(actualBase, actualSide, false);
 
-                Assert. IsTrue(actualArea.DecimalPlaces > 0, $"Area has a fraction, {actualArea}");
+                Assert.IsTrue(actualArea.DecimalPlaces > 0, $"Area has a fraction, {actualArea}");
             }
         }
 
@@ -1257,6 +1275,73 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
         }
 
+        [TestFixture]
+        public class BuildAmicableNumbersChainTests
+        {
+            [Test()]
+            public void ShouldFormListOfAmicableNumbersTest()
+            {
+                const long limit = 1000000;
+                long actualNumber;
+                int expectedLength;
+                var cache = new Dictionary<long, long>();
+
+                actualNumber = 220;
+                expectedLength = 2;
+                Assert.AreEqual(expectedLength, UtilityMath.GetAmicableNumbersChain(actualNumber, limit, cache).Count, $"chain for {actualNumber}");
+
+                actualNumber = 12496;
+                expectedLength = 5;
+                Assert.AreEqual(expectedLength, UtilityMath.GetAmicableNumbersChain(actualNumber, limit, cache).Count, $"chain for {actualNumber}");
+            }
+        }
+
+        [TestFixture]
+        public class GetFactorsTests
+        {
+            [Test()]
+            public void  ShoilGetAllProperDivisors()
+            {
+                long actualNumber;
+                long[] expectedFactors, actualFactors;
+
+                actualNumber = 28;
+                expectedFactors = new long[] { 1, 2, 4, 7, 14 };
+                actualFactors = UtilityMath.GetFactors(actualNumber).ToArray();
+                Array.Sort(actualFactors);
+                Assert.AreEqual(expectedFactors, actualFactors,$"{actualNumber}:  {string.Join(",", actualFactors.ToArray())} = {string.Join(",", expectedFactors.ToArray())}");
+            }
+
+            [Test()]
+            public void ShouldReturnSameResultsGetProperDivisorsAndGetFactorsWithSelfNotIncludedTest()
+            {
+                void Factors(int n)
+                {
+                    var f = Enumerable.Range(1, n).Select(i => UtilityMath.GetFactors(i)).ToList();
+                }
+                void Divisors(int n)
+                {
+                    var f = Enumerable.Range(1, n).Select(i => UtilityMath.GetProperDivisors(i)).ToList();
+                }
+                var actualNumber = 1000;
+                var actualFactorDuration = UtilityHelper.Measure(() => Factors(actualNumber));
+                var actualDivisorsDuration = UtilityHelper.Measure(() => Divisors(actualNumber));
+
+                Assert.Less(actualDivisorsDuration, actualFactorDuration, $"{actualDivisorsDuration} ms < {actualFactorDuration} ms");
+
+                for(int n=4;n<=actualNumber;n++)
+                {
+                    if (!UtilityMath.IsPrimeUsingSquares(n))
+                    {
+                        var actualFactorList = UtilityMath.GetFactors(n).ToList();
+
+                        actualFactorList.Sort();
+                        var expectedFactorList = UtilityMath.GetProperDivisors(n).ToList();
+                        Assert.AreEqual(expectedFactorList, actualFactorList, $"{n}: {string.Join(",", actualFactorList.ToArray())} = {string.Join(",", expectedFactorList.ToArray())}");
+                    }
+                }
+            }
+        }
     }
 
 }

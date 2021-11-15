@@ -78,7 +78,7 @@ namespace JuanMartin.Kernel.Utilities
         }
         #endregion
 
-        #region Utilitype Methods
+        #region UtilityType Methods
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
         {
