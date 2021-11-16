@@ -1284,15 +1284,14 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 const long limit = 1000000;
                 long actualNumber;
                 int expectedLength;
-                var cache = new Dictionary<long, long>();
 
                 actualNumber = 220;
                 expectedLength = 2;
-                Assert.AreEqual(expectedLength, UtilityMath.GetAmicableNumbersChain(actualNumber, limit, cache).Count, $"chain for {actualNumber}");
+                Assert.AreEqual(expectedLength, UtilityMath.GetAmicableNumbersChain(actualNumber, limit).Count, $"chain for {actualNumber}");
 
                 actualNumber = 12496;
                 expectedLength = 5;
-                Assert.AreEqual(expectedLength, UtilityMath.GetAmicableNumbersChain(actualNumber, limit, cache).Count, $"chain for {actualNumber}");
+                Assert.AreEqual(expectedLength, UtilityMath.GetAmicableNumbersChain(actualNumber, limit).Count, $"chain for {actualNumber}");
             }
         }
 

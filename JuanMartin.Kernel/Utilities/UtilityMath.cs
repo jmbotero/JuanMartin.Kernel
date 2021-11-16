@@ -1832,61 +1832,54 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Use cahe which is to avoid recalculating factors.
+        /// 
         /// </summary> 
         /// <param name="number"></param>
-        /// <param name="cache"></param>
         /// <returns></returns>
-        public static bool IsAmicableNumber(long number, Dictionary<long, long> cache = null)
+        public static bool IsAmicableNumber(long number)
         {
-            long sum = ProperDivisorSum(number, cache);
-            long aux = ProperDivisorSum(sum, cache);
+            long sum = ProperDivisorSum(number);
+            long aux = ProperDivisorSum(sum);
 
             return (aux == number && aux != sum);
         }
 
-        public static List<long> GetAmicableNumbersChain(long number, long l, Dictionary<long, long> factorsSumCache)
+        public static List<long> GetAmicableNumbersChain(long number, long bound)
         {
+            // use cahe which is to avoid recalculating factors.
+            var cache = new Dictionary<long, long>();
             var amicableNumbers = new List<long>();
 
             // create cictionary cache of factor sums, chain elements, as we go building chain
             do
             {
-                if ((amicableNumbers.Count > 0 && number < amicableNumbers[0]) || number > l)
+                if ((amicableNumbers.Count > 0 && number < amicableNumbers[0]) || number > bound)
                     break;
 
                 amicableNumbers.Add(number);
-                if (factorsSumCache.TryGetValue(number, out long temp))
+                if (cache.TryGetValue(number, out long temp))
                 {
                     number = temp;
                 }
                 else
                 {
-                    var sum = ProperDivisorSum(number, factorsSumCache);
+                    var sum = ProperDivisorSum(number);
+                    cache.Add(number,  sum);
                     number = sum;
                 }
 
                 if (amicableNumbers.Contains(number))
                     break;
 
-            } while (number > 1 && number < l);
+            } while (number > 1 && number < bound);
 
             return amicableNumbers;
         }
 
-        private static long ProperDivisorSum(long n, Dictionary<long, long> cache = null)
+        private static long ProperDivisorSum(long n)
         {
-            long sum;
-            if (cache == null || (cache != null && !cache.TryGetValue(n, out _)))
-            {
-                var divisors = GetFactors(n);
-                sum = divisors.Sum();
-                if(cache != null)  cache.Add(n, sum);
-            }
-            else
-            {
-                sum = -1;
-            }
+            var divisors = GetFactors(n);
+            var sum = divisors.Sum();
 
             return sum;
         }
@@ -2039,6 +2032,26 @@ namespace JuanMartin.Kernel.Utilities
             return from a in CollectionExtensions.Range((long)1, n / 2)
                    where n % a == 0
                    select a;
+        }
+
+        /// <summary>
+        /// Use </T/>  to diferentiate from (long n) call
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static IEnumerable<int> GetProperDivisors<T>(int number)
+        {
+            yield return 1;
+
+            for (int i = 2; i * i <= number; i++)
+            {
+                if ((number % i) == 0)
+                {
+                    yield return i;
+                    if (number != i * i) yield return number / i;
+                }
+            }
         }
 
         public static int[] GetDigitReplacementArray(string[] mask)
