@@ -342,7 +342,7 @@ namespace JuanMartin.Kernel.Utilities
             int[] digits = Enumerable.Repeat(1, k).ToArray();
             int index;
             bool hasMatch = false;
- 
+
             digits[k - 1] = 0;
             index = k - 1;
             while (true)
@@ -398,7 +398,7 @@ namespace JuanMartin.Kernel.Utilities
             {
                 int[] frequencies = new int[value + 1];
 
-                for(var  i=0;i<frequencies.Length;i++)
+                for (var i = 0; i < frequencies.Length; i++)
                 {
                     frequencies[i]++;
                 }
@@ -516,7 +516,7 @@ namespace JuanMartin.Kernel.Utilities
                         index++;
                         digits[index] = 0;
                     }
-                    
+
                     // check if operands are new in permutations list, by checking its key
                     var key = GenerateFrequencyKey(number, operands, 2);
                     var hasMatch = duplicateKeys.Contains(key);
@@ -741,7 +741,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="actualCollection"></param>
         /// <param name="actualSetSize"></param>
         /// <returns></returns>
-        public static IEnumerable<T[]> GeneratePermutationsOfK<T>(T[] actualCollection, int actualSetSize, bool includeDuplicates=false)
+        public static IEnumerable<T[]> GeneratePermutationsOfK<T>(T[] actualCollection, int actualSetSize, bool includeDuplicates = false)
         {
             var permutationIndexes = UtilityMath.GetNumericPermutationsOfK(actualCollection.Length, actualSetSize, includeDuplicates);
 
@@ -1357,7 +1357,7 @@ namespace JuanMartin.Kernel.Utilities
         public static BigInteger SquareRootLargeNumbers(BigInteger number)
         {
             // TODO: fix rounding of large decimal parts to zero
-            BigInteger square = (BigInteger )Math.Pow(Math.E,(double)BigInteger.Log(number) / 2);
+            BigInteger square = (BigInteger)Math.Pow(Math.E, (double)BigInteger.Log(number) / 2);
 
             return square;
         }
@@ -1749,7 +1749,7 @@ namespace JuanMartin.Kernel.Utilities
 
             return number;
         }
-        
+
         /// <summary>
         /// Calculate the area   and perimete of a triangle with two equal sides.
         /// <see cref="https://byjus.com/maths/area-of-isosceles-triangle/"/>
@@ -1758,7 +1758,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="b">base of the isosceles triangle</param>
         /// <param name="a">length of the two equal sides</param>
         /// <returns></returns>
-        public static (BigDecimal area, BigDecimal perimeter)  GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a, bool useIntegerCorrection=true)
+        public static (BigDecimal area, BigDecimal perimeter) GetIscocelesTriangleAreaAndPerimeterUsingSidesOnly(int b, int a, bool useIntegerCorrection = true)
         {
             BigDecimal A = new BigDecimal(a);
             BigDecimal B = new BigDecimal(b);
@@ -1780,7 +1780,7 @@ namespace JuanMartin.Kernel.Utilities
             area /= 2;
 
             BigDecimal perimeter = B + (A * 2);
-            
+
             return (area, perimeter);
         }
 
@@ -1864,7 +1864,7 @@ namespace JuanMartin.Kernel.Utilities
                 else
                 {
                     var sum = ProperDivisorSum(number);
-                    cache.Add(number,  sum);
+                    cache.Add(number, sum);
                     number = sum;
                 }
 
@@ -1952,16 +1952,16 @@ namespace JuanMartin.Kernel.Utilities
             return (GetFactors(number).Sum() > number);
         }
 
-          public static IEnumerable<long> GetFactors(long number, bool includeSelf = false, bool includeOne = true)
+        public static IEnumerable<long> GetFactors(long number, bool includeSelf = false, bool includeOne = true)
         {
-//            if (number > 2 && !IsPrimeUsingSquares(number))
-                long start = (includeSelf) ? 1 : 2;
+            //            if (number > 2 && !IsPrimeUsingSquares(number))
+            long start = (includeSelf) ? 1 : 2;
 
-                if (includeOne)
-                    yield return 1;
+            if (includeOne)
+                yield return 1;
 
-                foreach (long n in GetFactors(number, start))
-                    yield return n;
+            foreach (long n in GetFactors(number, start))
+                yield return n;
         }
 
         /// <summary>
@@ -1979,14 +1979,14 @@ namespace JuanMartin.Kernel.Utilities
                 if ((number % i) == 0)
                 {
                     yield return i;
-                    if(number != i * i) yield return number / i;
+                    if (number != i * i) yield return number / i;
                 }
             }
         }
 
         public static IEnumerable<int> GetPrimeFactors(long number, bool includeSelf = false, bool includeOne = true)
         {
-            var factors = GetFactors(number, includeSelf,includeOne).Distinct().ToList();
+            var factors = GetFactors(number, includeSelf, includeOne).Distinct().ToList();
 
             foreach (int n in factors)
             {
@@ -2118,8 +2118,8 @@ namespace JuanMartin.Kernel.Utilities
         {
             var fractions = RPF(d, key).ToList();
             var sorted = from fraction in fractions
-                            orderby fraction.Value ascending
-                            select fraction;
+                         orderby fraction.Value ascending
+                         select fraction;
             return sorted;
         }
 
@@ -2324,7 +2324,7 @@ namespace JuanMartin.Kernel.Utilities
 
             int power = 0;
 
-            while(true)
+            while (true)
             {
                 if (number == 0)
                     break;
@@ -2361,7 +2361,7 @@ namespace JuanMartin.Kernel.Utilities
             for (var i = 0; i < repeats.Length; i++)
             {
                 if (repeats[i] == 0 || repeats[i] == 1) continue;
-                
+
                 var mask = string.Empty;
                 var mark = i.ToString();
                 //###(\d)#\1
@@ -2452,9 +2452,9 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         public static bool ItemsArePositiveSequential(IEnumerable<int> source, int newItem = -1)
         {
-//            if (!double.IsInfinity(result) && result == Math.Truncate(result) && result > 0) // is positive integer
+            //            if (!double.IsInfinity(result) && result == Math.Truncate(result) && result > 0) // is positive integer
 
-                if (source == null)
+            if (source == null)
                 throw new ArgumentException("Collection  is null."); ;
             if (source.Count() < 1 && newItem == -1)
                 return false;
@@ -2486,11 +2486,10 @@ namespace JuanMartin.Kernel.Utilities
             return ascending || descending;
         }
 
-        public static long[] ErathostenesSieve(int upperLimit, int lowerLimit=2, int threadCount=-1)
+        public static long[] ErathostenesSieve(int upperLimit, int lowerLimit = 2, int threadCount = -1)
         {
-            var sieveBound = (int)(upperLimit - 1) / 2;
-            var upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
-
+            int sieveBound = (int)(upperLimit - 1) / 2;
+            int upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
             var PrimeBits = new BitArray(sieveBound + 1, true);
 
             //            for (int i = 1; i <= upperSqrt; i++)
@@ -2528,7 +2527,7 @@ namespace JuanMartin.Kernel.Utilities
             });
 
             return numbers.ToArray();
-        }
+        } 
 
         /// <summary>
         /// Source code from <see cref="https://www.mathblog.dk/files/euler/Problem50.cs"/>
@@ -3953,6 +3952,53 @@ namespace JuanMartin.Kernel.Utilities
         complete:
             return comparison;
         }
+
+        /// <summary>
+        /// Multiyply a sttrimng of numbers using its carryover between single digit multiplications
+        /// with 'd', while adding them to calculate total
+        /// </summary>
+        /// <param name="n"></param>
+        /// <param name="d"></param>
+        /// <returns></returns>
+        public static string MultiplyLargeNumberBySingleDigit(string n, int d)
+        {
+            var c = 0; //carry over
+            var result = string.Empty;
+
+            if (d == 0)
+                return "0";
+            if (d == 1)
+                return new string(n.ToCharArray());
+
+            for (int i = n.Length - 1; i >= 0; i--)
+            {
+                if (n[i] == '.')
+                    continue;
+
+                int digit = int.Parse(n[i].ToString());
+                int m = (digit * d) + c;
+                string s;
+
+                if (i == 0)
+                    s = m.ToString();
+                else
+                {
+                    if (m < 10)
+                    {
+                        c = 0;
+                        s = m.ToString();
+                    }
+                    else
+                    {
+                        c = m / 10;
+                        s = (m % 10).ToString();
+                    }
+                }
+                result = s + result;
+            }
+            return result;
+        }
+
         public static string ProcessAsMatrixToMultiplyLargeNumbers(string leftValue, string rightValue)
         {
             var operands = string.Empty;
@@ -4958,52 +5004,6 @@ namespace JuanMartin.Kernel.Utilities
                 count++;
             }
             return parts;
-        }
-
-        /// <summary>
-        /// Multiyply a sttrimng of numbers using its carryover between single digit multiplications
-        /// with 'd', while adding them to calculate total
-        /// </summary>
-        /// <param name="n"></param>
-        /// <param name="d"></param>
-        /// <returns></returns>
-        private static string MultiplyLargeNumberBySingleDigit(string n, int d)
-        {
-            var c = 0; //carry over
-            var result = string.Empty;
-
-            if (d == 0)
-                return "0";
-            if (d == 1)
-                return new string(n.ToCharArray());
-
-            for (int i = n.Length - 1; i >= 0; i--)
-            {
-                if (n[i] == '.')
-                    continue;
-
-                int digit = int.Parse(n[i].ToString());
-                int m = (digit * d) + c;
-                string s;
-
-                if (i == 0)
-                    s = m.ToString();
-                else
-                {
-                    if (m < 10)
-                    {
-                        c = 0;
-                        s = m.ToString();
-                    }
-                    else
-                    {
-                        c = m / 10;
-                        s = (m % 10).ToString();
-                    }
-                }
-                result = s + result;
-            }
-            return result;
         }
 
         private static int CalculatePentagonalRingSideSum(List<int> digits, int ringSize)

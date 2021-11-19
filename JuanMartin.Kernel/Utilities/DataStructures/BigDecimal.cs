@@ -102,6 +102,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public static BigDecimal operator /(BigDecimal a, int b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.ToString(), b.ToString(), supportRepetendSyntax: false));
         public static BigDecimal operator /(int a, BigDecimal b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.ToString(), b.ToString(), supportRepetendSyntax: false));
         public static (string quotient, string remainder) operator %(BigDecimal a, int b) => UtilityMath.IntegerDivision(a.ToString(), b.ToString());
+        public static (string quotient, string remainder) operator %(BigDecimal a, long b) => UtilityMath.IntegerDivision(a.ToString(), b.ToString());
         public static bool operator ==(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.ToString(), b.ToString()) == 0;
         public static bool operator !=(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.ToString(), b.ToString()) != 0;
         public static bool operator <(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.ToString(), b.ToString()) == -1;
