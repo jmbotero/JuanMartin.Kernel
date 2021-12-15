@@ -1784,6 +1784,60 @@ namespace JuanMartin.Kernel.Utilities
             return (area, perimeter);
         }
 
+        public static double GetAreaOfTriangleUsingCoordinates(int[] vertices)
+        {
+
+            int[] a = { vertices[0], vertices[1] };
+            int[] b = { vertices[2], vertices[3] };
+            int[] c = { vertices[4], vertices[5] };
+
+            return GetAreaOfTriangleUsingCoordinates(a, b, c);
+        }
+
+        /// <summary>
+        /// Calculate area based on the determinant of the vertices.  Which in the general case will give us the 
+        /// following formula:
+        /// T = 1/2 * | (x_A - x_c)(y_B - y_A) - (x_A - x_B)(y_C - y_A) |
+        /// where x_A is the x coordinate of the A vertex of the triangle.
+        /// <see cref="https://en.wikipedia.org/wiki/Triangle#Using_coordinates"/>
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        public static double GetAreaOfTriangleUsingCoordinates(int[] a, int[] b, int[] c)
+        {
+            double area = Math.Abs((a[0] - c[0]) * (b[1] - a[1]) - (a[0] - b[0]) * (c[1] - a[1]));
+            area /= 2;
+
+            return area;
+        }
+
+        /// <summary>
+        /// An algebraic operation that takes two equal-length sequences of numbers 
+        /// (usually coordinate vectors), and returns a single number.
+        /// <see cref="https://en.wikipedia.org/wiki/Dot_product"/>
+        /// </summary>
+        /// <param name="vector1"></param>
+        /// <param name="vector2"></param>
+        /// <returns></returns>
+        public static int DotProduct(int[] vector1 ,int[] vector2)
+        {
+            return vector1[0] * vector2[0] + vector1[1] * vector2[1];
+        }
+
+        /// <summary>
+        /// Product of point and euclidian vetor from a to  b (in cartesian coordinates)
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static int DotProduct(int[] point, int[] a, int[] b)
+        {
+            return (b[1]-a[1])*(point[0]-a[0])+(a[0]-b[0])*(point[1]-a[1]);
+        }
+
         public static IEnumerable<T> GetPolygonalNumbers<T>(int sides, int lowerBound, int upperBound)
         {
             var methodType = typeof(T);

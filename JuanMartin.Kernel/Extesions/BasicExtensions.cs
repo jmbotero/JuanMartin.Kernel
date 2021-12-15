@@ -5,6 +5,16 @@ namespace JuanMartin.Kernel.Extesions
 {
     public static class BasicExtensions
     {
+        public static int Sign<T>(this T number)
+        {
+            if (!Utilities.UtilityType.IsNumericType(number.GetType()))
+                throw new InvalidOperationException(string.Format("{0} is invalid, Sign extension only applies to numeric types.", number.GetType()));
+
+            dynamic n = number;
+
+            return (n >= 0) ?   1 : -1;
+        }
+
         public static bool Between<T>(this T source, T low, T high,bool inclusive=true) where T : IComparable
         {
             if(inclusive)

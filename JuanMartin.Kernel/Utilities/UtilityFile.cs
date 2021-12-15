@@ -58,7 +58,7 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public static string[][] ReadTextToTwoDimensionalArray(string fileName, char delimiter)
+        public static string[][] ReadTextToTwoDimensionalArray(string fileName, char delimiter =  ',')
         {
             using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
@@ -68,7 +68,7 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public static int [][] ReadTextToTwoDimensionalNumericArray(string fileName, char delimiter)
+        public static int [][] ReadTextToTwoDimensionalNumericArray(string fileName, char delimiter =  ',')
         {
             using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
