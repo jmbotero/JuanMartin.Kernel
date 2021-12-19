@@ -282,6 +282,17 @@
                     </Rule>
                   </Rule>
                 </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+FibonacciLoopTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+FibonacciLoopTests.ShoulReturnValidResponseTheFibonacciLoopImplementationOfNumberOneHundred" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShoulReturnValidResponseTheFibonacciLoopImplementationOfNumberOneHundred" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
               </Rule>
             </Rule>
             <Rule Match="All">

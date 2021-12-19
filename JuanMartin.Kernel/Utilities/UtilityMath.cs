@@ -3151,14 +3151,14 @@ namespace JuanMartin.Kernel.Utilities
             return fibonacci(number);
         }
 
-        public static string FibonacciString(string number)
+        public static string FibonacciLargeNumber(string number)
         {
             if (number == "1")
                 return "1";
             if (number == "2")
                 return "1";
 
-            return AddLargeNumbers(FibonacciString(SubstractLargeNumbers(number, "1")), FibonacciString(SubstractLargeNumbers(number, "2")));
+            return AddLargeNumbers(FibonacciLargeNumber(SubstractLargeNumbers(number, "1")), FibonacciLargeNumber(SubstractLargeNumbers(number, "2")));
         }
 
         public static BigInteger FibonacciLoop(int number)

@@ -541,9 +541,12 @@ namespace JuanMartin.Kernel.Utilities.Tests
             public void ShoulReturnValidResponseTheFibonacciLoopImplementationOfNumberOneHundred()
             {
                 /// <seealso cref="http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html"/>
-                var expectedFibonacciAsString = BigInteger.Parse("354224848179261915075");
-                var actualFibonacciAsString = UtilityMath.FibonacciLoop(100);
-                Assert.AreEqual(expectedFibonacciAsString, actualFibonacciAsString);
+                string actualNumber = "354224848179261915075";
+       
+                var expectedLargeFibonacci = BigInteger.Parse(actualNumber);
+                var a = BigInteger.Log10(expectedLargeFibonacci);
+                var actualLargeFibonacci = UtilityMath.FibonacciLoop(100);
+                Assert.AreEqual(expectedLargeFibonacci, actualLargeFibonacci);
             }
 
             [Test()]
