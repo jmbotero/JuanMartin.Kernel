@@ -51,6 +51,13 @@ namespace JuanMartin.Kernel.Utilities
             return new string(arr);
         }
 
+        public static string ReverseString(string s, char delimiter)
+        {
+            var arr = s.Split(delimiter);
+            Array.Reverse(arr);
+
+            return string.Join(delimiter.ToString(), arr);
+        }
         public static int GetAlphabeticValue(string word)
         {
             var letters = word.ToCharArray();
@@ -81,7 +88,25 @@ namespace JuanMartin.Kernel.Utilities
             }
             return map.ToString();
         }
+        /// <summary>
+        /// Convert zero-based index to letter based name
+        /// <see cref="https://stackoverflow.com/questions/181596/how-to-convert-a-column-number-e-g-127-into-an-excel-column-e-g-aa"/>
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static string GetColumnName(int index)
+        {
+            const byte AlphabetLength = 'Z' - 'A' + 1;
+            string name = String.Empty;
 
+            do
+            {
+                name = Convert.ToChar('A' + index % AlphabetLength) + name;
+                index = index / AlphabetLength - 1;
+            } while (index >= 0);
+
+            return name;
+        }
 
         public static bool ContainsDuplicates(string key)
         {

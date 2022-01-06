@@ -12,12 +12,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
     {
         private Vertex<int> v1, v2, v3, v0;
         private int expectedVertexCount = 6, expectedOutgoingEdgeCount = 6;
-        private DirectedAcyclicGraph<int> graph;
+        private DirectedAcyclicGraph<int> actualGraph;
 
         [SetUp]
         public void Init()
         {
-            graph = CreateNumericTestGraph();
+            actualGraph = CreateNumericTestGraph();
         }
 
         [TearDown]
@@ -28,14 +28,44 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             v3 = null;
             v0 = null;
 
-            graph = null;
+            actualGraph = null;
         }
 
+        [Test()]
+        public void ShouldDetectCycleInGraph()
+        {
+            var expectCycle = true;
+            actualGraph = CreateSimpleGraph(expectCycle);
+
+            var actualMatrix = actualGraph.GetAdjacencyMatrix();
+            var actualHasCycle = actualGraph.DetectCycle(actualMatrix, expectedOutgoingEdgeCount);
+
+            Assert.IsTrue(actualHasCycle,"Graph should have a cycle.");
+
+            expectCycle = false;
+            actualGraph = CreateSimpleGraph(expectCycle);
+            actualMatrix = actualGraph.GetAdjacencyMatrix();
+            actualHasCycle = actualGraph.DetectCycle(actualMatrix, expectedOutgoingEdgeCount);
+
+            Assert.IsFalse(actualHasCycle, "Graph should not have a cycle.");
+        }
+
+        [Test()]
+        public void ShouldCreateAnAdjacencyMatrixWithAllOutgoihgEdgesInGraph()
+        {
+            actualGraph = CreateSimpleGraph();
+
+            var actualMatrix = actualGraph.GetAdjacencyMatrix();
+            var actualAdjacencyCount = actualMatrix.Sum(row => (row.Count(value => value != 0)));
+
+            Assert.AreEqual(expectedVertexCount, actualMatrix.Length,"Number of nodes");
+            Assert.AreEqual(expectedOutgoingEdgeCount, actualAdjacencyCount,"Adjacent nodes");
+        }
 
         [Test()]
         public void ShouldBeConsideredAsAdjacentTwoVerticesThatAreConnectedByAnEdge()
         {
-            Assert.IsTrue(graph.Adjacent(v1, v2));
+            Assert.IsTrue(actualGraph.Adjacent(v1, v2));
 
         }
 
@@ -55,31 +85,31 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
 
         public void ShouldGetACountOfAllVerticesInGraphWithVertexCountProperty()
         {
-            Assert.AreEqual(expectedVertexCount, graph.VertexCount());
+            Assert.AreEqual(expectedVertexCount, actualGraph.VertexCount());
         }
 
         [Test()]
         public void ShouldGetACountOfAllEdgeWithEdgeCountProperty()
         {
-            Assert.AreEqual(expectedOutgoingEdgeCount, graph.EdgeCount(Edge<int>.EdgeType.outgoing));
+            Assert.AreEqual(expectedOutgoingEdgeCount, actualGraph.EdgeCount(Edge<int>.EdgeType.outgoing));
         }
 
         [Test()]
         public void ShouldBeIndicatedIfGraphAddVertexMethodAddedAnyDuplicates() 
         {
             // if name is be unique change graph dups status
-            Assert.IsFalse(graph.HasDuplicateVertexNames,"no duplicates");
-            Assert.IsNotNull(graph.AddVertex(1000, v1.Name),"add duplicate with v1 name");
-            Assert.IsTrue(graph.HasDuplicateVertexNames,"one duplicate");
+            Assert.IsFalse(actualGraph.HasDuplicateVertexNames,"no duplicates");
+            Assert.IsNotNull(actualGraph.AddVertex(1000, v1.Name),"add duplicate with v1 name");
+            Assert.IsTrue(actualGraph.HasDuplicateVertexNames,"one duplicate");
         }
 
         [Test()]
         public void ShouldUseFromVertexNameToDisambiguateWhenGettingByNameEdgeRepeatedInGraph()
         {
-            var firstAddEdge = graph.GetEdge("add", type: Edge<int>.EdgeType.outgoing); //belongs to v1
-            var secondAddEdge = graph.GetEdge("add", "two", type: Edge<int>.EdgeType.outgoing); //belongs to v2
-            var ThirdAddEdge = graph.GetEdge("add", "four", type: Edge<int>.EdgeType.outgoing); //belongs to v4
-            var actualEdgesNamedAdd = graph.GetOutgoingEdges().Where(e => e.Name.Contains("add")).ToList();
+            var firstAddEdge = actualGraph.GetEdge("add", type: Edge<int>.EdgeType.outgoing); //belongs to v1
+            var secondAddEdge = actualGraph.GetEdge("add", "two", type: Edge<int>.EdgeType.outgoing); //belongs to v2
+            var ThirdAddEdge = actualGraph.GetEdge("add", "four", type: Edge<int>.EdgeType.outgoing); //belongs to v4
+            var actualEdgesNamedAdd = actualGraph.GetOutgoingEdges().Where(e => e.Name.Contains("add")).ToList();
 
             Assert.AreEqual(3, actualEdgesNamedAdd.Count, "Graph has two 'add' eges");
             Assert.AreNotEqual(firstAddEdge.From, secondAddEdge.From, "Both 'add' edges belong to different vertices");
@@ -91,13 +121,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public void ShouldIncreaseEdgeWeightByOneWhenAddingEdgeBetweenTwoVerticesWithSameName()
         {
             // check initial weight on edge
-            var actualEdge = graph.GetEdge("substract", type: Edge<int>.EdgeType.outgoing);
+            var actualEdge = actualGraph.GetEdge("substract", type: Edge<int>.EdgeType.outgoing);
             Assert.AreEqual(2, actualEdge.Weight);
             // readd edge between same nodes and with same name
-            graph.AddEdge(from: v1, to: v2, type: Edge<int>.EdgeType.outgoing, name: "substract");
+            actualGraph.AddEdge(from: v1, to: v2, type: Edge<int>.EdgeType.outgoing, name: "substract");
 
             // check new weight
-            actualEdge = graph.GetEdge("substract", type: Edge<int>.EdgeType.outgoing );
+            actualEdge = actualGraph.GetEdge("substract", type: Edge<int>.EdgeType.outgoing );
 
             const int expectedWeightAterReAdd = 3;
             Assert.AreEqual(expectedWeightAterReAdd, actualEdge.Weight);
@@ -106,22 +136,22 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         [Test()]
         public void ShouldBeAbleToRemoveVerticesByName()
         {
-            var actualDeletedVertex = graph.RemoveVertex(v1.Name);
+            var actualDeletedVertex = actualGraph.RemoveVertex(v1.Name);
 
             Assert.AreEqual(v1, actualDeletedVertex);
-            Assert.IsFalse(graph.Vertices.Contains(v1));
+            Assert.IsFalse(actualGraph.Vertices.Contains(v1));
         }
 
         [Test()]
         public void ShouldThrowArgumentExceptionWhenAddinngCyclicEdge()
         {
-            Assert.Throws<ArgumentException>(() => graph.AddEdge(from: v3, to: v3, type: Edge<int>.EdgeType.outgoing, name: "cycle", weight: 1));
+            Assert.Throws<ArgumentException>(() => actualGraph.AddEdge(from: v3, to: v3, type: Edge<int>.EdgeType.outgoing, name: "cycle", weight: 1));
         }
 
         [Test()]
         public void ShouldThrowArgumentExceptionWhenAddingEdgeWithNoWeight()
         {
-            Assert.Throws<ArgumentException>(() => graph.AddEdge(from: v3, to: v3, type: Edge<int>.EdgeType.outgoing, name: "noweight"));
+            Assert.Throws<ArgumentException>(() => actualGraph.AddEdge(from: v3, to: v3, type: Edge<int>.EdgeType.outgoing, name: "noweight"));
         }
 
         [Test()]
@@ -129,7 +159,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         {
             var v = new Vertex<int>(-1, "uknown");
 
-            Assert.Throws<ArgumentException>(() => graph.AddEdge(from: v, to: v3, type: Edge<int>.EdgeType.outgoing, name: "unexisting vertex"));
+            Assert.Throws<ArgumentException>(() => actualGraph.AddEdge(from: v, to: v3, type: Edge<int>.EdgeType.outgoing, name: "unexisting vertex"));
         }
 
         [Test()]
@@ -137,7 +167,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         {
             var v = new Vertex<int>(1, "uknown");
 
-            Assert.Throws<ArgumentException>(() => graph.AddEdge(from: v3, to: v, type: Edge<int>.EdgeType.outgoing, name: "unexisting vertex"));
+            Assert.Throws<ArgumentException>(() => actualGraph.AddEdge(from: v3, to: v, type: Edge<int>.EdgeType.outgoing, name: "unexisting vertex"));
         }
 
         [Test()]
@@ -158,11 +188,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public void ShouldNotRemoveAnyVertexIfItsValueIsDuplicate()
         {
             var actualValue = v1.Value;
-            var actualVertex = graph.RemoveVertex(actualValue);
+            var actualVertex = actualGraph.RemoveVertex(actualValue);
 
             Assert.AreEqual(  null, actualVertex, "Deleted nothing.");
-            Assert.AreEqual(2, graph.Vertices.Count(v => v.Value == actualValue), $"Two vertices with value ({actualValue}) exist.");
-            Assert.IsTrue(graph.Vertices.Contains(v1), "V1 exists.");
+            Assert.AreEqual(2, actualGraph.Vertices.Count(v => v.Value == actualValue), $"Two vertices with value ({actualValue}) exist.");
+            Assert.IsTrue(actualGraph.Vertices.Contains(v1), "V1 exists.");
         }
 
         [Test()]
@@ -172,7 +202,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             Assert.AreEqual(3, v1.OutgoingEdges().Count, "Initially there should be three outgoing edges from.");
 
             // delete edges between v1 and v2
-            Assert.AreEqual(2, graph.RemoveEdges(v1, v2,Edge<int>.EdgeType.outgoing).Count, "Between v1 and v2 there are two edges.");
+            Assert.AreEqual(2, actualGraph.RemoveEdges(v1, v2,Edge<int>.EdgeType.outgoing).Count, "Between v1 and v2 there are two edges.");
             Assert.AreEqual(1, v1.OutgoingEdges().Count, "After removing the edges from v1 that go to v2 only one remains.");
         }
 
@@ -180,7 +210,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         [Test()]
         public void ShouldBeAbleToGetAVertexByName()
         {
-            var expectedVertex = graph.GetVertex(v1.Name);
+            var expectedVertex = actualGraph.GetVertex(v1.Name);
 
             Assert.AreEqual(expectedVertex, v1);
         }
@@ -188,7 +218,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         [Test()]
         public void ShouldGetAListWithAllEdgesInGraphThatHaveTheSameName()
         {
-            var expectedEdges = graph.GetEdgesByName("add");
+            var expectedEdges = actualGraph.GetEdgesByName("add");
 
             Assert.AreEqual(3, expectedEdges.Count);
         }
@@ -196,7 +226,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         [Test()]
         public void ShouldUseGetRootToRetrieveAListOfAllVerticesWithNoIncomingEdges()
         {
-            var expectedVertices = graph.GetRoot();
+            var expectedVertices = actualGraph.GetRoot();
 
             Assert.AreEqual(1, expectedVertices.Count, "There should be only one vertex returned");
             Assert.AreEqual(v0.Name, expectedVertices[0].Name, "The single root should be the test vertex named zero");
@@ -365,6 +395,35 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             return g;
         }
 
+        /// <summary>
+        /// Simple graph for adjacency and cycle detection testing
+        /// </summary>
+        /// <returns></returns>
+        private DirectedAcyclicGraph<int> CreateSimpleGraph(bool includeCycle=false)
+        {
+            var vertices = new List<Vertex<int>>();
+
+            var n1 = new Vertex<int>(1, "X", index: 0);
+            var n2 = new Vertex<int>(2,"Y", index: 1);
+            var n3 = new Vertex<int>(3, "Z", index: 2);
+            var n0 = new Vertex<int>(0, "?", index: 3);
+            vertices.Add(n1);
+            vertices.Add(n2);
+            vertices.Add(n3);
+            vertices.Add(n0);
+
+            var g = new DirectedAcyclicGraph<int>(vertices);
+            g.AddEdge(from: n1, to: n2,  weight: 10);
+            g.AddEdge(from: n2, to: n3, weight: 5);
+            if(includeCycle)
+                g.AddEdge(from: n3, to: n1, weight: 15);
+            else
+                g.AddEdge(from: n3, to: n0, weight: 1);
+
+            expectedOutgoingEdgeCount = 3;
+            expectedVertexCount = 4;
+            return g;
+        }
 
         /// <summary>
         /// Numeric graph with with six paths one root and one leaf 

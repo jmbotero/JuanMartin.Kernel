@@ -68,7 +68,7 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public static int [][] ReadTextToTwoDimensionalNumericArray(string fileName, char delimiter =  ',')
+        public static int[][] ReadTextToTwoDimensionalNumericArray(string fileName, char delimiter = ',')
         {
             using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
@@ -78,7 +78,25 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public  static IEnumerable<string> ReadTextToStringEnumerable(string fileName)
+        public static int[][] ReadTextToTwoDimensionalNumericArrayWithNullElements(string fileName, char delimiter = ',', string  nullIndicator="-")
+        {
+            int ProcessValue(string value, string  indicator)
+            {
+                if (value == indicator)
+                    return 0;
+                else
+                    return Convert.ToInt32(value);
+            };
+
+            using (var reader = new StreamReader(fileName, Encoding.UTF8))
+            {
+                var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
+
+                return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).Select(v =>  ProcessValue(v, nullIndicator)).ToArray()).ToArray();
+            }
+        }
+
+        public static IEnumerable<string> ReadTextToStringEnumerable(string fileName)
         {
             string line = string.Empty;
             var contents = new List<string>();

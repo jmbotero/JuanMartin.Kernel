@@ -56,6 +56,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             Weight = wgt;
         }
 
+        // Comparator function used for
+        // sorting edgesbased on their weight
         public int CompareTo(Edge<T> That)
         {
             if (this.Weight < That.Weight) return -1;

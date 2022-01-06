@@ -13,7 +13,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
     public class Vertex<T> : ICloneable
     {
-        public Vertex(T value, string name = null, string guid = null, IEnumerable<Neighbor<T>> neighbors = null)
+        public Vertex(T value, string name = null, string guid = null, IEnumerable<Neighbor<T>> neighbors = null, int index = -1)
         {
             if (guid == null)
                 Guid = System.Guid.NewGuid().ToString();
@@ -22,6 +22,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             if (name == null)
                 name = value.ToString();
+
+            if (index == -1)
+            {
+                Type methodType = typeof(T);
+
+                if (methodType == typeof(int))
+                    Index =Convert.ToInt32(value);
+            }
+            else
+                Index = index;
 
             Name = name;
             Value = value;
@@ -32,6 +42,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public string Guid { get; set; }
         public string Name { get; set; }
+
+        /// <summary>
+        /// Zero-based adjacency matrix column/line index
+        /// </summary>
+        public  int Index { get; set; }
         public string Notes { get; set; }
 
         public T Value { get; }   // can be made writable
@@ -142,6 +157,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
         }
 
+        public bool RemoveEdge(Edge<T> edge)
+        {
+            return Edges.Remove(edge);
+        }
         public override string ToString()
         {
             //return Neighbors.Aggregate(new StringBuilder($"{Name}: {Value} - ["), (sb, n) => sb.Append($"{n.Name}/{n.Value}")).ToString();

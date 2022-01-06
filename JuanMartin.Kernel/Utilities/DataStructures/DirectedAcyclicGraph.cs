@@ -85,18 +85,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             get => (Vertex<T>)Vertices.ElementAt(index);
         }
 
-        public bool Contains(T value) => (Vertices.FirstOrDefault(v=>v.Value.Equals(value))!=null);
+        public bool Contains(T value) => (Vertices.FirstOrDefault(v => v.Value.Equals(value)) != null);
         public bool Contains(Vertex<T> value) => Vertices.Contains(value);
         public Vertex<T> AddVertex(Vertex<T> v)
         {
             if (true) //Vertices.Count(i=>i.Name==v.Name) == 0) // ensure uniqueness
             {
-                //v.Index = VertexCount();
-                Vertices.Add(v);
                 VertexUris.Add(v.Guid, v.Name);
+                v.Index = Vertices.Count;
+                Vertices.Add(v);
                 return v;
             }
-       }
+        }
 
         /// <summary>
         /// 
@@ -123,6 +123,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return added;
         }
 
+        public bool AddEdge(string nameFrom, string nameTo, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
+    , double weight = 0)
+        {
+            return AddEdge(GetVertex(nameFrom), GetVertex(nameTo), name, type, direction, weight);
+        }
         public bool AddEdge(Vertex<T> from, Vertex<T> to, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
             , double weight = 0)
         {
@@ -166,6 +171,37 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
             return this.AddEdge(edge.From, edge.To, edge.Name, edge.Type, edge.Direction, edge.Weight);
         }
+
+        /// <summary>
+        /// Add outgoing edges to graph based on Adjacency Matrix A V*V binary matrix is an adjacency matrix. 
+        /// There is an edge that is connecting vertex i and vertex j, element Ai,j is the weight
+        /// of the edge, otherwise Ai,j is 0.
+        /// </summary>
+        /// <param name="matrix"></param>
+        public void AddEdges(double[][] matrix)
+        {
+            int dimension = matrix.Length;
+
+            if (dimension != Vertices.Count)
+                throw new IndexOutOfRangeException($"Matrix size ({dimension}) does not match number of vertices defined in this graph ({Vertices.Count}).");
+
+            for (int i = 0; i < dimension; i++)
+            {
+                for (int j = 0; j < dimension; j++)
+                {
+                    double w = (double)matrix[i][j];
+                    if (w > 0)
+                    {
+                        var from = GetVertex(i);
+                        var to = GetVertex(j);
+                        string n = $"{from.Name}-{to.Name}";
+                        var e = new Edge<T>(from, to, w, n, Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection.unidirectional);
+                        AddEdge(e);
+                    }
+                }
+            }
+        }
+
         public Vertex<T> RemoveVertex(string name)
         {
             // do not delete vertex if multiple vertices have same name if so do not remove
@@ -381,6 +417,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
             return Vertices.FirstOrDefault(v => v.Guid == guid.ToString());
         }
+
+        public Vertex<T> GetVertex(int index)
+        {
+            return Vertices.FirstOrDefault(v => v.Index == index);
+        }
+
         public List<Vertex<T>> GetRoot()
         {
             var vertices = new List<Vertex<T>>();
@@ -544,12 +586,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 {
                     int d = Convert.ToInt32(n.Value);
 
-                        if (distance[a.Guid].Distance + d < distance[n.Guid].Distance)
-                        {
-                            v = n;
-                            distance[v.Guid].Distance = distance[a.Guid].Distance + d;
-                            distance[v.Guid].Previous = a.Guid;
-                        }
+                    if (distance[a.Guid].Distance + d < distance[n.Guid].Distance)
+                    {
+                        v = n;
+                        distance[v.Guid].Distance = distance[a.Guid].Distance + d;
+                        distance[v.Guid].Previous = a.Guid;
+                    }
                 }
 
             }
@@ -588,6 +630,217 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
             return dups;
         }
+
+        public double[][] GetAdjacencyMatrix()
+        {
+            int nodes = Vertices.Count;
+            var matrix = new double[nodes][];
+
+            for (int i = 0; i < nodes; i++)
+            {
+                var from = GetVertex(i);
+                if (from == null)
+                    throw new ArgumentNullException($"Vertex for Index ( {i}) not defined.");
+
+                matrix[i] = new double[nodes];
+
+                for (int j = 0; j < nodes; j++)
+                {
+                    var to = GetVertex(j);
+
+                    if (to == null)
+                        throw new ArgumentNullException($"Vertex for Index ( {j}) not defined.");
+
+                    string n = $"{from.Name}-{to.Name}";
+                    var edge = GetEdge(n, type: Edge<T>.EdgeType.outgoing);
+                    double w = 0;
+
+
+                    if (edge != null)
+                        w = edge.Weight;
+
+                    matrix[i][j] = w;
+                }
+            }
+            return matrix;
+        }
+
+        /// <summary>
+        /// c<see cref="https://en.wikipedia.org/wiki/Minimum_spanning_tree"/>
+        /// Implemented through Kruskal's algotithm 
+        /// </summary>
+        /// <returns></returns>
+        public DirectedAcyclicGraph<T> GetMinimumSpanningTree()
+        {
+            var forest = new DirectedAcyclicGraph<T>();
+
+            foreach(var v in Vertices)
+                forest.AddVertex(new Vertex<T>(value: v.Value, name: v.Name));
+
+            int trees = forest.VertexCount();
+            var edges = GetOutgoingEdges();
+
+            edges.Sort(); // default sort by weight ascending
+            var count = 0;
+            while (count < edges.Count || forest.GetOutgoingEdges().Count<trees-1)
+            {
+                var e = edges[count];
+                // replaces edge's to/from with corressssponding trees in new forest
+                e.To = forest.GetVertex(e.To.Name);
+                e.From = forest.GetVertex(e.From.Name);
+
+                forest.AddEdge(e);
+                count++;
+                
+                
+                var adjacency = forest.GetAdjacencyMatrix();
+                if(forest.DetectCycle(adjacency,count))
+                {
+                    forest.RemoveEdge(e.Name);
+                    count--;
+                }
+            }
+
+            return forest;
+         }
+
+        /// <summary>
+        /// Implementing cycle detection using DFS:
+        /// To detect a cycle in a graph, we visit the node, mark it as visited. Then visit all 
+        /// the nodes connected through it. A cycle will be detected when visiting a node 
+        /// that has been marked as visited and part of the current path.
+        /// <see cref="https://www.section.io/engineering-education/graph-cycle-detection-csharp/#:~:text=Cycle%20detection%20in%20a%20directed%20graph%20To%20detect,as%20visited%20and%20part%20of%20the%20current%20path."/>
+        /// </summary>
+        /// <param name="adjacency">Adjacency matrix that identifies graph</param>
+        /// <returns></returns>
+        public bool DetectCycle(double[][] adjacency, int edges)
+        {
+            int nodes = adjacency.Length;
+
+            /// translate adjacency matrix into adjacency list <seealso cref="https://www.section.io/engineering-education/graphs-in-data-structure-using-cplusplus/"/>,
+            /// referencing vertices by their Index
+
+            // Created the jagged array. It contains the vertexes and how they are to be connected.
+            // E.g. new int[]{ 1,2}, means 1 is to be connected to 2
+            int[][] graph;
+            var g = new List<int[]>();
+
+            for(int i=0;i<adjacency.Length;i++)
+            {
+                for(int j=0;j<adjacency[i].Length;j++)
+                {
+                    if (adjacency[i][j] != 0)
+                    {
+                        var adjacent = new List<int> { i, j };
+                        g.Add(adjacent.ToArray());
+                    }
+                }
+            }
+            graph = g.ToArray();
+            // This is the dictionary for storing the adjacency list.
+            //It is of the type, int that will hold a node and List<int> that will hold all other nodes 
+            //attached to the int node.
+            /* E.G. This is how our graph will look like 
+                               1-> 2,3,4,5
+                               2-> 6,7
+                               3-> 4
+                               4-> 1
+                           */
+            Dictionary<int, List<int>> ls = new Dictionary<int, List<int>>();
+            // We declare a visited bool array variable. We will store the visited nodes in it.
+            bool[] visited = new bool[nodes];
+            // We declare a path bool array variable. We will store all nodes in our current path here.
+            bool[] path = new bool[nodes];
+            // Loop through our jagged array, graph.
+            for (int i = 0; i < graph.Length; i++)
+            {
+                if (graph[i].Length == 0)
+                    continue;
+
+                // As we loop, check whether our dictionary already contains the node at index[i][0]
+                // of our jagged array, graph. If it is not there, we add it to the dictionary, ls
+                if (!ls.ContainsKey(graph[i][0]))
+                {
+                    ls.Add(graph[i][0], new List<int>());
+                }
+                // this line of code will connect the nodes. E.g. If we are given { 1,2}, we added 1 to our dictionary
+                // on the line  ls.Add(graph[i][0], new List<int>());
+                //Therefore, in this next line,ls[graph[i][0]].Add(graph[i][1]); we connect the 1 to the 2
+                ls[graph[i][0]].Add(graph[i][1]);
+
+            }
+            // We start our traversal here. We could also say that this is where we start our path from.
+            for (int i = 0; i < nodes; i++)
+            {
+                // We do our Dfs starting from the node at i in this case our start point will be 0;
+                // For each Dfs, we are checking if we will find a cycle. If yes, we immediately return true.
+                // A cycle has been found.
+                if (Dfs(ls, i, visited, path))
+
+                    return true;
+
+            }
+            // If in our for loop above, we never found a cycle, then we will return false.
+            // A cycle was not detected.
+            return false;
+
+        }
+
+        /// <summary>
+        /// Function that detects whether there is a cycle or not. Below is the code for the same. It uses recursion for backtracking.
+        /// If a cycle is detected, we return true, otherwise, we return false.
+        /// </summary>
+        /// <param name="graph">Jagged array representation of adjacency matrix</param>
+        /// <param name="start">Index in graph of fitrst node in path</param>
+        /// <param name="visited">The visited status of nodes</param>
+        /// <param name="path">True or false if node represented by indeex in current path/param>
+        /// <returns></returns>
+        private static bool Dfs(Dictionary<int, List<int>> graph, int start, bool[] visited, bool[] path)
+        { 
+            // If we find that we marked path[start] true, we return true.
+            // This means that we have come back to the node we started from hence a cycle has
+            // been found.
+            if (path[start])
+            {
+                return true;
+            }
+            // If we didn't find a cycle from the code block above, we mark visited[start] to true.
+            visited[start] = true;
+
+            //  We also mark path[start] to true. This will help us know that the node start is on our
+            //  current path.
+            path[start] = true;
+
+            // We check whether our graph contains the start node. Sometimes the start node is not in our graph.
+            // Thus, if we do our traversal on such a node, an exception will be thrown. This is because the node does
+            // not exist.
+            if (graph.ContainsKey(start))
+            {
+                // We start our traversal from our start node of the graph.
+                foreach(var item in graph[start])
+               
+               {
+                    //We do our recursion
+                    // At this point, if the start node returned a true in our recursive call, then we say that cycle has been
+                    // found. We return true immediately.
+                    if (Dfs(graph, item, visited, path))
+                    {
+                        return true;
+                    }
+
+                }
+
+            }
+            // If we have traversed the whole path from the start node and never found a cycle, we start removing
+            // those nodes from this path. This is done recursively using c# inbuilt stack also called the call stack.
+            path[start] = false;
+            // If we did not find a cycle, we return false.
+            return false;
+
+        }
+
+
+
 
         /// <summary>
         /// Dijkstra algorithm implementation that calculates the shortest d[=istance and path from 'start' node
