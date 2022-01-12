@@ -208,7 +208,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (Vertices.Count(v => v.Name == name) > 1)
                 return null;
 
-            var vertex = GetVertex(guid: null, name: name);
+            var vertex = GetVertex(name: name);
 
             if (vertex is null)
                 return null;
@@ -267,6 +267,24 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
 
             return true;
+        }
+
+        public Edge<T> RemoveEdge(Vertex<T> from,Vertex<T> to,double weight,Edge<T>.EdgeType type)
+        {
+            var source = GetVertex(guid: Guid.Parse(from.Guid));
+
+            if (source == null)
+                throw new ArgumentException($"Vertex {from.Name} not found.");
+
+            var edge = source.Edges.FirstOrDefault(e => e.To.Guid==to.Guid && e.Type == type && e.Weight==weight);
+
+            if (edge != null)
+            {
+                source.Edges.Remove(edge);
+                return edge;
+            }
+
+            return null;
         }
 
         public Edge<T> RemoveEdge(string name)
@@ -395,22 +413,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return Vertices.Where(v => v.Name == name).ToList();
         }
 
-        public Vertex<T> GetVertex(string name, string guid = null)
+        public Vertex<T> GetVertex(string name)
         {
-            if (name == null)
+            if (name != null)
             {
-                if (guid == null)
-                    return null;
-                else
-                    return Vertices.FirstOrDefault(v => v.Guid == guid);
+                return Vertices.FirstOrDefault(v => v.Name == name);
             }
-            else
-            {
-                if (guid == null)
-                    return Vertices.FirstOrDefault(v => v.Name == name);
-                else
-                    return Vertices.FirstOrDefault(v => v.Name == name && v.Guid == guid);
-            }
+            return null;
         }
 
         public Vertex<T> GetVertex(Guid guid)
@@ -682,7 +691,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             edges.Sort(); // default sort by weight ascending
             var count = 0;
-            while (count < edges.Count || forest.GetOutgoingEdges().Count<trees-1)
+            int outgoing = 0;
+            while (count < edges.Count && outgoing != trees - 1)
             {
                 var e = edges[count];
                 // replaces edge's to/from with corressssponding trees in new forest
@@ -694,11 +704,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 
                 
                 var adjacency = forest.GetAdjacencyMatrix();
-                if(forest.DetectCycle(adjacency,count))
-                {
-                    forest.RemoveEdge(e.Name);
-                    count--;
-                }
+                if(forest.DetectCycle(adjacency, trees))
+                    forest.RemoveEdge(e.From,e.To,e.Weight,e.Type);
+
+                outgoing = forest.GetOutgoingEdges().Count;
             }
 
             return forest;
@@ -713,62 +722,15 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// </summary>
         /// <param name="adjacency">Adjacency matrix that identifies graph</param>
         /// <returns></returns>
-        public bool DetectCycle(double[][] adjacency, int edges)
+        public bool DetectCycle(double[][] adjacency, int nodes)
         {
-            int nodes = adjacency.Length;
-
-            /// translate adjacency matrix into adjacency list <seealso cref="https://www.section.io/engineering-education/graphs-in-data-structure-using-cplusplus/"/>,
-            /// referencing vertices by their Index
-
-            // Created the jagged array. It contains the vertexes and how they are to be connected.
-            // E.g. new int[]{ 1,2}, means 1 is to be connected to 2
-            int[][] graph;
-            var g = new List<int[]>();
-
-            for(int i=0;i<adjacency.Length;i++)
-            {
-                for(int j=0;j<adjacency[i].Length;j++)
-                {
-                    if (adjacency[i][j] != 0)
-                    {
-                        var adjacent = new List<int> { i, j };
-                        g.Add(adjacent.ToArray());
-                    }
-                }
-            }
-            graph = g.ToArray();
-            // This is the dictionary for storing the adjacency list.
-            //It is of the type, int that will hold a node and List<int> that will hold all other nodes 
-            //attached to the int node.
-            /* E.G. This is how our graph will look like 
-                               1-> 2,3,4,5
-                               2-> 6,7
-                               3-> 4
-                               4-> 1
-                           */
-            Dictionary<int, List<int>> ls = new Dictionary<int, List<int>>();
+            //nodes = adjacency.Length;
             // We declare a visited bool array variable. We will store the visited nodes in it.
             bool[] visited = new bool[nodes];
             // We declare a path bool array variable. We will store all nodes in our current path here.
             bool[] path = new bool[nodes];
-            // Loop through our jagged array, graph.
-            for (int i = 0; i < graph.Length; i++)
-            {
-                if (graph[i].Length == 0)
-                    continue;
+            Dictionary<int, List<int>> ls = GetAdjacencyList(adjacency);
 
-                // As we loop, check whether our dictionary already contains the node at index[i][0]
-                // of our jagged array, graph. If it is not there, we add it to the dictionary, ls
-                if (!ls.ContainsKey(graph[i][0]))
-                {
-                    ls.Add(graph[i][0], new List<int>());
-                }
-                // this line of code will connect the nodes. E.g. If we are given { 1,2}, we added 1 to our dictionary
-                // on the line  ls.Add(graph[i][0], new List<int>());
-                //Therefore, in this next line,ls[graph[i][0]].Add(graph[i][1]); we connect the 1 to the 2
-                ls[graph[i][0]].Add(graph[i][1]);
-
-            }
             // We start our traversal here. We could also say that this is where we start our path from.
             for (int i = 0; i < nodes; i++)
             {
@@ -787,8 +749,76 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
 
         /// <summary>
+        /// Translate adjacency matrix into adjacency list <seealso cref="https://www.section.io/engineering-education/graphs-in-data-structure-using-cplusplus/"/>,
+        /// referencing vertices by their Index
+        /// </summary>
+        /// <param name="adjacency">adjacency matrix</param>
+        /// <param name="translateIndicesToNodeNames">Dictionary values are the matrix columns indices, so covert them to their associated vertex names </param>
+        /// <returns></returns>
+        public Dictionary<int, List<int>> GetAdjacencyList(double[][] adjacency)//, bool translateIndicesToNodeNames=false)
+        {
+            // Created the jagged array. It contains the vertexes and how they are to be connected.
+            // E.g. new int[]{ 1,2}, means 1 is to be connected to 2
+            // This is the dictionary for storing the adjacency list.
+            // It is of the type, int that will hold a node and List<int> that will hold all other nodes 
+            // attached to the int node.
+            Dictionary<int, List<int>> ls = new Dictionary<int, List<int>>();
+            int[][] graph;
+            var g = new List<int[]>();
+
+            for (int i = 0; i < adjacency.Length; i++)
+            {
+                for (int j = 0; j < adjacency[i].Length; j++)
+                {
+                    if (adjacency[i][j] != 0)
+                    {
+                        var adjacent = new List<int> { i, j };
+                        g.Add(adjacent.ToArray());
+                    }
+                }
+            }
+            graph = g.ToArray();
+            // Loop through our jagged array, graph.
+            for (int i = 0; i < graph.Length; i++)
+            {
+                if (graph[i].Length == 0)
+                    continue;
+
+                // As we loop, check whether our dictionary already contains the node at index[i][0]
+                // of our jagged array, graph. If it is not there, we add it to the dictionary, ls
+                if (!ls.ContainsKey(graph[i][0]))
+                {
+                    ls.Add(graph[i][0], new List<int>());
+                }
+                // this line of code will connect the nodes. E.g. If we are given { 1,2}, we added 1 to our dictionary
+                // on the line  ls.Add(graph[i][0], new List<int>());
+                //Therefore, in this next line,ls[graph[i][0]].Add(graph[i][1]); we connect the 1 to the 2
+                ls[graph[i][0]].Add(graph[i][1]);
+            }
+
+            return ls;
+        }
+
+        /// <summary>
+        /// Get vertex from index, useful when translating from adjacency matrix column
+        /// number to vertex name
+        /// </summary>
+        public string GetVertexName(int index)
+        {
+            var n = "";
+            var v = GetVertex(index);
+
+            if (v != null)
+                n = v.Name;
+
+            return n;
+        }
+
+        /// <summary>
+        /// Search for a cycle using deppth search algorithm.
         /// Function that detects whether there is a cycle or not. Below is the code for the same. It uses recursion for backtracking.
         /// If a cycle is detected, we return true, otherwise, we return false.
+        /// <see cref="https://www.section.io/engineering-education/graph-cycle-detection-csharp/#:~:text=Cycle%20detection%20in%20a%20directed%20graph%20To%20detect,as%20visited%20and%20part%20of%20the%20current%20path."/>
         /// </summary>
         /// <param name="graph">Jagged array representation of adjacency matrix</param>
         /// <param name="start">Index in graph of fitrst node in path</param>
@@ -898,7 +928,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     if (dist.ContainsKey(currentId))
                     {
                         currentId = dist[currentId].Previous;
-                        currentNode = GetVertex(name: null, guid: currentId.ToString());
+                        currentNode = GetVertex(guid: Guid.Parse(currentId));
 
                         shortestPath.AddVertex(currentNode);
                     }

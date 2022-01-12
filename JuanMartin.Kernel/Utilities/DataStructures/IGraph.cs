@@ -27,8 +27,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         List<Edge<T>> GetIncomingEdges();
         bool Contains(T value);
         bool Contains(Vertex<T> value);
-        Vertex<T> GetVertex(string name, string guid);
+        Vertex<T> GetVertex(string name);
         Vertex<T> GetVertex(Guid guid);
+        Vertex<T> GetVertex(int index);
         List<Vertex<T>> GetVertices(string name);
         List<Vertex<T>> GetRoot();
         List<Vertex<T>> VisitedVertices();

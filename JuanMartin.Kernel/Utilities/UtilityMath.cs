@@ -2540,17 +2540,17 @@ namespace JuanMartin.Kernel.Utilities
             return ascending || descending;
         }
 
-        public static long[] ErathostenesSieve(int upperLimit, int lowerLimit = 2, int threadCount = -1)
+        public static long[] ErathostenesSieve(int upperLimit, int lowerLimit = 2, int threadCount = 1)
         {
             int sieveBound = (int)(upperLimit - 1) / 2;
             int upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
             var PrimeBits = new BitArray(sieveBound + 1, true);
 
-            //            for (int i = 1; i <= upperSqrt; i++)
             var options = new ParallelOptions()
             {
                 MaxDegreeOfParallelism = threadCount
             };
+            //for (int i = 1; i <= upperSqrt; i++)
             Parallel.For(1, upperSqrt, options, i =>
             {
                 if (PrimeBits.Get(i))
@@ -2589,7 +2589,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="lowerLimit"></param>
         /// <param name="upperLimit"></param>
         /// <returns></returns>
-        public static long[] ESieve(int lowerLimit, int upperLimit)
+        public static long[] ErathostenesSieve2(int upperLimit,  int lowerLimit = 2)
         {
 
             int sieveBound = (int)(upperLimit - 1) / 2;
