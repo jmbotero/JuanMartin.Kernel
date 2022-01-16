@@ -63,6 +63,7 @@
     <Compile Include="Utilities\DataStructures\QueueTests.cs" />
     <Compile Include="Utilities\DataStructures\SquareChainsTests.cs" />
     <Compile Include="Utilities\DataStructures\StackTests.cs" />
+    <Compile Include="Utilities\DataStructures\UndirectedGraphTests.cs" />
     <Compile Include="Utilities\UtilityArrayTests.cs" />
     <Compile Include="Utilities\UtilityFileTests.cs" />
     <Compile Include="Utilities\UtilityMathTests.cs" />

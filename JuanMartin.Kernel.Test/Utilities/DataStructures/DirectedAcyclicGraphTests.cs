@@ -11,12 +11,14 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
     public class DirectedAcyclicGraphTests
     {
         private Vertex<int> v1, v2, v3, v0;
-        private int expectedVertexCount = 6, expectedOutgoingEdgeCount = 6;
+        private int expectedVertexCount = 0, expectedOutgoingEdgeCount = 0;
         private DirectedAcyclicGraph<int> actualGraph;
 
         [SetUp]
         public void Init()
         {
+            expectedVertexCount = 6;
+            expectedOutgoingEdgeCount = 6;
             actualGraph = CreateNumericTestGraph();
         }
 
@@ -32,45 +34,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test()]
-        public void ShouldDetectCycleInGraph()
-        {
-            bool expectCycle;
-            double[][] actualMatrix;
-            bool actualHasCycle;
-
-
-            actualGraph = CreateCycleTestGraph();
-
-            actualMatrix = actualGraph.GetAdjacencyMatrix();
-            actualHasCycle = actualGraph.DetectCycle(actualMatrix, expectedVertexCount);
-
-            Assert.IsTrue(actualHasCycle, "Graph should have a cycle.");
-
-            expectCycle = true;
-            actualGraph = CreateSimpleGraph(expectCycle);
-
-            actualMatrix = actualGraph.GetAdjacencyMatrix();
-            actualHasCycle = actualGraph.DetectCycle(actualMatrix, expectedVertexCount);
-
-            Assert.IsTrue(actualHasCycle, "Simple graph should have a cycle.");
-
-            expectCycle = false;
-            actualGraph = CreateSimpleGraph(expectCycle);
-            actualMatrix = actualGraph.GetAdjacencyMatrix();
-            actualHasCycle = actualGraph.DetectCycle(actualMatrix, expectedVertexCount);
-
-            Assert.IsFalse(actualHasCycle, "Graph should not have a cycle.");
-
-            actualGraph = CreateMinimumSpanningTreeTestGraph();
-
-            actualMatrix = actualGraph.GetAdjacencyMatrix();
-            actualHasCycle = actualGraph.DetectCycle(actualMatrix, expectedVertexCount);
-
-            Assert.IsTrue(actualHasCycle, "Multi cycle graph should have a cycle.");
-        }
-
-        [Test()]
-        public void ShouldCreateAnAdjacencyMatrixWithAllOutgoihgEdgesInGraph()
+        public void ShouldCreateAnAdjacencyMatrixWithAllOutgoingEdgesInGraph()
         {
             double[][] actualMatrix;
             double[][] expectedMatrix = new double[][]
@@ -90,7 +54,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             var actualAdjacencyCount = expectedMatrix.Sum(row => (row.Count(value => value != 0)));
 
             Assert.AreEqual(expectedMatrix, actualMatrix, "Adjacency matrix");
-            Assert.AreEqual(expectedVertexCount, expectedMatrix.Length, "Number of nodes");
             Assert.AreEqual(expectedOutgoingEdgeCount, actualAdjacencyCount, "Adjacent nodes");
         }
 
@@ -136,9 +99,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         [Test()]
         public void ShouldUseFromVertexNameToDisambiguateWhenGettingByNameEdgeRepeatedInGraph()
         {
-            var firstAddEdge = actualGraph.GetEdge("add", type: Edge<int>.EdgeType.outgoing); //belongs to v1
-            var secondAddEdge = actualGraph.GetEdge("add", "two", type: Edge<int>.EdgeType.outgoing); //belongs to v2
-            var ThirdAddEdge = actualGraph.GetEdge("add", "four", type: Edge<int>.EdgeType.outgoing); //belongs to v4
+            var firstAddEdge = actualGraph.GetEdge(name: "add", type: Edge<int>.EdgeType.outgoing); //belongs to v1
+            var secondAddEdge = actualGraph.GetEdge(name: "add", "two", type: Edge<int>.EdgeType.outgoing); //belongs to v2
+            var ThirdAddEdge = actualGraph.GetEdge(name: "add", "four", type: Edge<int>.EdgeType.outgoing); //belongs to v4
             var actualEdgesNamedAdd = actualGraph.GetOutgoingEdges().Where(e => e.Name.Contains("add")).ToList();
 
             Assert.AreEqual(3, actualEdgesNamedAdd.Count, "Graph has two 'add' eges");
@@ -151,13 +114,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public void ShouldIncreaseEdgeWeightByOneWhenAddingEdgeBetweenTwoVerticesWithSameName()
         {
             // check initial weight on edge
-            var actualEdge = actualGraph.GetEdge("substract", type: Edge<int>.EdgeType.outgoing);
+            var actualEdge = actualGraph.GetEdge(name: "substract", type: Edge<int>.EdgeType.outgoing);
             Assert.AreEqual(2, actualEdge.Weight);
             // readd edge between same nodes and with same name
             actualGraph.AddEdge(from: v1, to: v2, type: Edge<int>.EdgeType.outgoing, name: "substract");
 
             // check new weight
-            actualEdge = actualGraph.GetEdge("substract", type: Edge<int>.EdgeType.outgoing);
+            actualEdge = actualGraph.GetEdge(name: "substract", type: Edge<int>.EdgeType.outgoing);
 
             const int expectedWeightAterReAdd = 3;
             Assert.AreEqual(expectedWeightAterReAdd, actualEdge.Weight);
@@ -380,20 +343,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test()]
-        public void ShouldGetMinimumSpanningTreeTest()
-        {
-            actualGraph = CreateMinimumSpanningTreeTestGraph();
-
-            var actualSubsetGraph = actualGraph.GetMinimumSpanningTree();
-            double expectedWeight = 37;
-
-            var actualOutgoingEdges = actualSubsetGraph.GetOutgoingEdges().ToList();
-            var actualWeight = actualOutgoingEdges.Sum(e => e.Weight);
-
-            Assert.AreEqual(expectedWeight, actualWeight);
-        }
-
-        [Test()]
         public void ShholdConvertAdjacencyMatrixToListTest()
         {
             double[][] actualMatrix;
@@ -411,6 +360,21 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             var actullList = actualGraph.GetAdjacencyList(actualMatrix);
 
             Assert.AreEqual(expectedList, actullList);
+        }
+
+        [Test()]
+        public void ShouldDetectCycleInGraph()
+        {
+            double[][] actualMatrix;
+            bool actualHasCycle;
+            Dictionary<int, List<int>> actualAdjacency;
+
+            actualGraph = CreateCycleTestGraph();
+            actualMatrix = actualGraph.GetAdjacencyMatrix();
+            actualAdjacency = actualGraph.GetAdjacencyList(actualMatrix);
+            actualHasCycle = actualGraph.DetectCycle(actualAdjacency, expectedVertexCount);
+
+            Assert.IsTrue(actualHasCycle, "Graph should have a cycle.");
         }
 
         [Test()]
@@ -580,31 +544,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             return g;
         }
 
-        /// <summary>
-        /// <see cref="https://www.gatevidyalay.com/tag/kruskals-algorithm-example-with-solution/"/>
-        /// </summary>
-        /// <returns></returns>
-        private DirectedAcyclicGraph<int> CreatehttpsGatevidyalayKruskalsAlgorithmExampleGraph01()
-        {
-            var graph = new DirectedAcyclicGraph<int>();
-
-            foreach (var i in Enumerable.Range(0, 5))
-            {
-                graph.AddVertex(new Vertex<int>(value:  i, name: Convert.ToChar(i + 65).ToString()));
-            }
-            expectedVertexCount = 5;
-
-
-            graph.AddEdge(graph[0], graph[1], name: null, weight: 6);
-            graph.AddEdge(graph[0], graph[3], name: null, weight: 1);
-            graph.AddEdge(graph[3], graph[4], name: null, weight: 1);
-            graph.AddEdge(graph[3], graph[1], name: null, weight: 2);
-            graph.AddEdge(graph[4], graph[1], name: null, weight: 2);
-            graph.AddEdge(graph[4], graph[2], name: null, weight: 5);
-            graph.AddEdge(graph[1], graph[2], name: null, weight: 5);
-
-            return graph;
-        }
         private DirectedAcyclicGraph<int> CreateCycleTestGraph()
         {
 

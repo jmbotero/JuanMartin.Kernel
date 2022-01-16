@@ -16,14 +16,17 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         int EdgeCount(Edge<T>.EdgeType type);
         Vertex<T> AddVertex(Vertex<T> v);
         Vertex<T> AddVertex(T value, string name, string guid);
+        bool AddEdge(Edge<T> edge);
+        bool AddEdge(string nameFrom, string nameTo, string name, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight);
         bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight);
+        void AddEdges(double[][] matrix);
         Vertex<T> RemoveVertex(string name);
         Vertex<T> RemoveVertex(T value);
         Edge<T> RemoveEdge(string name);
         List<Edge<T>> RemoveEdges(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type);
-        Edge<T> GetEdge(string name, string fromName    , Edge<T>.EdgeType type);
+        Edge<T> GetEdge(string name, string fromName, string toName, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction,double weight);
         List<Edge<T>> GetEdges(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type);
-        List<Edge<T>> GetOutgoingEdges();       
+        List<Edge<T>> GetOutgoingEdges();
         List<Edge<T>> GetIncomingEdges();
         bool Contains(T value);
         bool Contains(Vertex<T> value);
@@ -38,20 +41,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         Path<T> GetLongestPath(Vertex<T> start, Vertex<T> end);
         Path<T> GetShortestPath(Vertex<T> start, Vertex<T> end);
         string ToString(bool includeEdges);
-    }
-
-    public abstract class Graph<T>
-    {
-        public enum CriticalPathType
-        {
-            shortest = 0,
-            longest = 1
-        };
-
-        public Graph(IEnumerable<Vertex<T>> nodes = null)
-        {
-
-        }
+        double[][] GetAdjacencyMatrix();
     }
 }
 

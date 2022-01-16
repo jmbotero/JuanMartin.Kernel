@@ -136,6 +136,7 @@
     <Compile Include="Utilities\DataStructures\BigDecimal.cs" />
     <Compile Include="Utilities\DataStructures\BigRational.cs" />
     <Compile Include="Utilities\DataStructures\Cells.cs" />
+    <Compile Include="Utilities\DataStructures\DirectedAcyclicGraph.cs" />
     <Compile Include="Utilities\DataStructures\Edge.cs" />
     <Compile Include="Utilities\DataStructures\Fraction.cs" />
     <Compile Include="Utilities\DataStructures\IGraph.cs" />
@@ -149,8 +150,9 @@
     <Compile Include="Utilities\DataStructures\Queue.cs" />
     <Compile Include="Utilities\DataStructures\Stack.cs" />
     <Compile Include="Utilities\DataStructures\Tree.cs" />
-    <Compile Include="Utilities\DataStructures\DirectedAcyclicGraph.cs" />
+    <Compile Include="Utilities\DataStructures\Graph.cs" />
     <Compile Include="Utilities\DataStructures\Triple.cs" />
+    <Compile Include="Utilities\DataStructures\UndirectedGraph.cs" />
     <Compile Include="Utilities\DataStructures\Vertex.cs" />
     <Compile Include="Utilities\FormatStrings.cs" />
     <Compile Include="Utilities\UtilityArray.cs" />
