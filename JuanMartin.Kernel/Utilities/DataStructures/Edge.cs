@@ -23,6 +23,14 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             bidirectional = 2,
             none
         };
+        public const string EdgeNameDefault = "null";
+        public const string EdgeVertexFromNameDefault = "null";
+        public const string EdgeVertexToNameDefault = "null";
+        public const EdgeType EdgeTypeDefault = EdgeType.none;
+        public const EdgeDirection EdgeDirectionDefault = EdgeDirection.none;
+        public const double EdgeWeightDefault = -1;
+
+
         public Vertex<T> From { get; set; }
         public Vertex<T> To { get; set; }
         public EdgeType Type { get; private set; }
@@ -34,7 +42,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
 
             if (source is null || target is null)
-                throw new ArgumentNullException("To Add edge must be created with a from (origin) and a to (target) vertices.");
+                throw new ArgumentNullException("To Add edge must be created with a from (source) and a to (target) vertices.");
 
             From = source;
             To = target;
@@ -61,7 +69,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
         public override string ToString()
         {
-            return $"{Name}:{From.Name}-{To.Name}:{Type}:{Weight}";
+            var path = $"({From.Name}-{To.Name})";
+
+            if(Name.Contains(path))
+                return $"{Name}:{Type}:{Weight}";
+            else
+                return $"{Name}:{path}:{Type}:{Weight}";
         }
     }
 }

@@ -16,13 +16,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     public abstract class Graph<T>  // base graph
     {
 
-        private const string EdgeNameDefault = "null";
-        private const string EdgeVertexFromNameDefault = "null";
-        private const string EdgeVertexToNameDefault = "null";
-        private const Edge<T>.EdgeType EdgeTypeDefault = Edge<T>.EdgeType.none;
-        private const Edge<T>.EdgeDirection EdgeDirectionDefault = Edge<T>.EdgeDirection.none;
-        private const double EdgeWeightDefault = -1;
-
         public const int INFINITY = int.MaxValue / 2;
 
         public enum CriticalPathType
@@ -35,14 +28,32 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public bool HasDuplicateVertexNames => Vertices.Count != Vertices.Select(v => v.Name).Distinct().Count();
         public HashSet<Vertex<T>> Vertices { get; set; }
 
+        /// <summary>
+        /// There is an edge between the two vertices
+        /// </summary
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <returns></returns>
         public bool Adjacent(Vertex<T> v1, Vertex<T> v2)
         {
             if (v1 is null || v2 is null)
                 return false;
 
-            return v1.OutgoingNeighbors().Contains(v2);
-        }
+            bool a = v1.Edges.FirstOrDefault(e => (e.To.Guid == v2.Guid && e.Type == Edge<T>.EdgeType.outgoing)) != null;
+            bool b = v2.Edges.FirstOrDefault(e => (e.From.Guid ==   v1.Guid && e.Type == Edge<T>.EdgeType.incoming)) != null;
 
+            if(!a&&b)
+            {
+                a = v2.Edges.FirstOrDefault(e => (e.To.Guid == v1.Guid && e.Type == Edge<T>.EdgeType.outgoing)) != null;
+                b = v1.Edges.FirstOrDefault(e => (e.From.Guid == v2.Guid && e.Type == Edge<T>.EdgeType.incoming)) != null;
+            }
+
+            return a && b; // v1.OutgoingNeighbors().Contains(v2);
+        }
+        public List<Vertex<T>> GetAllAdjacents(Vertex<T> v)
+        {
+            return v.Edges.Where(e => e.From.Guid == v.Guid || e.To.Guid == v.Guid).Select(e => e.To).ToList();
+        }
         public List<Vertex<T>> OutgoingNeighbors(Vertex<T> v)
         {
             return v?.OutgoingNeighbors();
@@ -160,13 +171,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public Vertex<T> RemoveVertexByGuid(string guid)
         {
             return RemoveVertexByGuid(Guid.Parse(guid));
-        }
+         }
 
         public Vertex<T> RemoveVertexByGuid(Guid guid)
         {
             var v = GetVertex(guid);
 
-            if (v == null)
+            if (v == null) 
                 return null;
 
             if (!RemoveSingleVertex(v))
@@ -196,10 +207,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             {
                 try
                 {
-                    string n = name ?? string.Empty;
-                    n = $"{from.Name}-{to.Name}:({n})";
-
-                    from.AddEdge(to, type, direction, n, weight);
+                    // add outgoing edge
+                    from.AddEdge(from, to, Edge<T>.EdgeType.outgoing, direction, name, weight);
+                    from.AddNeighbor(to, Neighbor<T>.NeighborType.outgoing);
+                    // if it is outgoing for the source vertex it is incoming for the target one
+                    to.AddEdge(from, to, Edge<T>.EdgeType.incoming, direction, name, weight);
+                    to.AddNeighbor(from, Neighbor<T>.NeighborType.incoming);
                 }
                 catch (Exception)
                 {
@@ -215,17 +228,20 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return true; 
         }
 
+        public Edge<T> RemoveEdge(Edge<T> edge)
+        {
+            return RemoveEdge(edge.From, edge.To, edge.Name, edge.Weight, edge.Type, edge.Direction);
+        }
+
         public Edge<T> RemoveEdge(Vertex<T> from, Vertex<T> to, string name, double weight, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.none)
         {
-            var source = GetVertex(guid: Guid.Parse(from.Guid));
+            if (from == null)
+                throw new ArgumentException($"Vertex from {from.Name} not defined.");
 
-            if (source == null)
-                throw new ArgumentException($"Vertex from {from.Name} not found.");
-
-            var edge = source.Edges.FirstOrDefault(e => e.Name.Contains(name) && e.To.Guid == to.Guid && e.Type == type && e.Weight == weight);
+            var edge = GetEdge(name, from.Name, to.Name, type, direction, weight);
             if (edge != null)
             {
-                source.Edges.Remove(edge);
+                from.RemoveEdge(edge);
                 return edge;
             }
 
@@ -262,19 +278,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 from.Edges.Remove(e);
 
             return edges;
-        }
+        }   
 
-        public Edge<T> GetDefaultEddge()
+        public Edge<T> GetDefaultEdge()
         {
-            return new Edge<T>
-            (
-                target: new Vertex<T>(default(T), EdgeVertexFromNameDefault),
-                source: new Vertex<T>(default(T), EdgeVertexToNameDefault),
-                name: EdgeNameDefault,
-                type: EdgeTypeDefault,
-                direction: EdgeDirectionDefault,
-                weight: EdgeWeightDefault
-            );
+            return UtilityGraph<T>.NewEdge();
         }
 
         /// <summary>
@@ -288,27 +296,29 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <param name="direction"></param>
         /// <param name="weight"></param>
         /// <returns></returns>
-        public Edge<T> GetEdge(string name=EdgeNameDefault,string fromName=EdgeVertexFromNameDefault,string toName=EdgeVertexToNameDefault,
-                                                Edge<T>.EdgeType type=EdgeTypeDefault,Edge<T>.EdgeDirection direction=EdgeDirectionDefault,
-                                                double weight=EdgeWeightDefault)
+        public Edge<T> GetEdge(string name = Edge<T>.EdgeNameDefault, string fromName = Edge<T>.EdgeVertexFromNameDefault, string toName = Edge<T>.EdgeVertexToNameDefault,
+                                                Edge<T>.EdgeType type = Edge<T>.EdgeTypeDefault, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirectionDefault,
+                                                double weight = Edge<T>.EdgeWeightDefault)
         {
-            if (name == EdgeNameDefault && fromName == EdgeVertexFromNameDefault && toName == EdgeVertexToNameDefault &&
-                type == EdgeTypeDefault && direction == EdgeDirectionDefault && 
-                weight == EdgeWeightDefault)
-                throw new ArgumentNullException("At least one earch attribute must be defined.");
-
-            foreach (var v in Vertices)
+            if (fromName != Edge<T>.EdgeVertexFromNameDefault)
             {
-                var edge = v.Edges.FirstOrDefault(e =>
-                    (name != EdgeNameDefault) ? e.Name.Contains(name) : true &&
-                    (fromName != EdgeVertexFromNameDefault) ? e.From.Name == fromName : true &&
-                    (toName != EdgeVertexToNameDefault) ? e.From.Name == fromName : true &&
-                    (direction != EdgeDirectionDefault) ? e.Direction == direction : true &&
-                    (type != EdgeTypeDefault) ? e.Type == type : true &&
-                    (weight != EdgeWeightDefault) ? e.Weight == weight : true);
+                var v = GetVertex(name: fromName);
 
+                if (v == null)
+                    return null;
+
+                var edge = v.GetEdge(name, fromName, toName, type, direction, weight);
                 if (edge != null)
                     return edge;
+            }
+            else
+            {
+                foreach(var v in Vertices)
+                {
+                    var edge = v.GetEdge(name, fromName, toName, type, direction, weight);
+                    if (edge != null)
+                        return edge;
+                }
             }
             return null;
         }
@@ -776,7 +786,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     start.IsVisited = true;
                     sBuilder.Append(start.Name);
                     if (includeEdges)
-                        sBuilder.Append($":[ {(string.Join(", ", start.Edges.Select(e => e.ToString())))} ]");
+                        sBuilder.Append($":[{(string.Join(", ", start.Edges.Select(e => e.ToString())))}]");
                     if (!IsLast) sBuilder.Append(",");
                     var vertices = start.OutgoingNeighbors();
                     foreach (var v in vertices)
@@ -857,14 +867,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return currentPath;
         }
 
-        private void UnvisitAllVertices()
+        
+         
+        public void UnvisitAllVertices()
         {
             UnvisitAllVertices(Vertices);
         }
 
         private void UnvisitAllVertices(IEnumerable<Vertex<T>> vertices)
         {
-            if (vertices.Count(n => n.IsVisited) > 1)
+            if (vertices.Count(n => !n.IsVisited) > 1)
             {
                 foreach (var v in vertices)
                     v.IsVisited = false;
@@ -872,4 +884,35 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
     }
 
+    public class UtilityGraph<T>
+    {
+        public static Edge<T> NewEdge(string name = Edge<T>.EdgeNameDefault, string fromName = Edge<T>.EdgeVertexFromNameDefault, string toName = Edge<T>.EdgeVertexToNameDefault,
+                                                Edge<T>.EdgeType type = Edge<T>.EdgeTypeDefault, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirectionDefault,
+                                                double weight = Edge<T>.EdgeWeightDefault)
+        {
+            return new Edge<T>
+            (
+                target: new Vertex<T>(default(T), fromName),
+                source: new Vertex<T>(default(T), toName),
+                name: name,
+                type: type,
+                direction: direction,
+                weight: weight
+            );
+        }
+
+        public static Edge<T> NewEdge(string name, Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight)
+        {
+            return new Edge<T>
+            (
+                source: from,
+                target: to,
+                name: name,
+                type: type,
+                direction: direction,
+                weight: weight
+            );
+
+        }
+    }
 }

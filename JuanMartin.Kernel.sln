@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JuanMartin.Kernel", "JuanMa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JuanMartin.Kernel.Test", "JuanMartin.Kernel.Test\JuanMartin.Kernel.Test.csproj", "{A4170619-8A94-4D9B-BECF-33AB13C49034}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A960E41A-01C6-4F3D-A4C6-DB82663F7DC3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

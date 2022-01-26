@@ -100,8 +100,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public void ShouldUseFromVertexNameToDisambiguateWhenGettingByNameEdgeRepeatedInGraph()
         {
             var firstAddEdge = actualGraph.GetEdge(name: "add", type: Edge<int>.EdgeType.outgoing); //belongs to v1
-            var secondAddEdge = actualGraph.GetEdge(name: "add", "two", type: Edge<int>.EdgeType.outgoing); //belongs to v2
-            var ThirdAddEdge = actualGraph.GetEdge(name: "add", "four", type: Edge<int>.EdgeType.outgoing); //belongs to v4
+            var secondAddEdge = actualGraph.GetEdge(name: "add", fromName: "two", type: Edge<int>.EdgeType.outgoing); //belongs to v2
+            var ThirdAddEdge = actualGraph.GetEdge(name: "add",fromName:  "four", type: Edge<int>.EdgeType.outgoing); //belongs to v4
             var actualEdgesNamedAdd = actualGraph.GetOutgoingEdges().Where(e => e.Name.Contains("add")).ToList();
 
             Assert.AreEqual(3, actualEdgesNamedAdd.Count, "Graph has two 'add' eges");
@@ -229,10 +229,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public void ShouldOnlyHaveOnlyOneRootASimpleTreeLikeGraph()
         {
             var g = CreateMultiplePathsTestNumericGraph();
-            var expectedVertices = g.GetRoot();
+            var expectedRoot = g.GetRoot();
+            var expectedVertices = expectedRoot.Count;
 
-            Assert.AreEqual(1, expectedVertices.Count, "There should be only one vertex returned");
-            Assert.AreEqual("0", expectedVertices[0].Name, "The single root should be the vertex named '0'");
+            Assert.AreEqual(1, expectedVertices, "There should be only one vertex returned");
+            Assert.AreEqual("0", expectedRoot[0].Name, "The single root should be the vertex named '0'");
 
         }
 
@@ -261,11 +262,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         [Test()]
-        public void ShouldGraphHaveStrinRepresentationAsCommaSeparatedListOfItsVerticesWithEdges()
+        public void ShouldGraphHaveStringRepresentationAsCommaSeparatedListOfVerticesWithEdges()
         {
             // TODO: Remove hard-coding
-            var expectedRepresentation = "a:[ a-n:(oneword):a-n:outgoing:1 ],n:[ a-n:(oneword):a-n:incoming:1, n-d:(oneword):n-d:outgoing:1 ]d:[ n-d:(oneword):n-d:incoming:1 ]";
+            var expectedRepresentation = "a:[oneword(a-n):outgoing:1],n:[oneword(a-n):incoming:1, oneword(n-d):outgoing:1]d:[oneword(n-d):incoming:1]";
             var g = CreateStringTestSinglePathGraph();
+            
             var actualRepresentation = g.ToString(true);
 
             Assert.AreEqual(expectedRepresentation, actualRepresentation);

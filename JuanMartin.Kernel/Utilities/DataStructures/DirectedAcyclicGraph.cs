@@ -34,12 +34,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
 
         public bool AddEdge(string nameFrom, string nameTo, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
-, double weight = 0)
+, double weight = Edge<T>.EdgeWeightDefault)
         {
             return AddEdge(GetVertex(nameFrom), GetVertex(nameTo), name, type, direction, weight);
         }
         public new bool AddEdge(Vertex<T> from, Vertex<T> to, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
-            , double weight = 0)
+            , double weight = Edge<T>.EdgeWeightDefault)
         {
             if(direction==Edge<T>.EdgeDirection.undirected)
                 throw new ArgumentException("Undirected edges cannot be added to a directed-acyclic graph.");
@@ -47,15 +47,25 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (from.Equals(to))
                 throw new ArgumentException("A loop edge, from and to the same vertex cannot be added in a directed-acyclic graph.");
 
+            var path = $"({from.Name}-{to.Name})";
+
+            if (name + "" == "")
+                name = path;
+            else if(!name.Contains(path))
+                name += path;
+
             base.AddEdge(from, to, name, type, direction, weight);
             try
             {
                 if (direction == Edge<T>.EdgeDirection.bidirectional)
                 {
-                    var n = name ?? string.Empty;
-                    n = $"{to.Name}-{from.Name}:({n})";
-                    //if (to.Edges.Where(e => e.Name == n).FirstOrDefault() == null)
-                    to.AddEdge(from, Edge<T>.EdgeType.incoming, direction, n, weight);
+                     // translate into four edges ; inverting to and from (therefore neighbors too)
+                    // add outgoing edge
+                    to.AddEdge(to, from, Edge<T>.EdgeType.outgoing, direction, name, weight);
+                    to.AddNeighbor(from, Neighbor<T>.NeighborType.outgoing);
+                    // if it is outgoing for the source vertex it is incoming for the target one
+                    from.AddEdge(to, from, Edge<T>.EdgeType.incoming, direction, name, weight);
+                    from.AddNeighbor(to, Neighbor<T>.NeighborType.incoming);
                 }
             }
             catch (Exception)
@@ -72,6 +82,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// There is an edge that is connecting vertex i and vertex j, element Ai,j is the weight
         /// of the edge, otherwise Ai,j is 0.
         /// </summary>
+        ///
         /// <param name="matrix"></param>
         public void AddEdges(double[][] matrix)
         {

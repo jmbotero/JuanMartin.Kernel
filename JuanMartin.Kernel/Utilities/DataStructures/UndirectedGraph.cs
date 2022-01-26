@@ -21,8 +21,15 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             Vertices = nodes?.ToHashSet();
         }
 
-        public new bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type = Edge<T>.EdgeType.none, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.undirected, double weight = 0)
+        public new bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type = Edge<T>.EdgeType.none, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.undirected, double weight = Edge<T >.EdgeWeightDefault)
         {
+            var path = $"({from.Name}-{to.Name})";
+
+            if (name + "" == "")
+                name = path;
+            else if (!name.Contains(path))
+                name += path;
+
             return base.AddEdge(from, to, name, type, direction, weight);
         }
 
@@ -36,11 +43,55 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return AddEdge(GetVertex(nameFrom), GetVertex(nameTo), name, type, direction, weight);
         }
 
-        public new Edge<T> RemoveEdge(Vertex<T> from, Vertex<T> to, string name, double weight, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.none)
+        /// <summary>
+        /// Get edge by searching under both vertices, undirected edges can be declared A->B or B->A 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="fromName"></param>
+        /// <param name="toName"></param>
+        /// <param name="type"></param>
+        /// <param name="direction"></param>
+        /// <param name="weight"></param>
+        /// <returns></returns>
+        public new Edge<T> GetEdge(string name, string fromName, string toName, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight)
+        { 
+            var path = $"({fromName}-{toName})";
+            var edge = base.GetEdge(path, fromName, toName, Edge<T>.EdgeTypeDefault, direction, weight);
+
+            if (edge == null)
+            {
+                path = $"({toName}-{fromName})";
+                edge = base.GetEdge(path, toName, fromName, Edge<T>.EdgeTypeDefault, direction, weight);
+            }
+
+            return edge;
+        }
+        public new Edge<T> RemoveEdge(Edge<T> edge)
         {
-            //  undirected edges have an outgoing and incoming couhterparts
-            base.RemoveEdge(from, from, name, weight, Edge<T>.EdgeType.incoming, direction);
-            return base.RemoveEdge(from, to, name, weight, Edge<T>.EdgeType.outgoing, direction);
+            return DualRemoveEdge(edge.From, edge.To, edge.Name, edge.Weight, edge.Type, edge.Direction);
+        }
+        private Edge<T> DualRemoveEdge(Vertex<T> from, Vertex<T> to, string name, double weight, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.none)
+        {
+            if (from == null || to == null)
+                throw new ArgumentNullException("Both vertices must be defined.");
+
+            Edge<T> edge = null;
+
+            //  undirected edges have an outgoing and incoming counterparts
+            // there are two neighbors as well
+            from.RemoveNeigbor(to, Neighbor<T>.NeighborType.outgoing);
+            to.RemoveNeigbor(from, Neighbor<T>.NeighborType.incoming);
+
+            //  the undirected graph edge is represented by two edges
+            edge = UtilityGraph<T>.NewEdge(name, from, to, Edge<T>.EdgeType.incoming, direction, weight);
+            //var edge = GetEdge(name, from.Name, to.Name, Edge<T>.EdgeType.incoming, direction, weight);
+            to.RemoveEdge(edge);
+            //edge = GetEdge(name, from.Name, to.Name, Edge<T>.EdgeType.outgoing, direction, weight);
+            edge = UtilityGraph<T>.NewEdge(name, from, to, Edge<T>.EdgeType.outgoing, direction, weight);
+            from.RemoveEdge(edge);
+
+
+            return edge;
         }
 
         public void AddEdges(double[][] matrix)
@@ -107,35 +158,37 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
 
         /// <summary>
+        /// Determine if graph has cycles
         /// <see cref="https://www.geeksforgeeks.org/detect-cycle-undirected-graph/"/>
         /// </summary>
         public bool IsCyclic()
         {
-            UnVisitedVertices();
 
             // Call recursive helper to chek for cycles in every DDFS tree
+            // cycles  need to checked for each path, DFS tree, independently,
+            // so unmark visited vertices on every loop
             foreach (var v in Vertices)
             {
-                if (!v.IsVisited)
-                {
-                    if (DetectCycleWithDepthFirstTraversal(v, null))
-                        return true;
-                }
+                UnvisitAllVertices();
+
+                if (DetectCycleWithDepthFirstTraversal(v, null))
+                    return true;
             }
             return false;
         }
 
         /// <summary>
         /// c<see cref="https://en.wikipe]dia.org/wiki/Minimum_spanning_tree"/>
+        /// <seealso cref="https://www.gatevidyalay.com/kruskals-algorithm-kruskals-algorithm-example/"/>
         /// Implemented through Kruskal's algotithm  
         /// </summary>
         /// <returns></returns>
-        public UndirectedGraph<T> GetMinimumSpanningTree()
+        public UndirectedGraph<T> GetMinimumSpanningTreeWithKruskalAlgorithm()
         {
             var forest = new UndirectedGraph<T>();
 
             foreach (var v in Vertices)
-                forest.AddVertex(new Vertex<T>(value: v.Value, name: v.Name));
+                forest.AddVertex(new Vertex<T>(value: v.Value, name: v.Name, guid: v.Guid, index: v.Index));
 
             int trees = forest.VertexCount();
             var edges = GetUndirectedEdges();
@@ -146,15 +199,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             while (count < edges.Count && outgoing != trees - 1)
             {
                 var e = edges[count];
-                // replaces edge's to/from with corressssponding trees in new forest
-                e.To = forest.GetVertex(e.To.Name);
-                e.From = forest.GetVertex(e.From.Name);
+                // update  edge vertices to match new graph
+                var toName = e.To.Name;
+                var fromName = e.From.Name;
+
+                e.To =forest.GetVertex(name: toName);
+                e.From = forest.GetVertex(name: fromName);
 
                 forest.AddEdge(e);
                 count++;
 
                 if (forest.IsCyclic())
-                    forest.RemoveEdge(e.From, e.To, e.Name, e.Weight, e.Type, Edge<T>.EdgeDirection.undirected);
+                    forest.RemoveEdge(e);
 
                 outgoing = forest.GetUndirectedEdges().Count;
             }
@@ -163,7 +219,98 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
 
         /// <summary>
+        /// 
+        /// <see cref="https://www.gatevidyalay.com/prims-algorithm-prim-algorithm-example/"/>
+        /// </summary>
+        /// <returns></returns>
+        public UndirectedGraph<T> GetMinimumSpanningTreeWithPrimsAlgorithm()
+        {
+            var forest = new UndirectedGraph<T>();
+            int outgoing = 0;
 
+            int trees = VertexCount();
+            // Randomly choose any vertex: The vertex connecting to the edge having least weight is usually selected.
+            var v = GetMinimumWeightVertex();
+            forest.AddVertex(value: v.Value, name: v.Name, guid: v.Guid);
+            var current = forest[0];
+
+            while (forest.VertexCount() <= trees && outgoing != trees - 1)
+            {
+                // Find all the edges that connect the tree to new vertices. Find the
+                // least weight edge among those edges and include it in the existing tree.
+                Edge<T> least = null;
+                double minWeight = double.MaxValue;
+                var edges = current.IncomingEdges().Where(e => current.AllNeighbors().Contains(e.From)).ToList();
+                edges.AddRange(current.OutgoingEdges().Where(e => current.AllNeighbors().Contains(e.From)));
+
+                edges = edges.OrderBy(e => e.Weight).ToList();
+                int count = 0;
+                for (var i = 0; i < edges.Count; i++)
+                {
+                    var e = edges[0];
+
+                    minWeight = e.Weight;
+                    least = e;
+                    if (e.Type == Edge<T>.EdgeType.incoming)
+                        current = e.From;
+                    else if (e.Type == Edge<T>.EdgeType.outgoing)
+                        current = e.To;
+
+                    if (i == edges.Count)
+                        throw new ApplicationException("Could not find a minimum weight edge that did not generate a cycle.");
+
+                    // add current vertex so we can add edge
+                    forest.AddVertex(value: current.Value, name: current.Name, guid: current.Guid);
+
+                    // update  edge vertices to match new graph
+                    var toName = least.To.Name;
+                    var fromName = least.From.Name;
+
+                    least.To = forest.GetVertex(name: toName);
+                    least.From = forest.GetVertex(name: fromName);
+
+                    forest.AddEdge(least);
+
+                    if (forest.IsCyclic())
+                    {
+                        // If including that edge creates a cycle, then reject
+                        // that edge and look for the next least weight edge.
+                        forest.RemoveEdge(least);
+                        forest.RemoveVertex(current.Name);
+                        count++;
+                    }
+                    else
+                        break;
+                }
+
+                outgoing = forest.GetUndirectedEdges().Count;
+            }
+
+            return forest;
+        }
+
+        public Vertex<T> GetMinimumWeightVertex(HashSet<Vertex<T>>  adjacents = null)
+        {
+            HashSet<Vertex<T>> vertices = Vertices;
+            if (adjacents != null)
+                vertices = adjacents;
+
+            Vertex<T> minV = null;
+            double min = double.MaxValue;
+
+            foreach(var v in vertices)
+            {
+                var w = v.Edges.Min(e => e.Weight);
+
+                if (w < min)
+                {
+                    min = w;
+                    minV = v;
+                }
+            }
+            return minV;
+        }
+        /// <summary>
         /// Translate adjacency matrix into adjacency list <seealso cref="https://www.section.io/engineering-education/graphs-in-data-structure-using-cplusplus/"/>,
         /// referencing vertices by their Index.
         /// <seealso cref="https://www.geeksforgeeks.org/convert-adjacency-matrix-to-adjacency-list-representation-of-graph/#:~:text=To%20convert%20an%20adjacency%20matrix%20to%20the%20adjacency,at%20i-th%20position%20in%20the%20array%20of%20lists."/>
@@ -216,9 +363,31 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
 
         #region Support Methods
-        private bool DetectCycleWithDepthFirstTraversal(Vertex<T> v, object p)
+        private bool DetectCycleWithDepthFirstTraversal(Vertex<T> v, Vertex<T> parent)
         {
-            throw new NotImplementedException();
+            // Mark the current node as visited
+            v.IsVisited = true;
+
+            List<Vertex<T>> adjacents = v.AllNeighbors();                
+
+            // Recur for all the vertices adjacent to this vertex
+            foreach (var u in adjacents)
+            {
+                if (u.Equals(parent))
+                    continue;
+
+                // If an adjacent is not visited, then recur for that adjacent
+                if (!u.IsVisited)
+                {
+                    if (DetectCycleWithDepthFirstTraversal(u, v))
+                        return true;
+                }
+                // If an adjacent is visited and ot parent of current vertex, then there is a cycle.
+                else if (parent!=null && !u .Equals(parent))
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion

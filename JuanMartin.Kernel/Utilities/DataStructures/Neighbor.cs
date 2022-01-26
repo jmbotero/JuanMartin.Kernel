@@ -10,7 +10,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             incoming = 0,
             outgoing = 1,
             both = 2,
-            any = 4
+            none = 8
         };
 
         public Vertex<T> Node { get; set; }

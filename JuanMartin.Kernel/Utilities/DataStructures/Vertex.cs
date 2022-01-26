@@ -55,10 +55,49 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public List<Edge<T>> Edges { get; }
 
-        public bool IsVisited { get; set; }
-        public List<Vertex<T>> UnVisitedNeighbors(Neighbor<T>.NeighborType type=Neighbor<T>.NeighborType.any)
+        /// <summary>
+        /// Use an edge default vaLues to search by different settings
+        /// If name is repeated use name of from vertex to disambiguate
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="fromName"></param>
+        /// <param name="toName"></param>
+        /// <param name="type"></param>
+        /// <param name="direction"></param>
+        /// <param name="weight"></param>
+        /// <returns></returns>
+        public Edge<T> GetEdge(string name = Edge<T>.EdgeNameDefault, string fromName = Edge<T>.EdgeVertexFromNameDefault, string toName = Edge<T>.EdgeVertexToNameDefault,
+                                                Edge<T>.EdgeType type = Edge<T>.EdgeTypeDefault, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirectionDefault,
+                                                double weight = Edge<T>.EdgeWeightDefault)
         {
-            if (type==Neighbor<T>.NeighborType.any)
+            if (name == Edge<T>.EdgeNameDefault && 
+                fromName == Edge<T>.EdgeVertexFromNameDefault && 
+                toName == Edge<T>.EdgeVertexToNameDefault &&
+                type == Edge<T>.EdgeTypeDefault && 
+                direction == Edge<T>.EdgeDirectionDefault &&
+                weight == Edge<T>.EdgeWeightDefault)
+                throw new ArgumentNullException("At least one earch attribute must be defined.");
+
+            var edge = from e in Edges
+                        where (name != Edge<T>.EdgeNameDefault ?e.Name.Contains(name) :true) &&
+                                    (fromName != Edge<T>.EdgeVertexFromNameDefault ? e.From.Name == fromName : true)  &&
+                                    (toName != Edge<T>.EdgeVertexToNameDefault ? e.To.Name == toName : true) &&
+                                    (direction != Edge<T>.EdgeDirectionDefault ? e.Direction == direction : true) &&
+                                    (type != Edge<T>.EdgeTypeDefault ? e.Type == type : true) &&
+                                    (weight != Edge<T>.EdgeWeightDefault ? e.Weight == weight : true)
+                        select e;
+
+            return edge.FirstOrDefault();
+        }
+
+
+        public bool IsVisited { get; set; }
+        public List<Vertex<T>> UnVisitedNeighbors(Neighbor<T>.NeighborType type=Neighbor<T>.NeighborType.both)
+        {
+            if (type == Neighbor<T>.NeighborType.none)
+                return null;
+
+            if (type == Neighbor<T>.NeighborType.both)
                 return Neighbors.Where(n => n.Node.IsVisited == false).Select(n => n.Node).ToList();
             else  
                 return Neighbors.Where(n => n.Node.IsVisited == false && n.Type==type).Select(n => n.Node).ToList();
@@ -75,6 +114,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public List<Vertex<T>> OutgoingNeighbors()
         {
             return Neighbors.Where(n => n.Type == Neighbor<T>.NeighborType.outgoing).Select(n => n.Node).ToList();
+        }
+
+        public List<Vertex<T>> AllNeighbors()
+        {
+            return Neighbors.Select(n => n.Node).Distinct().ToList();
         }
 
         public List<Edge<T>> OutgoingEdges()
@@ -95,10 +139,18 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return Edges.Where(e => e.Type == Edge<T>.EdgeType.incoming).ToList();
         }
 
-        public void AddEdge(Vertex<T> to, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, string name, double weight = 0)
+        public void AddNeighbor(Vertex<T> v, Neighbor<T>.NeighborType neighborType)
+        {
+            bool exists = Neighbors.FirstOrDefault(n => n.Node.Name == v.Name && n.Type == neighborType) != null;
+
+            if(!exists)
+                Neighbors.Add(new Neighbor<T> { Node = v, Type = neighborType });
+        }
+
+        public void AddEdge(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, string name, double weight = 0)
         {
             // assume edges  have a unique id on name
-            if (Edges.Contains(new Edge<T>(this, to, name, type), new EdgeNameComparer<T>()))
+            if (Edges.Contains(new Edge<T>(from, to, name, type), new EdgeNameComparer<T>()))
             {
                 var edge = Edges.FirstOrDefault(e => e.Name.Contains(name) && e.To.Equals(to) && e.Type == type);
 
@@ -109,41 +161,22 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
             else
             {
-                // add outgoing edge
-                if(Neighbors.Count == 0 || (Neighbors.Count > 0 && Neighbors.FirstOrDefault(n=>n.Node.Name == to.Name && n.Type==Neighbor<T>.NeighborType.outgoing) == null))
-                    Neighbors.Add(new Neighbor<T> { Node = to, Type = Neighbor<T>.NeighborType.outgoing });
-                Edges.Add(new Edge<T>(this, to, weight, name, Edge<T>.EdgeType.outgoing, direction));
-                // if it is outgoing for the source vertex it is incoming for the target one
-                if (to.Neighbors.Count == 0 || (to.Neighbors.Count > 0 && to.Neighbors.FirstOrDefault(n => n.Node.Name == this.Name && n.Type == Neighbor<T>.NeighborType.incoming) == null))
-                    to.Neighbors.Add(new Neighbor<T> { Node =  this, Type = Neighbor<T>.NeighborType.incoming });
-                to.Edges.Add(new Edge<T>(this, to, weight, name, Edge<T>.EdgeType.incoming, direction));
+                Edges.Add(new Edge<T>(from, to, weight, name, type, direction));
             }
         }
 
-        public bool RemoveNeigbor(Vertex<T> neighbor, Neighbor<T>.NeighborType type = Neighbor<T>.NeighborType.both)
+        public bool RemoveNeigbor(Vertex<T> node, Neighbor<T>.NeighborType type = Neighbor<T>.NeighborType.both)
         {
-            var result = false;
+            if (type == Neighbor<T>.NeighborType.none)
+                throw new ArgumentException("Inorder to remove a neighbor it has to to have a type.");
 
-            switch (type)
+            if (type != Neighbor<T>.NeighborType.both)
             {
-                case Neighbor<T>.NeighborType.incoming:
-                    {
-                        result = IncomingNeighbors().Remove(neighbor);
-                        break;
-                    }
-                case Neighbor<T>.NeighborType.outgoing:
-                    {
-                        result = OutgoingNeighbors().Remove(neighbor);
-                        break;
-                    }
-                case Neighbor<T>.NeighborType.both:
-                    {
-                        result = IncomingNeighbors().Remove(neighbor);
-                        result &= OutgoingNeighbors().Remove(neighbor);
-                        break;
-                    }
+                Neighbor<T> aux = Neighbors.FirstOrDefault(n => n.Node.Name == node.Name && n.Type == type);
+                return Neighbors.Remove(aux);
             }
-            return result;
+            else
+                return RemoveNeigbor(node, Neighbor<T>.NeighborType.incoming) && RemoveNeigbor(node, Neighbor<T>.NeighborType.outgoing);
         }
 
         public void RemoveConnection(Vertex<T> neighbor)
@@ -159,8 +192,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public bool RemoveEdge(Edge<T> edge)
         {
-            return Edges.Remove(edge);
+            var aux = Edges.FirstOrDefault(e => e.Name == edge.Name &&
+                                                                    e.From.Name == edge.From.Name &&
+                                                                    e.To.Name  == edge.To.Name &&
+                                                                    e.Direction ==  edge.Direction &&
+                                                                    e.Type == edge.Type &&
+                                                                    e.Weight == edge.Weight);
+                
+            return Edges.Remove(aux);
         }
+
         public override string ToString()
         {
             //return Neighbors.Aggregate(new StringBuilder($"{Name}: {Value} - ["), (sb, n) => sb.Append($"{n.Name}/{n.Value}")).ToString();
@@ -172,6 +213,20 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             var vertex = this.MemberwiseClone();
 
             return vertex;
+        }
+
+        public bool Equals(Vertex<T> v)
+        {
+            Vertex<T> u = this;
+
+            if (v != null && u != null &&
+                string.Equals(u.Name, v.Name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(u.Guid, v.Guid, StringComparison.OrdinalIgnoreCase) &&
+                u.Value.Equals(v.Value))
+            {
+                return true;
+            }
+            return false;
         }
     }
 
