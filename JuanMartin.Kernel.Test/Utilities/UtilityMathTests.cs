@@ -542,9 +542,9 @@ namespace JuanMartin.Kernel.Utilities.Tests
             {
                 /// <seealso cref="http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Fibonacci/fibtable.html"/>
                 string actualNumber = "354224848179261915075";
-       
+
                 var expectedLargeFibonacci = BigInteger.Parse(actualNumber);
-                var a = BigInteger.Log10(expectedLargeFibonacci);
+
                 var actualLargeFibonacci = UtilityMath.FibonacciLoop(100);
                 Assert.AreEqual(expectedLargeFibonacci, actualLargeFibonacci);
             }
@@ -666,10 +666,10 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 BigInteger big1 = new BigInteger(double.MaxValue);
                 BigInteger big2 = new BigInteger(double.MaxValue);
 
-                BigInteger x = new BigInteger(6);
-                BigInteger y = new BigInteger(5);
-                BigInteger r;
-                BigInteger rem = BigInteger.DivRem(y, x, out r);
+                //BigInteger x = new BigInteger(6);
+                //BigInteger y = new BigInteger(5);
+
+                //BigInteger rem = BigInteger.DivRem(y, x, out BigInteger r);
 
                 // Add the 2 values together.
                 BigInteger actualNumber = BigInteger.Add(big1, big2);

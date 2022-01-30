@@ -19,16 +19,17 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public enum EdgeDirection
         {
             undirected = 0,
-            unidirectional = 1,
-            bidirectional = 2,
-            none
+            composite = 1,  //for now is same as undirected
+            unidirectional = 2,
+            bidirectional = 3,
+            none = 4
         };
         public const string EdgeNameDefault = "null";
         public const string EdgeVertexFromNameDefault = "null";
         public const string EdgeVertexToNameDefault = "null";
         public const EdgeType EdgeTypeDefault = EdgeType.none;
         public const EdgeDirection EdgeDirectionDefault = EdgeDirection.none;
-        public const double EdgeWeightDefault = -1;
+        public const double EdgeWeightDefault = -int.MaxValue;
 
 
         public Vertex<T> From { get; set; }
@@ -53,7 +54,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public Edge(Vertex<T> source, Vertex<T> target, double weight, string name, EdgeType type = EdgeType.none, EdgeDirection direction = EdgeDirection.undirected) : this(source, target, name, type, direction)
         {
-            if (weight < 0)
+            if (weight! != EdgeWeightDefault && weight < 0)
                 throw new ArgumentException("An edge must have a weight greater than or equal to zero.");
 
             Weight = weight;

@@ -37,7 +37,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 var node = digits.Vertices.FirstOrDefault(v => v.Name == number.ToString());
 
                 if (node == null)
-                    previous = digits.AddVertex(number);
+                    previous = digits.AddVertex(value: number,index: digits.VertexCount());
                 else
                     previous = node;
 
@@ -69,7 +69,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
                     if (previous != null && current != null)
                     {
-                        currentChain += $",{number},";
+                        currentChain += $"{number},";
                         digits.AddEdge(from: previous, to: current, name: "step");
                     }
                     previous = current;
@@ -107,7 +107,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                         // if not just go to   next step.                   
                         var edge = next.Edges.FirstOrDefault(e => (e.Name.Contains(terminatorNodeName) && e.Type == Edge<int>.EdgeType.outgoing));
                         if (edge == null)
-                            edge = next.Edges.FirstOrDefault(e => (e.Name.Contains("(step)") && e.Type == Edge<int>.EdgeType.outgoing));
+                            edge = next.Edges.FirstOrDefault(e => (e.Name.Contains("step") && e.Type == Edge<int>.EdgeType.outgoing));
 
                         if (edge == null)
                             break;

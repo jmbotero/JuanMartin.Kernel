@@ -149,9 +149,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public BigDecimal Floor()
         {
-            var n = new BigDecimal(GetWhole());
-
-            n.IsNegative = this.IsNegative;
+            var n = new BigDecimal(GetWhole())
+            {
+                IsNegative = this.IsNegative
+            };
 
             return n;
         }
@@ -285,7 +286,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public static BigDecimal ConvertFromBinary(string binary)
         {
-            BigDecimal result = BigDecimal.Zero;
+            BigDecimal result = Zero;
             BigInteger pow;
 
             for (int i = binary.Length-1; i >= 0; i--)
@@ -444,7 +445,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public BigDecimal Pow(int power)
         {
             if (power == 0)
-                return BigDecimal.Zero;
+                return Zero;
             if (power < 0)
                 throw new ArithmeticException("Power must greater or equal to Zero. And method only supports integer values.");
 
@@ -467,10 +468,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             BigDecimal number = this;
             if (truncateValue) number.Truncate();
 
-            if (number < 0) return BigDecimal.Zero;
+            if (number < 0) return Zero;
 
-            BigDecimal root = BigDecimal.Zero;
-            BigDecimal FIRST_APPROX = BigDecimal.Two;
+            BigDecimal root;
+            BigDecimal FIRST_APPROX = Two;
 
             // pick 2 as first approximation
             BigDecimal xNPlus1 = FIRST_APPROX;
@@ -479,7 +480,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 root = xNPlus1;
                 xNPlus1 = root - ((root * root - number) / (FIRST_APPROX * root));
 
-            } while ((xNPlus1 - root).Abs() > BigDecimal.Epsilon);
+            } while ((xNPlus1 - root).Abs() > Epsilon);
             return root;
         }
 
@@ -495,7 +496,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             BigDecimal number = this;
             if (truncateValue) number.Truncate();
 
-            if (number < 0) return BigDecimal.Zero;
+            if (number < 0) return Zero;
 
             // if (truncateValue) number.Truncate();
             //BigDecimal root = number / 3;
@@ -506,7 +507,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             //    if (truncateValue) root.Truncate();
             //}
             //using babylonian method
-            BigDecimal y = BigDecimal.One;
+            BigDecimal y = One;
             BigDecimal e = Epsilon; /* e decides the accuracy level*/
             BigDecimal root = number;
 
@@ -526,7 +527,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             BigDecimal number = this;
             if (truncateValue) number.Truncate();
 
-            if (number < 0) return BigDecimal.Zero;
+            if (number < 0) return Zero;
 
             if (truncateValue) number.Truncate();
             BigDecimal root = number / 3;
@@ -564,9 +565,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             BigDecimal number = this;
             if (truncateValue) number.Truncate();
 
-            if (number < 0) return BigDecimal.Zero;
+            if (number < 0) return Zero;
 
-            BigDecimal root = BigDecimal.Zero;
+            BigDecimal root = Zero;
             BigDecimal bit = BigDecimal.One << 30; // The second-to-top bit is set: 1L<<30 for long
                                                    // "bit" starts at the highest power of four <= the argument.
             while (bit > number)
@@ -592,7 +593,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public BigDecimal NoFloatingPointSqrt()
         {
-            BigDecimal i = BigDecimal.Zero;
+            BigDecimal i = Zero;
             BigDecimal x = this;
             
             if (x >= 65536)

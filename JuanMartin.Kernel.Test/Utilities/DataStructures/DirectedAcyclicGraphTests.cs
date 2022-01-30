@@ -167,10 +167,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         public void ShouldAddNeighborsAndEgesInBothVerticesInEdgeIfAddingBidirectionalEdge()
         {
             var v1 = new Vertex<string>("A");
-            var v2 = new Vertex<string>("B");
-            var g = new DirectedAcyclicGraph<string>(new List<Vertex<string>> { v1, v2 });
+            var v2  = new Vertex<string>("B");
+            var actualGraph = new DirectedAcyclicGraph<string>(new List<Vertex<string>> { v1, v2 });
 
-            g.AddEdge(v1, v2, "connect", Edge<string>.EdgeType.outgoing, Edge<string>.EdgeDirection.bidirectional, 1);
+            actualGraph.AddEdge(v1, v2, "connect", Edge<string>.EdgeType.outgoing, Edge<string>.EdgeDirection.bidirectional, 1);
 
             Assert.IsTrue((v1.Neighbors.Count == 2) && (v2.Neighbors.Count == 2), "Neighbor Count");
             Assert.IsTrue((v1.Edges.Count == 2) && (v2.Edges.Count == 2), "Total edge count");
@@ -441,37 +441,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         }
 
         /// <summary>
-        /// Simple graph for adjacency and cycle detection testing
-        /// </summary>
-        /// <returns></returns>
-        private DirectedAcyclicGraph<int> CreateSimpleGraph(bool includeCycle = false)
-        {
-            var n1 = new Vertex<int>(1, "X", index: 0);
-            var n2 = new Vertex<int>(2, "Y", index: 1);
-            var n3 = new Vertex<int>(3, "Z", index: 2);
-            var n0 = new Vertex<int>(0, "?", index: 3);
-
-            var g = new DirectedAcyclicGraph<int>();
-
-            g.AddVertex(n0);
-            g.AddVertex(n1);
-            g.AddVertex(n2);
-            g.AddVertex(n3);
-            expectedVertexCount = 4;
-
-            g.AddEdge(from: n1, to: n2, weight: 10);
-            g.AddEdge(from: n2, to: n3, weight: 5);
-            if (includeCycle)
-                g.AddEdge(from: n3, to: n1, weight: 15);
-            else
-                g.AddEdge(from: n3, to: n0, weight: 1);
-
-            expectedOutgoingEdgeCount = 3;
-
-            return g;
-        }
-
-        /// <summary>
         /// Numeric graph with with six paths one root and one leaf 
         /// </summary>
         /// <returns></returns>
@@ -486,62 +455,25 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
 
             var g = new DirectedAcyclicGraph<int>(vertices);
 
-            g.AddEdge(vertices[0], vertices[1], name: null, weight: 1);
-            g.AddEdge(vertices[0], vertices[2], name: null, weight: 2);
-            g.AddEdge(vertices[0], vertices[3], name: null, weight: 3);
+            g.AddEdge(vertices[0], vertices[1], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 1);
+            g.AddEdge(vertices[0], vertices[2], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 2);
+            g.AddEdge(vertices[0], vertices[3], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 3);
 
-            g.AddEdge(vertices[1], vertices[4], name: null, weight: 4);
-            g.AddEdge(vertices[1], vertices[5], name: null, weight: 5);
+            g.AddEdge(vertices[1], vertices[4], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 4);
+            g.AddEdge(vertices[1], vertices[5], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 5);
 
-            g.AddEdge(vertices[2], vertices[6], name: null, weight: 6);
-            g.AddEdge(vertices[2], vertices[7], name: null, weight: 7);
+            g.AddEdge(vertices[2], vertices[6], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 6);
+            g.AddEdge(vertices[2], vertices[7], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 7);
 
-            g.AddEdge(vertices[3], vertices[8], name: null, weight: 8);
-            g.AddEdge(vertices[3], vertices[9], name: null, weight: 9);
+            g.AddEdge(vertices[3], vertices[8], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 8);
+            g.AddEdge(vertices[3], vertices[9], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 9);
 
-            g.AddEdge(vertices[4], vertices[10], name: null, weight: 10);
-            g.AddEdge(vertices[5], vertices[10], name: null, weight: 11);
-            g.AddEdge(vertices[6], vertices[10], name: null, weight: 12);
-            g.AddEdge(vertices[7], vertices[10], name: null, weight: 13);
-            g.AddEdge(vertices[8], vertices[10], name: null, weight: 14);
-            g.AddEdge(vertices[9], vertices[10], name: null, weight: 15);
-
-            return g;
-        }
-
-        /// <summary>
-        /// Graph to test Kruskal algorithm
-        /// <see cref="https://www.geeksforgeeks.org/kruskals-minimum-spanning-tree-algorithm-greedy-algo-2/"/>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private DirectedAcyclicGraph<int> CreateMinimumSpanningTreeTestGraph()
-        {
-
-
-            var g = new DirectedAcyclicGraph<int>();
-
-            foreach (var i in new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 })
-            {
-                g.AddVertex(new Vertex<int>(i));
-            }
-            expectedVertexCount = 9;
-
-            g.AddEdge(g[7], g[6], name: null, weight: 1);
-            g.AddEdge(g[2], g[8], name: null, weight: 2);
-            g.AddEdge(g[6], g[5], name: null, weight: 2);
-            g.AddEdge(g[1], g[0], name: null, weight: 4);
-            g.AddEdge(g[5], g[2], name: null, weight: 4);
-            g.AddEdge(g[8], g[6], name: null, weight: 6);
-            g.AddEdge(g[2], g[3], name: null, weight: 7);
-            g.AddEdge(g[8], g[7], name: null, weight: 7);
-            g.AddEdge(g[0], g[7], name: null, weight: 8);
-            g.AddEdge(g[2], g[1], name: null, weight: 8);
-            g.AddEdge(g[3], g[4], name: null, weight: 9);
-            g.AddEdge(g[5], g[4], name: null, weight: 10);
-            g.AddEdge(g[1], g[7], name: null, weight: 11);
-            g.AddEdge(g[3], g[5], name: null, weight: 14);
-            expectedOutgoingEdgeCount = 14;
+            g.AddEdge(vertices[4], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 10);
+            g.AddEdge(vertices[5], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 11);
+            g.AddEdge(vertices[6], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 12);
+            g.AddEdge(vertices[7], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 13);
+            g.AddEdge(vertices[8], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 14);
+            g.AddEdge(vertices[9], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 15);
 
             return g;
         }
@@ -696,12 +628,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             expectedVertexCount = vertices.Count;
 
             var g = new DirectedAcyclicGraph<int>(vertices);
-            g.AddEdge(from: v0, to: v1, name: "start", weight: 5);
-            g.AddEdge(from: v1, to: v2, name: "add", weight: 4);
-            g.AddEdge(from: v2, to: v3, name: "add", weight: 1);
-            g.AddEdge(from: v1, to: v2, name: "substract", weight: 2);
-            g.AddEdge(from: v1, to: v4, name: "copy", weight: 3);
-            g.AddEdge(from: v4, to: v5, name: "add", weight: 6);
+            g.AddEdge(from: v0, to: v1, name: "start",  direction: Edge<int>.EdgeDirection.composite, weight: 5);
+            g.AddEdge(from: v1, to: v2, name: "add", direction: Edge<int>.EdgeDirection.composite, weight: 4);
+            g.AddEdge(from: v2, to: v3, name: "add", direction: Edge<int>.EdgeDirection.composite, weight: 1);
+            g.AddEdge(from: v1, to: v2, name: "substract", direction: Edge<int>.EdgeDirection.composite, weight: 2);
+            g.AddEdge(from: v1, to: v4, name: "copy", direction: Edge<int>.EdgeDirection.composite, weight: 3);
+            g.AddEdge(from: v4, to: v5, name: "add", direction: Edge<int>.EdgeDirection.composite, weight: 6);
 
             expectedOutgoingEdgeCount = 6;
 

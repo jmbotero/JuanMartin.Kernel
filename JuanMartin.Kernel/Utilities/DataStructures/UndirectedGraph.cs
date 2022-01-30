@@ -68,14 +68,14 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
         public new Edge<T> RemoveEdge(Edge<T> edge)
         {
-            return DualRemoveEdge(edge.From, edge.To, edge.Name, edge.Weight, edge.Type, edge.Direction);
+            return RemoveUndirectedEdge(edge.From, edge.To, edge.Name, edge.Weight);
         }
-        private Edge<T> DualRemoveEdge(Vertex<T> from, Vertex<T> to, string name, double weight, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.none)
+        private Edge<T> RemoveUndirectedEdge(Vertex<T> from, Vertex<T> to, string name, double weight)
         {
             if (from == null || to == null)
                 throw new ArgumentNullException("Both vertices must be defined.");
 
-            Edge<T> edge = null;
+            Edge<T> edge;
 
             //  undirected edges have an outgoing and incoming counterparts
             // there are two neighbors as well
@@ -83,11 +83,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             to.RemoveNeigbor(from, Neighbor<T>.NeighborType.incoming);
 
             //  the undirected graph edge is represented by two edges
-            edge = UtilityGraph<T>.NewEdge(name, from, to, Edge<T>.EdgeType.incoming, direction, weight);
+            edge = UtilityGraph<T>.NewEdge(name, from, to, Edge<T>.EdgeType.incoming, Edge<T>.EdgeDirection.undirected, weight);
             //var edge = GetEdge(name, from.Name, to.Name, Edge<T>.EdgeType.incoming, direction, weight);
             to.RemoveEdge(edge);
             //edge = GetEdge(name, from.Name, to.Name, Edge<T>.EdgeType.outgoing, direction, weight);
-            edge = UtilityGraph<T>.NewEdge(name, from, to, Edge<T>.EdgeType.outgoing, direction, weight);
+            edge = UtilityGraph<T>.NewEdge(name, from, to, Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection.undirected, weight);
             from.RemoveEdge(edge);
 
 
@@ -232,7 +232,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             // Randomly choose any vertex: The vertex connecting to the edge having least weight is usually selected.
             var v = GetMinimumWeightVertex();
             forest.AddVertex(value: v.Value, name: v.Name, guid: v.Guid);
-            var current = forest[0];
+            // current must always be a vertex of the original graph
+            var current = v;
 
             while (forest.VertexCount() <= trees && outgoing != trees - 1)
             {
@@ -240,23 +241,30 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 // least weight edge among those edges and include it in the existing tree.
                 Edge<T> least = null;
                 double minWeight = double.MaxValue;
-                var edges = current.IncomingEdges().Where(e => current.AllNeighbors().Contains(e.From)).ToList();
-                edges.AddRange(current.OutgoingEdges().Where(e => current.AllNeighbors().Contains(e.From)));
+                var adjacents = current.AllNeighbors();
+                var edges = current.IncomingEdges().ToList();
 
-                edges = edges.OrderBy(e => e.Weight).ToList();
+                var allEdges = edges.Where(e => adjacents.Contains(e.From)).ToList();
+
+                edges = current.OutgoingEdges().ToList();
+                edges = edges.Where(e => adjacents.Contains(e.From)).ToList();
+
+                allEdges.AddRange(edges);
+
+                allEdges = allEdges.OrderBy(e => e.Weight).ToList();
                 int count = 0;
-                for (var i = 0; i < edges.Count; i++)
+                for (var i = 0; i < allEdges.Count; i++)
                 {
-                    var e = edges[0];
+                    var e = allEdges[0];
 
                     minWeight = e.Weight;
                     least = e;
                     if (e.Type == Edge<T>.EdgeType.incoming)
-                        current = e.From;
+                        current = GetVertex(name: e.From.Name);
                     else if (e.Type == Edge<T>.EdgeType.outgoing)
-                        current = e.To;
+                        current = GetVertex(name: e.To.Name);
 
-                    if (i == edges.Count)
+                    if (i == allEdges.Count)
                         throw new ApplicationException("Could not find a minimum weight edge that did not generate a cycle.");
 
                     // add current vertex so we can add edge

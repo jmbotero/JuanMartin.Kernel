@@ -80,15 +80,14 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 outgoingCount += vertex.OutgoingEdges().Count;
             }
 
-            switch (type)
+            return type switch
             {
-                case Edge<T>.EdgeType.incoming:
-                    return incomingCount;
-                case Edge<T>.EdgeType.outgoing:
-                    return outgoingCount;
-                default:
-                    return 0;
-            }
+                Edge<T>.EdgeType.incoming => incomingCount,
+                Edge<T>.EdgeType.outgoing => outgoingCount,
+                Edge<T>.EdgeType.both => incomingCount + outgoingCount,
+                Edge<T>.EdgeType.none => 0,
+                _ => 0,
+            };
         }
 
         public Vertex<T> this[int index]
@@ -115,7 +114,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <param name="value"></param>
         /// <param name="name">Ensure uniqueness by name</param>
         /// <returns></returns>
-        public Vertex<T> AddVertex(T value, string name = null, string guid = null)
+        public Vertex<T> AddVertex(T value, string name = null, string guid = null, int index = -1)
         {
             if (name == null)
                 name = value.ToString();
@@ -123,7 +122,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             Vertex<T> added;
             try
             {
-                added = new Vertex<T>(value, name, guid);
+                added = new Vertex<T>(value: value, name: name, guid: guid, index: index);
                 AddVertex(added);
             }
             catch (Exception)
@@ -201,11 +200,28 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return true;
         }
 
-        public  bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight)
+        public  bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type = Edge<T>.EdgeTypeDefault, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirectionDefault, double weight = Edge<T> .EdgeWeightDefault)
         {
+            if (from is null || to is null)
+                throw new ArgumentNullException("To Add edge must be created with a from (source) and a to (target) vertices.");
+
             if (Vertices.Contains(from) && Vertices.Contains(to))
             {
-                try
+                if (direction == Edge<T>.EdgeDirection.unidirectional)
+                {
+                    from.AddEdge(from, to, type, direction, name, weight);
+                    if (type == Edge<T>.EdgeType.incoming)
+                    {
+                        from.AddNeighbor(to, Neighbor<T>.NeighborType.incoming);
+                        to.AddNeighbor(from, Neighbor<T>.NeighborType.outgoing);
+                    }
+                    else if (type == Edge<T>.EdgeType.outgoing)
+                    {
+                        from.AddNeighbor(to, Neighbor<T>.NeighborType.outgoing);
+                        to.AddNeighbor(from, Neighbor<T>.NeighborType.incoming);
+                    }
+                }
+                else
                 {
                     // add outgoing edge
                     from.AddEdge(from, to, Edge<T>.EdgeType.outgoing, direction, name, weight);
@@ -213,11 +229,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     // if it is outgoing for the source vertex it is incoming for the target one
                     to.AddEdge(from, to, Edge<T>.EdgeType.incoming, direction, name, weight);
                     to.AddNeighbor(from, Neighbor<T>.NeighborType.incoming);
-                }
-                catch (Exception)
-                {
-                    throw;
-                    //return false;
                 }
             }
             else
@@ -839,7 +850,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                             newPath.Append(p);
                             paths.Add(newPath);
                         }
-                        currentPath = paths.Last();
+                        
+                        // currentPath = paths.Last();
                         break;
                     }
                 }
@@ -892,8 +904,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
             return new Edge<T>
             (
-                target: new Vertex<T>(default(T), fromName),
-                source: new Vertex<T>(default(T), toName),
+                target: new Vertex<T>(default, fromName),
+                source: new Vertex<T>(default, toName),
                 name: name,
                 type: type,
                 direction: direction,

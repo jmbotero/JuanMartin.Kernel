@@ -18,24 +18,24 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualDigits = 3;
             expectedNumber = new BigDecimal("5.4");
 
-            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber}");
 
             actualNumber = new BigDecimal("5.3993578");
             actualDigits = 3;
             expectedNumber = new BigDecimal("5.399");
 
-            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber}");
 
             actualNumber = new BigDecimal("5.9996578");
             actualDigits = 3;
             expectedNumber = new BigDecimal("6");
 
-            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber.ToString()}");
+            Assert.AreEqual(expectedNumber, actualNumber.Round(actualDigits), $"Round {actualNumber}");
 
             actualNumber = new BigDecimal(Math.Sqrt(2));
             expectedNumber = new BigDecimal("1");
             
-            Assert.AreEqual(expectedNumber, actualNumber.Round(), $"Round {actualNumber.ToString()}");
+            Assert.AreEqual(expectedNumber, actualNumber.Round(), $"Round {actualNumber}");
         }
 
         [Test]
@@ -112,13 +112,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualNumber = new BigDecimal(10);
             actualBinaryRepresentation = actualNumber.ToBinary();
             expectedBinaryRepresentation = "1010";
-            Assert.AreEqual(expectedBinaryRepresentation, actualBinaryRepresentation, $"{actualNumber.ToString()}");
+            Assert.AreEqual(expectedBinaryRepresentation, actualBinaryRepresentation, $"{actualNumber}");
 
             actualNumber = new BigDecimal("12345678901234567890123456789012345678901234567890");
             actualBinaryRepresentation = actualNumber.ToBinary();
 
             expectedBinaryRepresentation = "10000111001001111111011000110110100110101010111110000011110010100001010100000010011001110100011110101111100011000111111100011001011011001110001111110000101011010010";
-            Assert.AreEqual(expectedBinaryRepresentation, actualBinaryRepresentation, $"{actualNumber.ToString()}");
+            Assert.AreEqual(expectedBinaryRepresentation, actualBinaryRepresentation, $"{actualNumber}");
         }
 
         [Test]

@@ -394,7 +394,7 @@ namespace JuanMartin.Kernel.Utilities
         }
         public static int[] GetMinimalProductSumPermutation(int number, int k)
         {
-            string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
+            static string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
             {
                 int[] frequencies = new int[value + 1];
 
@@ -470,7 +470,7 @@ namespace JuanMartin.Kernel.Utilities
 
         public static int[] GetMinimalProductSumPermutation2(int number, int k)
         {
-            string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
+            static string GenerateFrequencyKey(int value, int[] permutation, int threadCount = -1)
             {
                 int[] frequencies = new int[value + 1];
 
@@ -651,7 +651,7 @@ namespace JuanMartin.Kernel.Utilities
 
         public static int[][] GetNumericPermutationsOfK(int number, int k, bool includeDuplicates = false)
         {
-            void AddPermutation(int lenght, int[] collection, List<int[]> p)
+            static void AddPermutation(int lenght, int[] collection, List<int[]> p)
             {
                 var list = new List<int>();
 
@@ -2744,7 +2744,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         public static double GetSqrtBySubstraction(double n, int digits = 50)
         {
-            double ShiftDecimal(double number, int position)
+            static double ShiftDecimal(double number, int position)
             {
                 var s = number.ToString(FormatStrings.DoubleFixedPoint);
                 var p = s.IndexOf(".");
@@ -3814,7 +3814,7 @@ namespace JuanMartin.Kernel.Utilities
 
         public static string DivideLargeNumbers(string leftValue, string rightValue, int round = 40, bool processRemainder = true, bool supportRepetendSyntax = true)
         {
-            return DivideLargeNumbers(leftValue, rightValue, out string r, round, processRemainder, supportRepetendSyntax);
+            return DivideLargeNumbers(leftValue, rightValue, remainder: out _, round, processRemainder, supportRepetendSyntax);
         }
 
             /// </summary>
@@ -3980,7 +3980,7 @@ namespace JuanMartin.Kernel.Utilities
                     var rightDecimalPart = (rightDecimalPlace == -1) ? rightValue : rightValue.Substring(rightDecimalPlace + 1);
                     var leftDecimalPart = (leftDecimalPlace == -1) ? leftValue : leftValue.Substring(leftDecimalPlace + 1);
 
-                    l = leftDecimalPart.Length;
+                    // l = leftDecimalPart.Length;
                     r = rightDecimalPart.Length;
                     // since decimal vaues are aligned then lengths are equal
                     for (int i = 0; i < r; i++)

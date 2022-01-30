@@ -15,7 +15,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         int VertexCount();
         int EdgeCount(Edge<T>.EdgeType type);
         Vertex<T> AddVertex(Vertex<T> v);
-        Vertex<T> AddVertex(T value, string name, string guid);
+        Vertex<T> AddVertex(T value, string name, string guid, int index);
         bool AddEdge(Edge<T> edge);
         bool AddEdge(string nameFrom, string nameTo, string name, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight);
         bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight);

@@ -53,8 +53,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 name = path;
             else if(!name.Contains(path))
                 name += path;
-
-            base.AddEdge(from, to, name, type, direction, weight);
+            // default for directed cyclic graph is direction composite
+            base.AddEdge(from, to, name, type, Edge<T>.EdgeDirection.composite, weight);
             try
             {
                 if (direction == Edge<T>.EdgeDirection.bidirectional)

@@ -205,7 +205,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public override string ToString()
         {
             //return Neighbors.Aggregate(new StringBuilder($"{Name}: {Value} - ["), (sb, n) => sb.Append($"{n.Name}/{n.Value}")).ToString();
-            return $"{Name}:{Value}:[ {(string.Join(", ", OutgoingNeighbors().Select(n => n.Value)))} ]";
+            return $"{Name}:{Value}:[ {(string.Join(", ", OutgoingNeighbors().Select(n => n.Name)))} ]";
         }
 
         public object Clone()

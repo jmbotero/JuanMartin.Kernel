@@ -9,11 +9,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
     public class UndirectedGraphTests
     {
         private int expectedVertexCount;
-        private int 
-            
-            expectedUndirectedEdgeCount;
+        private int expectedUndirectedEdgeCount;
         private UndirectedGraph<int> actualGraph;
 
+        [SetUp]
+        public void Init()
+        {
+        }
 
         [TearDown]
         public void Dispose()
@@ -40,6 +42,9 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualMatrix = actualGraph.GetAdjacencyMatrix();
 
             Assert.AreEqual(expectedMatrix, actualMatrix, "Adjacency matrix");
+            //due to symmetry divideactual count by two
+            Assert.AreEqual(expectedUndirectedEdgeCount, actualMatrix.Sum(row => row.Count(cell => cell > 0)) / 2, "Edge count");
+            Assert.AreEqual(expectedVertexCount, actualMatrix.Length, "Vertex count");
         }
 
         [Test()]
@@ -88,14 +93,23 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             List<Edge<int>> actualUndirectedEdges;
             double actualWeight;
 
-            actualGraph = CreateGatevidyalayMstExampleGraph02();
-            actualSubsetGraph = actualGraph.GetMinimumSpanningTreeWithPrimsAlgorithm();
-            expectedWeight = 14;
+            //actualGraph = CreateGatevidyalayMstExampleGraph02();
+            //actualSubsetGraph = actualGraph.GetMinimumSpanningTreeWithPrimsAlgorithm();
+            //expectedWeight = 14;
 
-            actualUndirectedEdges = actualSubsetGraph.GetUndirectedEdges().ToList();
-            actualWeight = actualUndirectedEdges.Sum(e => e.Weight);
+            //actualUndirectedEdges = actualSubsetGraph.GetUndirectedEdges().ToList();
+            //actualWeight = actualUndirectedEdges.Sum(e => e.Weight);
 
-            Assert.AreEqual(expectedWeight, actualWeight, "Prim Concept 01 graph");
+            //Assert.AreEqual(expectedWeight, actualWeight, "Prim Concept 01 graph");
+
+            //actualGraph = CreateMinimumSpanningTreeTestGraph();
+            //actualSubsetGraph = actualGraph.GetMinimumSpanningTreeWithKruskalAlgorithm();
+            //expectedWeight = 37;
+
+            //actualUndirectedEdges = actualSubsetGraph.GetUndirectedEdges().ToList();
+            //actualWeight = actualUndirectedEdges.Sum(e => e.Weight);
+
+            //Assert.AreEqual(expectedWeight, actualWeight, "Kruskal GfG graph");
 
             actualGraph = CreateGatevidyalayKruskalsAlgorithmExampleGraph01();
             actualSubsetGraph = actualGraph.GetMinimumSpanningTreeWithKruskalAlgorithm();
@@ -113,7 +127,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             actualUndirectedEdges = actualSubsetGraph.GetUndirectedEdges().ToList();
             actualWeight = actualUndirectedEdges.Sum(e => e.Weight);
 
-            Assert.AreEqual(expectedWeight, actualWeight,"Kruskal Problem 01 graph");
+            Assert.AreEqual(expectedWeight, actualWeight,"Kruskal Problem 02 graph");
         }
 
         #region Support Methods
@@ -213,7 +227,42 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             return graph;
         }
 
-        private UndirectedGraph<int> CreateSimpleGrah()
+        /// <summary>
+        /// Graph to test Kruskal algorithm
+        /// <see cref="https://www.geeksforgeeks.org/kruskals-minimum-spanning-tree-algorithm-greedy-algo-2/"/>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private UndirectedGraph<int> CreateMinimumSpanningTreeTestGraph()
+        {
+            var graph = new UndirectedGraph<int>();
+
+            foreach (var i in new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 })
+            {
+                graph.AddVertex(new Vertex<int>(value: i));
+            }
+            expectedVertexCount = 9;
+
+            graph.AddEdge(graph[7], graph[6], name: null, weight: 1);
+            graph.AddEdge(graph[8], graph[2], name: null, weight: 2);
+            graph.AddEdge(graph[6], graph[5], name: null, weight: 2);
+            graph.AddEdge(graph[0], graph[1], name: null, weight: 4);
+            graph.AddEdge(graph[2], graph[5], name: null, weight: 4);
+            graph.AddEdge(graph[8], graph[6], name: null, weight: 6);
+            graph.AddEdge(graph[2], graph[3], name: null, weight: 7);
+            graph.AddEdge(graph[7], graph[8], name: null, weight: 7);
+            graph.AddEdge(graph[0], graph[7], name: null, weight: 8);
+            graph.AddEdge(graph[1], graph[2], name: null, weight: 8);
+            graph.AddEdge(graph[3], graph[4], name: null, weight: 9);
+            graph.AddEdge(graph[5], graph[4], name: null, weight: 10);
+            graph.AddEdge(graph[1], graph[7], name: null, weight: 11);
+            graph.AddEdge(graph[3], graph[5], name: null, weight: 14);
+            expectedUndirectedEdgeCount = 14;
+
+            return graph;
+        }
+
+        private UndirectedGraph<int> CreateSimpleGrah(bool addCycle = false)
         {
             var graph = new UndirectedGraph<int>();
 
@@ -227,8 +276,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             graph.AddEdge(graph[0], graph[1], name: null, weight: 1);
             graph.AddEdge(graph[1], graph[2], name: null, weight: 2);
             graph.AddEdge(graph[2], graph[3], name: null, weight: 3);
-            //graph.AddEdge(graph[3], vA, name: null, weight: 3);
             expectedUndirectedEdgeCount = 3;
+
+            if(addCycle)
+            {
+                graph.AddEdge(graph[3], graph[0], name: null, weight: 3);
+                expectedUndirectedEdgeCount = 4;
+            }
 
             return graph;
         }
