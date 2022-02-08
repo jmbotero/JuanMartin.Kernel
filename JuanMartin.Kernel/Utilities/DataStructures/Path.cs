@@ -7,7 +7,7 @@ using System.Text;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
-    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class Path<T>
     {
         public Path()

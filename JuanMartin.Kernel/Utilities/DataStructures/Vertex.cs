@@ -56,7 +56,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public List<Edge<T>> Edges { get; }
 
         /// <summary>
-        /// Use an edge default vaLues to search by different settings
+        /// Use an edge default values to search by different settings
         /// If name is repeated use name of from vertex to disambiguate
         /// </summary>
         /// <param name="name"></param>
@@ -76,16 +76,25 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 type == Edge<T>.EdgeTypeDefault && 
                 direction == Edge<T>.EdgeDirectionDefault &&
                 weight == Edge<T>.EdgeWeightDefault)
-                throw new ArgumentNullException("At least one earch attribute must be defined.");
+                throw new ArgumentException("At least one earch attribute must be defined.");
 
             var edge = from e in Edges
-                        where (name != Edge<T>.EdgeNameDefault ?e.Name.Contains(name) :true) &&
-                                    (fromName != Edge<T>.EdgeVertexFromNameDefault ? e.From.Name == fromName : true)  &&
-                                    (toName != Edge<T>.EdgeVertexToNameDefault ? e.To.Name == toName : true) &&
-                                    (direction != Edge<T>.EdgeDirectionDefault ? e.Direction == direction : true) &&
-                                    (type != Edge<T>.EdgeTypeDefault ? e.Type == type : true) &&
-                                    (weight != Edge<T>.EdgeWeightDefault ? e.Weight == weight : true)
-                        select e;
+                       where (name == Edge<T>.EdgeNameDefault || e.Name.Contains(name)) &&
+                                   (fromName == Edge<T>.EdgeVertexFromNameDefault || e.From.Name == fromName) &&
+                                   (toName == Edge<T>.EdgeVertexToNameDefault || e.To.Name == toName) &&
+                                   (direction == Edge<T>.EdgeDirectionDefault || e.Direction == direction) &&
+                                   (type == Edge<T>.EdgeTypeDefault || e.Type == type) &&
+                                   (weight == Edge<T>.EdgeWeightDefault || e.Weight == weight)
+                       select e;
+
+            //var edge = from e in Edges
+            //           where (name != Edge<T>.EdgeNameDefault ? e.Name.Contains(name) : true) &&
+            //                       (fromName != Edge<T>.EdgeVertexFromNameDefault ? e.From.Name == fromName : true) &&
+            //                       (toName != Edge<T>.EdgeVertexToNameDefault ? e.To.Name == toName : true) &&
+            //                       (direction != Edge<T>.EdgeDirectionDefault ? e.Direction == direction : true) &&
+            //                       (type != Edge<T>.EdgeTypeDefault ? e.Type == type : true) &&
+            //                       (weight != Edge<T>.EdgeWeightDefault ? e.Weight == weight : true)
+            //           select e;
 
             return edge.FirstOrDefault();
         }
@@ -150,7 +159,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public void AddEdge(Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, string name, double weight = 0)
         {
             // assume edges  have a unique id on name
-            if (Edges.Contains(new Edge<T>(from, to, name, type), new EdgeNameComparer<T>()))
+            if (Edges.Contains(UtilityGraph<T>.NewEdge(from: from, to: to, name: name, type: type), new EdgeNameComparer<T>()))
             {
                 var edge = Edges.FirstOrDefault(e => e.Name.Contains(name) && e.To.Equals(to) && e.Type == type);
 
@@ -161,7 +170,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
             else
             {
-                Edges.Add(new Edge<T>(from, to, weight, name, type, direction));
+                Edges.Add(UtilityGraph<T>.NewEdge(name, from, to, type, direction, weight));
             }
         }
 
@@ -233,16 +242,28 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     internal class EdgeNameComparer<T> : IEqualityComparer<Edge<T>>
     {
         /// <summary>
-        /// Two edges are equal  if it's name and it's to and from vertices are the same (use name as unique identifier)
+        /// Two edges are equal  if it's name and it's to and from vertices 
+        /// are the same (use name as unique identifier). If any name isd null
+        /// determine they are not equal.
+        /// 
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
         public bool Equals(Edge<T> x, Edge<T> y)
         {
-            if (string.Equals(x.Name, y.Name, StringComparison.OrdinalIgnoreCase) && string.Equals(x.From.Guid, y.From.Guid, StringComparison.OrdinalIgnoreCase) && string.Equals(x.To.Guid, y.To.Guid, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(x.Name) || string.IsNullOrEmpty(x.Name))
+                return false;
+            else
             {
-                return true;
+                bool nameCompare = string.Equals(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+                //bool nameCompare = (x.Name.Length > y.Name.Length) ? x.Name.Contains(y.Name) : y.Name.Contains(x.Name);
+
+                if (nameCompare && 
+                    string.Equals(x.From.Guid, y.From.Guid, StringComparison.OrdinalIgnoreCase) && 
+                    string.Equals(x.To.Guid, y.To.Guid, StringComparison.OrdinalIgnoreCase)
+                    )
+                    return true;
             }
             return false;
         }
@@ -253,7 +274,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
     }
 
-    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class DijkstraNode
     {
         public int Distance { get; set; }

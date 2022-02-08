@@ -223,12 +223,22 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 }
                 else
                 {
-                    // add outgoing edge
-                    from.AddEdge(from, to, Edge<T>.EdgeType.outgoing, direction, name, weight);
-                    from.AddNeighbor(to, Neighbor<T>.NeighborType.outgoing);
-                    // if it is outgoing for the source vertex it is incoming for the target one
-                    to.AddEdge(from, to, Edge<T>.EdgeType.incoming, direction, name, weight);
-                    to.AddNeighbor(from, Neighbor<T>.NeighborType.incoming);
+                    // TODO: add composite hack
+                    //  if edge is of type any neighbors cannot be added
+                    if (type == Edge<T>.EdgeType.any) 
+                    {
+                        from.AddEdge(from, to, type, direction, name, weight);
+                    }
+                    // If undirected edge  has in and out edge representation
+                    else if (direction == Edge<T>.EdgeDirection.undirected || direction == Edge<T>.EdgeDirection.composite)
+                    {
+                        // add outgoing edge
+                        from.AddEdge(from, to, Edge<T>.EdgeType.outgoing, direction, name, weight);
+                        from.AddNeighbor(to, Neighbor<T>.NeighborType.outgoing);
+                        // if it is outgoing for the source vertex it is incoming for the target one
+                        to.AddEdge(from, to, Edge<T>.EdgeType.incoming, direction, name, weight);
+                        to.AddNeighbor(from, Neighbor<T>.NeighborType.incoming);
+                    }
                 }
             }
             else
@@ -291,9 +301,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return edges;
         }   
 
+        /// <summary>
+        /// Get edg]e with values, even with default vertices
+        /// </summary>
+        /// <returns></returns>
         public Edge<T> GetDefaultEdge()
         {
-            return UtilityGraph<T>.NewEdge();
+            return UtilityGraph<T>.NewEdge(from: null,to: null);
         }
 
         /// <summary>
@@ -888,33 +902,56 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         private void UnvisitAllVertices(IEnumerable<Vertex<T>> vertices)
         {
-            if (vertices.Count(n => !n.IsVisited) > 1)
-            {
-                foreach (var v in vertices)
-                    v.IsVisited = false;
-            }
+            foreach (var v in vertices)
+                v.IsVisited = false;
         }
     }
 
     public class UtilityGraph<T>
     {
-        public static Edge<T> NewEdge(string name = Edge<T>.EdgeNameDefault, string fromName = Edge<T>.EdgeVertexFromNameDefault, string toName = Edge<T>.EdgeVertexToNameDefault,
+        /// <summary>
+        /// Create an edge object, if no parammmeter is specified uses default values
+        /// to define edge. To the name it adds theee path (if to are defined)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="type"></param>
+        /// <param name="direction"></param>
+        /// <param name="weight"></param>
+        /// <param name="fromName"></param>
+        /// <param name="toName"></param>
+        /// <returns></returns>
+        public static Edge<T> NewEdge(string name=Edge<T>.EdgeNameDefault, Vertex<T> from = null, Vertex<T> to = null, 
                                                 Edge<T>.EdgeType type = Edge<T>.EdgeTypeDefault, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirectionDefault,
-                                                double weight = Edge<T>.EdgeWeightDefault)
+                                                double weight = Edge<T>.EdgeWeightDefault,
+                                                string fromName = Edge<T>.EdgeVertexFromNameDefault, string toName = Edge<T>.EdgeVertexToNameDefault)
         {
-            return new Edge<T>
-            (
-                target: new Vertex<T>(default, fromName),
-                source: new Vertex<T>(default, toName),
-                name: name,
-                type: type,
-                direction: direction,
-                weight: weight
-            );
-        }
+            string path;
 
-        public static Edge<T> NewEdge(string name, Vertex<T> from, Vertex<T> to, Edge<T>.EdgeType type, Edge<T>.EdgeDirection direction, double weight)
-        {
+            if (to == null)
+            {
+                to = new Vertex<T>(default, toName);
+                toName = "[]"; // overwrite  to name
+            }
+            else
+                toName = to.Name;
+
+            if (from == null)
+            {
+                to = new Vertex<T>(default, fromName);
+                fromName = "[]"; // overwrite from name
+            }
+            else
+                fromName = from.Name;
+
+            path = $"({fromName}-{toName})";
+
+            if (string.IsNullOrEmpty(name) || name == Edge<T>.EdgeNameDefault)
+                name = path;
+            else if (!name.Contains(path))
+                name += path;
+
             return new Edge<T>
             (
                 source: from,
@@ -928,3 +965,4 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         }
     }
 }
+                       

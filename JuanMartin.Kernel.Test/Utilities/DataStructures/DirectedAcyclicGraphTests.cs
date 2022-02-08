@@ -455,25 +455,25 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
 
             var g = new DirectedAcyclicGraph<int>(vertices);
 
-            g.AddEdge(vertices[0], vertices[1], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 1);
-            g.AddEdge(vertices[0], vertices[2], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 2);
-            g.AddEdge(vertices[0], vertices[3], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 3);
+            g.AddEdge(vertices[0], vertices[1], name: null , weight: 1);
+            g.AddEdge(vertices[0], vertices[2], name: null , weight: 2);
+            g.AddEdge(vertices[0], vertices[3], name: null , weight: 3);
 
-            g.AddEdge(vertices[1], vertices[4], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 4);
-            g.AddEdge(vertices[1], vertices[5], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 5);
+            g.AddEdge(vertices[1], vertices[4], name: null , weight: 4);
+            g.AddEdge(vertices[1], vertices[5], name: null , weight: 5);
 
-            g.AddEdge(vertices[2], vertices[6], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 6);
-            g.AddEdge(vertices[2], vertices[7], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 7);
+            g.AddEdge(vertices[2], vertices[6], name: null , weight: 6);
+            g.AddEdge(vertices[2], vertices[7], name: null , weight: 7);
 
-            g.AddEdge(vertices[3], vertices[8], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 8);
-            g.AddEdge(vertices[3], vertices[9], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 9);
+            g.AddEdge(vertices[3], vertices[8], name: null , weight: 8);
+            g.AddEdge(vertices[3], vertices[9], name: null , weight: 9);
 
-            g.AddEdge(vertices[4], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 10);
-            g.AddEdge(vertices[5], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 11);
-            g.AddEdge(vertices[6], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 12);
-            g.AddEdge(vertices[7], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 13);
-            g.AddEdge(vertices[8], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 14);
-            g.AddEdge(vertices[9], vertices[10], name: null, direction: Edge<int>.EdgeDirection.composite, weight: 15);
+            g.AddEdge(vertices[4], vertices[10], name: null , weight: 10);
+            g.AddEdge(vertices[5], vertices[10], name: null , weight: 11);
+            g.AddEdge(vertices[6], vertices[10], name: null , weight: 12);
+            g.AddEdge(vertices[7], vertices[10], name: null , weight: 13);
+            g.AddEdge(vertices[8], vertices[10], name: null , weight: 14);
+            g.AddEdge(vertices[9], vertices[10], name: null , weight: 15);
 
             return g;
         }
@@ -627,13 +627,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             vertices.Add(v5);
             expectedVertexCount = vertices.Count;
 
-            var g = new DirectedAcyclicGraph<int>(vertices);
-            g.AddEdge(from: v0, to: v1, name: "start",  direction: Edge<int>.EdgeDirection.composite, weight: 5);
-            g.AddEdge(from: v1, to: v2, name: "add", direction: Edge<int>.EdgeDirection.composite, weight: 4);
-            g.AddEdge(from: v2, to: v3, name: "add", direction: Edge<int>.EdgeDirection.composite, weight: 1);
-            g.AddEdge(from: v1, to: v2, name: "substract", direction: Edge<int>.EdgeDirection.composite, weight: 2);
-            g.AddEdge(from: v1, to: v4, name: "copy", direction: Edge<int>.EdgeDirection.composite, weight: 3);
-            g.AddEdge(from: v4, to: v5, name: "add", direction: Edge<int>.EdgeDirection.composite, weight: 6);
+                var g = new DirectedAcyclicGraph<int>(vertices);
+                g.AddEdge(from: v0, to: v1, name: "start",  weight: 5);
+                g.AddEdge(from: v1, to: v2, name: "add" , weight: 4);
+                g.AddEdge(from: v2, to: v3, name: "add" , weight: 1);
+                g.AddEdge(from: v1, to: v2, name: "substract" , weight: 2);
+                g.AddEdge(from: v1, to: v4, name: "copy" , weight: 3);
+                g.AddEdge(from: v4, to: v5, name: "add" , weight: 6);
 
             expectedOutgoingEdgeCount = 6;
 
@@ -645,7 +645,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             // v0 (1,1) -5-> v1 (3,3) -2-> v2 (2,1) -1-> v3 (1,0)
             //              |            ^                
             //              |_____4______|                
-            //              |-----3---------> v4 (2,1) --6-> v5,0)
+            //              |-----3---------> v4 (2,1) --6-> v5,0)fc0
         }
 
         #endregion    

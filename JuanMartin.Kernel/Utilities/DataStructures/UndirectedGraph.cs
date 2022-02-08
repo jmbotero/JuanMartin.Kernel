@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
@@ -23,13 +21,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public new bool AddEdge(Vertex<T> from, Vertex<T> to, string name, Edge<T>.EdgeType type = Edge<T>.EdgeType.none, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.undirected, double weight = Edge<T >.EdgeWeightDefault)
         {
-            var path = $"({from.Name}-{to.Name})";
-
-            if (name + "" == "")
-                name = path;
-            else if (!name.Contains(path))
-                name += path;
-
             return base.AddEdge(from, to, name, type, direction, weight);
         }
 
@@ -99,13 +90,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Undirected edges could be outgoing and incoming this method gets only the outgoing ones
+        /// </summary>
+        /// <returns></returns>
         public List<Edge<T>> GetUndirectedEdges()
-        {
-            //  undirected edges have an outgoing and incoming couhterparts
+        { 
             var edges = new List<Edge<T>>();
 
             foreach (var v in Vertices)
-                edges.AddRange(v.Edges.Where(e=>e.Direction==Edge<T>.EdgeDirection.undirected  && e.Type == Edge<T>.EdgeType.outgoing));
+                edges.AddRange(v.Edges.Where(e=>e.Direction==Edge<T>.EdgeDirection.undirected && e.Type==Edge<T>.EdgeType.outgoing));
 
             return edges;
         }
@@ -185,12 +179,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public UndirectedGraph<T> GetMinimumSpanningTreeWithKruskalAlgorithm()
         {
-            var forest = new UndirectedGraph<T>();
+            var mst = new UndirectedGraph<T>();
 
             foreach (var v in Vertices)
-                forest.AddVertex(new Vertex<T>(value: v.Value, name: v.Name, guid: v.Guid, index: v.Index));
+                mst.AddVertex(new Vertex<T>(value: v.Value, name: v.Name, guid: v.Guid, index: v.Index));
 
-            int trees = forest.VertexCount();
+            int trees = mst.VertexCount();
             var edges = GetUndirectedEdges();
 
             edges.Sort(); // default sort by weight ascending
@@ -203,120 +197,175 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 var toName = e.To.Name;
                 var fromName = e.From.Name;
 
-                e.To =forest.GetVertex(name: toName);
-                e.From = forest.GetVertex(name: fromName);
+                e.To =mst.GetVertex(name: toName);
+                e.From = mst.GetVertex(name: fromName);
 
-                forest.AddEdge(e);
+                mst.AddEdge(e);
                 count++;
 
-                if (forest.IsCyclic())
-                    forest.RemoveEdge(e);
+                if (mst.IsCyclic())
+                    mst.RemoveEdge(e);
 
-                outgoing = forest.GetUndirectedEdges().Count;
+                outgoing = mst.GetUndirectedEdges().Count;
             }
 
-            return forest;
+            return mst;
         }
 
         /// <summary>
-        /// 
+        /// Mst implemented with Prim algorithm.
         /// <see cref="https://www.gatevidyalay.com/prims-algorithm-prim-algorithm-example/"/>
+        /// <seealso cref="https://www.youtube.com/watch?v=X-QdRmgekpE"/>
         /// </summary>
         /// <returns></returns>
-        public UndirectedGraph<T> GetMinimumSpanningTreeWithPrimsAlgorithm()
+        public UndirectedGraph<T> GetMinimumSpanningTreeWithPrimAlgorithm()
         {
-            var forest = new UndirectedGraph<T>();
+            var mst = new UndirectedGraph<T>();
+            var visitedEdges = new List<Edge<T>>();
             int outgoing = 0;
-
             int trees = VertexCount();
-            // Randomly choose any vertex: The vertex connecting to the edge having least weight is usually selected.
-            var v = GetMinimumWeightVertex();
-            forest.AddVertex(value: v.Value, name: v.Name, guid: v.Guid);
-            // current must always be a vertex of the original graph
-            var current = v;
 
-            while (forest.VertexCount() <= trees && outgoing != trees - 1)
+            // Randomly choose any vertex: The vertex connecting to the edge having least weight is usually selected.
+            Edge<T> start = GetMinimumWeightEdge();
+            // Add to/from ofthis minimum weight edge to mst
+            mst.AddVertex(value: start.From.Value, name: start.From.Name, guid: start.From.Guid);
+            mst.AddVertex(value: start.To.Value, name: start.To.Name, guid: start.To.Guid);
+            // this is the first mst edge
+            // update  edge vertices to match new graph
+            visitedEdges.Add(start);
+
+            var toName = start.To.Name;
+            var fromName = start.From.Name;
+
+            start.To = mst.GetVertex(name: toName);
+            start.From = mst.GetVertex(name: fromName);
+
+            mst.AddEdge(start);
+
+            // current must always be a vertex of the original graph
+            var current = start.From;
+            var next = start.To;
+            UnvisitAllVertices();
+            next.IsVisited = true;
+            current.IsVisited = true;
+
+            while (mst.VertexCount() != trees && outgoing != trees - 1)
             {
                 // Find all the edges that connect the tree to new vertices. Find the
                 // least weight edge among those edges and include it in the existing tree.
-                Edge<T> least = null;
-                double minWeight = double.MaxValue;
-                var adjacents = current.AllNeighbors();
-                var edges = current.IncomingEdges().ToList();
+                var allEdges = GetAllEdgesConnectedToMstVertices(mst.Vertices, visitedEdges);
 
-                var allEdges = edges.Where(e => adjacents.Contains(e.From)).ToList();
-
-                edges = current.OutgoingEdges().ToList();
-                edges = edges.Where(e => adjacents.Contains(e.From)).ToList();
-
-                allEdges.AddRange(edges);
-
-                allEdges = allEdges.OrderBy(e => e.Weight).ToList();
-                int count = 0;
                 for (var i = 0; i < allEdges.Count; i++)
                 {
-                    var e = allEdges[0];
+                    var edge = allEdges[i];
 
-                    minWeight = e.Weight;
-                    least = e;
-                    if (e.Type == Edge<T>.EdgeType.incoming)
-                        current = GetVertex(name: e.From.Name);
-                    else if (e.Type == Edge<T>.EdgeType.outgoing)
-                        current = GetVertex(name: e.To.Name);
+                    Edge<T> least = edge;
+                    if (edge.Type == Edge<T>.EdgeType.incoming)
+                    {
+                        next = GetVertex(name: edge.From.Name);
+                        _ = GetVertex(name: edge.To.Name); // current
+                    }
+                    else if (edge.Type == Edge<T>.EdgeType.outgoing)
+                    {
+                        next = GetVertex(name: edge.To.Name);
+                        _ = GetVertex(name: edge.From.Name); // current
+                    }
 
-                    if (i == allEdges.Count)
-                        throw new ApplicationException("Could not find a minimum weight edge that did not generate a cycle.");
+                    // if new current is already visited, try next edge
+                    if (next.IsVisited)
+                        continue;
+                    else
+                        next.IsVisited = true;      
 
                     // add current vertex so we can add edge
-                    forest.AddVertex(value: current.Value, name: current.Name, guid: current.Guid);
+                    mst.AddVertex(value: next.Value, name: next.Name, guid: next.Guid);
 
                     // update  edge vertices to match new graph
-                    var toName = least.To.Name;
-                    var fromName = least.From.Name;
+                    toName = least.To.Name;
+                    fromName = least.From.Name;
 
-                    least.To = forest.GetVertex(name: toName);
-                    least.From = forest.GetVertex(name: fromName);
+                    least.To = mst.GetVertex(name: toName);
+                    least.From = mst.GetVertex(name: fromName);
 
-                    forest.AddEdge(least);
+                    mst.AddEdge(least);
+                    visitedEdges.Add(edge);
 
-                    if (forest.IsCyclic())
+                    if (mst.IsCyclic())
                     {
                         // If including that edge creates a cycle, then reject
                         // that edge and look for the next least weight edge.
-                        forest.RemoveEdge(least);
-                        forest.RemoveVertex(current.Name);
-                        count++;
+                        mst.RemoveEdge(least);
+                        continue;
                     }
                     else
+                    {
+                        allEdges.Remove(least);
                         break;
+                    }
                 }
 
-                outgoing = forest.GetUndirectedEdges().Count;
+                outgoing = mst.GetUndirectedEdges().Count;
             }
 
-            return forest;
+            return mst;
         }
 
-        public Vertex<T> GetMinimumWeightVertex(HashSet<Vertex<T>>  adjacents = null)
+        private List<Edge<T>> GetAllEdgesConnectedToMstVertices(HashSet<Vertex<T>> vertices, List<Edge<T>> visitedEdges)
         {
-            HashSet<Vertex<T>> vertices = Vertices;
-            if (adjacents != null)
-                vertices = adjacents;
+            var set = new HashSet<Edge<T>>();
+            var edges = new List<Edge<T>>();
+            var originalVertices = Vertices.Where(v => vertices.Any(u => u.Name == v.Name)).ToList();               
 
-            Vertex<T> minV = null;
+            foreach (var v in originalVertices)
+            {
+                //var V = GetVertex(name: v.Name);
+
+                var adjacents = v.AllNeighbors().Select(v => v.Name).ToList();
+                //var newNames = v.AllNeighbors().Except(vertices).Select(v => v.Name);
+                //var adjacents = Vertices.Where(v => newNames.Any(n => n == v.Name));
+
+                edges = v.IncomingEdges().ToList();
+                edges = edges.Where(e => adjacents.Contains(e.From.Name)).ToList();
+
+                foreach (var e in edges)
+                    set.Add(e);
+
+                edges = v.OutgoingEdges().ToList();
+                edges = edges.Where(e => adjacents.Contains(e.To.Name)).ToList();
+
+                foreach (var e in edges)
+                    set.Add(e);
+            }
+            
+            edges = set.OrderBy(e => e.Weight).ToList();
+
+            if (edges.Count != 0)
+            {
+                foreach (var e in visitedEdges)
+                    edges.RemoveAll(edge => edge.Name == e.Name);  //&& edge.Type==e.Type);
+            }
+
+            return edges; 
+        }
+
+        public Edge<T> GetMinimumWeightEdge()
+        {
+            Edge<T> minE = null;
             double min = double.MaxValue;
 
-            foreach(var v in vertices)
+            foreach(var v in  Vertices)
             {
-                var w = v.Edges.Min(e => e.Weight);
+                double w = v.Edges.Min(e => e.Weight);
+                var aux = v.Edges.Single(e => (e.Weight  == w));
+
 
                 if (w < min)
                 {
                     min = w;
-                    minV = v;
+                    minE = aux;
                 }
             }
-            return minV;
+            return minE;
         }
         /// <summary>
         /// Translate adjacency matrix into adjacency list <seealso cref="https://www.section.io/engineering-education/graphs-in-data-structure-using-cplusplus/"/>,

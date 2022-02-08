@@ -3584,7 +3584,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
         /// <returns></returns>
-        public static string MultiplyLargeNumbers(string leftValue, string rightValue, bool supportRepetendSyntax=true)
+        public static string MultiplyLargeNumbers(string leftValue, string rightValue)
         {
             if (leftValue == "0" || rightValue == "0")
                 return "0";

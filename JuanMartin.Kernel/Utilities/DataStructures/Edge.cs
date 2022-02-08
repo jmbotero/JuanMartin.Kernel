@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
@@ -13,6 +14,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             incoming = 1,
             outgoing = 2, 
             both = 3,
+            any = 4,
             none = 0
         };
 
@@ -60,6 +62,24 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             Weight = weight;
         }
 
+        public bool Equals(Edge<T> b)
+        {
+            Edge<T> a = this;
+
+            if (a != null && b != null &&
+                string.Equals(a.Name, b.Name, StringComparison.OrdinalIgnoreCase) &&
+                a.Type==b.Type &&
+                a.Direction==b.Direction &&
+                a.Weight==b.Weight &&
+                a.From.Equals(b.From) &&
+                a.To.Equals(b.To)
+                )
+            {
+                return true;
+            }
+            return false;
+        }
+
         // Comparator function used for
         // sorting edgesbased on their weight
         public int CompareTo(Edge<T> That)
@@ -68,6 +88,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             else if (this.Weight > That.Weight) return 1;
             else return 0;
         }
+
         public override string ToString()
         {
             var path = $"({From.Name}-{To.Name})";

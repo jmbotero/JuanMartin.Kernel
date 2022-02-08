@@ -47,12 +47,6 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (from.Equals(to))
                 throw new ArgumentException("A loop edge, from and to the same vertex cannot be added in a directed-acyclic graph.");
 
-            var path = $"({from.Name}-{to.Name})";
-
-            if (name + "" == "")
-                name = path;
-            else if(!name.Contains(path))
-                name += path;
             // default for directed cyclic graph is direction composite
             base.AddEdge(from, to, name, type, Edge<T>.EdgeDirection.composite, weight);
             try
