@@ -31,56 +31,48 @@ namespace JuanMartin.Kernel.Utilities
         {
             var word = new StringBuilder();
 
-            using (var stream = File.OpenRead(fileName))
-            using (var reader = new StreamReader(stream))
+            using var stream = File.OpenRead(fileName);
+            using var reader = new StreamReader(stream);
+            while (reader.Peek() != -1)
             {
-                while (reader.Peek() != -1)
-                {
-                    var readChar = (char)reader.Read();
+                var readChar = (char)reader.Read();
 
-                    if (readChar == delimiter || reader.EndOfStream)
-                    {
-                        var w = word.ToString();
-                        word.Clear();
-                        yield return w;
-                    }
-                    else if (readChar != qualifier)
-                        word.Append(readChar);
+                if (readChar == delimiter || reader.EndOfStream)
+                {
+                    var w = word.ToString();
+                    word.Clear();
+                    yield return w;
                 }
+                else if (readChar != qualifier)
+                    word.Append(readChar);
             }
         }
 
         public static string[] ReadCsvToArray(string fileName, char delimiter, char qualifier)
         {
-            using (var reader = new StreamReader(fileName, Encoding.UTF8))
-            {
-                return reader.ReadToEnd().Replace(qualifier.ToString(), string.Empty).Split(new[] { delimiter });
-            }
+            using var reader = new StreamReader(fileName, Encoding.UTF8);
+            return reader.ReadToEnd().Replace(qualifier.ToString(), string.Empty).Split(new[] { delimiter });
         }
 
         public static string[][] ReadTextToTwoDimensionalArray(string fileName, char delimiter =  ',')
         {
-            using (var reader = new StreamReader(fileName, Encoding.UTF8))
-            {
-                var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
+            using var reader = new StreamReader(fileName, Encoding.UTF8);
+            var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
 
-                return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).ToArray()).ToArray();
-            }
+            return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).ToArray()).ToArray();
         }
 
         public static int[][] ReadTextToTwoDimensionalNumericArray(string fileName, char delimiter = ',')
         {
-            using (var reader = new StreamReader(fileName, Encoding.UTF8))
-            {
-                var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
+            using var reader = new StreamReader(fileName, Encoding.UTF8);
+            var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
 
-                return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).Select(v => Convert.ToInt32(v)).ToArray()).ToArray();
-            }
+            return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).Select(v => Convert.ToInt32(v)).ToArray()).ToArray();
         }
 
         public static int[][] ReadTextToTwoDimensionalNumericArrayWithNullElements(string fileName, char delimiter = ',', string  nullIndicator="-")
         {
-            int ProcessValue(string value, string  indicator)
+            static int ProcessValue(string value, string  indicator)
             {
                 if (value == indicator)
                     return 0;
@@ -88,12 +80,10 @@ namespace JuanMartin.Kernel.Utilities
                     return Convert.ToInt32(value);
             };
 
-            using (var reader = new StreamReader(fileName, Encoding.UTF8))
-            {
-                var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
+            using var reader = new StreamReader(fileName, Encoding.UTF8);
+            var lines = (IEnumerable<string>)reader.ReadToEnd().Split(new char[] { CarriageReturn, LineFeed }, StringSplitOptions.RemoveEmptyEntries);
 
-                return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).Select(v =>  ProcessValue(v, nullIndicator)).ToArray()).ToArray();
-            }
+            return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).Select(v => ProcessValue(v, nullIndicator)).ToArray()).ToArray();
         }
 
         public static IEnumerable<string> ReadTextToStringEnumerable(string fileName)
@@ -132,18 +122,14 @@ namespace JuanMartin.Kernel.Utilities
 
             using (FileStream zipToOpen = new FileStream(zipFileName, FileMode.Open))
             {
-                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+                using ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update);
+                foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    if (entry.FullName == fileFullName)
                     {
-                        if (entry.FullName == fileFullName)
-                        {
-                            using (StreamReader reader = new StreamReader(entry.Open()))
-                            {
+                        using StreamReader reader = new StreamReader(entry.Open());
 
-                                text = reader.ReadToEnd();
-                            }
-                        }
+                        text = reader.ReadToEnd();
                     }
                 }
             }
@@ -168,21 +154,15 @@ namespace JuanMartin.Kernel.Utilities
                 throw new ArgumentException($"'{nameof(text)}' cannot be null or empty.", nameof(text));
             }
 
-            using (FileStream zipToOpen = new FileStream(zipFileName, FileMode.Open))
+            using FileStream zipToOpen = new FileStream(zipFileName, FileMode.Open);
+            using ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update);
+            foreach (ZipArchiveEntry entry in archive.Entries)
             {
-                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+                if (entry.FullName == fileFullName)
                 {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        if (entry.FullName == fileFullName)
-                        {
-                            using (StreamWriter writer = new StreamWriter(entry.Open()))
-                            {
-                                writer.Write(text);
-                                break;
-                            }
-                        }
-                    }
+                    using StreamWriter writer = new StreamWriter(entry.Open());
+                    writer.Write(text);
+                    break;
                 }
             }
         }
