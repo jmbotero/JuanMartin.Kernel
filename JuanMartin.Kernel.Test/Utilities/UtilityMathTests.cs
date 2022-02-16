@@ -1224,7 +1224,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             {
                 var actualLeftNumber = "126";
                 var actualRightNumber = "37";
-                (string actualQuotient, _) = UtilityMath.IntegerDivision(actualLeftNumber, actualRightNumber);
+                (string actualQuotient, _) = UtilityMath.Modulus(actualLeftNumber, actualRightNumber);
                 var expectedQuotient = "3";
 
                 Assert.AreEqual(expectedQuotient, actualQuotient, $"{actualLeftNumber}/{actualRightNumber}");
@@ -1235,7 +1235,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             {
                 var actualLeftNumber = "126";
                 var actualRightNumber = "37";
-                (_, string actualRemainder) = UtilityMath.IntegerDivision(actualLeftNumber, actualRightNumber);
+                (_, string actualRemainder) = UtilityMath.Modulus(actualLeftNumber, actualRightNumber);
                 var expectedRemainder = "15";
 
                 Assert.AreEqual(expectedRemainder, actualRemainder, $"{actualRightNumber}%{actualLeftNumber}");
@@ -1302,7 +1302,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         public class GetFactorsTests
         {
             [Test()]
-            public void  ShoilGetAllProperDivisors()
+            public void ShoilGetAllProperDivisors()
             {
                 long actualNumber;
                 long[] expectedFactors, actualFactors;
@@ -1311,7 +1311,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 expectedFactors = new long[] { 1, 2, 4, 7, 14 };
                 actualFactors = UtilityMath.GetFactors(actualNumber).ToArray();
                 Array.Sort(actualFactors);
-                Assert.AreEqual(expectedFactors, actualFactors,$"{actualNumber}:  {string.Join(",", actualFactors.ToArray())} = {string.Join(",", expectedFactors.ToArray())}");
+                Assert.AreEqual(expectedFactors, actualFactors, $"{actualNumber}:  {string.Join(",", actualFactors.ToArray())} = {string.Join(",", expectedFactors.ToArray())}");
             }
 
             [Test()]
@@ -1331,7 +1331,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 //Assert.Less(actualDivisorsDuration, actualFactorDuration, $"{actualDivisorsDuration} ms < {actualFactorDuration} ms");
 
-                for(int n=4;n<=actualNumber;n++)
+                for (int n = 4; n <= actualNumber; n++)
                 {
                     if (!UtilityMath.IsPrimeUsingSquares(n))
                     {
@@ -1344,6 +1344,96 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 }
             }
         }
-    }
 
+        [TestFixture]
+        public class PrimeFactorizationTests
+        {
+            [Test()]
+            public void ShougldGetCompletePrimeFactorList()
+            {
+                List<long> expectedPrimeFactors, actualPrimeFactors;
+                long actualNumber;
+
+                actualNumber = 72;
+                expectedPrimeFactors = new List<long> { 2, 2, 2, 3, 3 };
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+
+                Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
+
+                actualNumber = 28227;
+                expectedPrimeFactors = new List<long> { 3, 97, 97 };
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+
+                Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
+
+                actualNumber = 7540;
+                expectedPrimeFactors = new List<long> { 2, 2, 5, 13, 29 };
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+
+                Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
+
+                actualNumber = 15802;
+                expectedPrimeFactors = new List<long> { 2, 7901 };
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+
+                Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
+            }
+
+            [Test]
+            public void ShouldCountFctorsUsingPrimeFactorization()
+            {
+                int expectedFactorCount, actualFactorCount;
+                long actualNumber;
+
+                actualNumber = 4;
+                expectedFactorCount = 3;
+
+                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+
+                Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+
+                actualNumber = 72;
+                expectedFactorCount = 12;
+
+                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+
+                Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+
+                actualNumber = 7540;
+                expectedFactorCount = 24;
+
+                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+
+                Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+
+                actualNumber = 15802;
+                expectedFactorCount = 4;
+
+                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+
+                Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+            }
+
+            [Test]
+            public void ShouldCountFctorsForLargeNumbersUsingPrimeFactorization()
+            {
+                int expectedFactorCount, actualFactorCount;
+                BigInteger actualNumber;
+
+                actualNumber = new BigInteger(4);
+                expectedFactorCount = 3;
+
+                actualFactorCount = UtilityMath.CountLargeNumberFactors(actualNumber);
+
+                Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+
+                actualNumber = BigInteger.Pow(180180, 2);
+                expectedFactorCount = 2025;
+
+                actualFactorCount = UtilityMath.CountLargeNumberFactors(actualNumber);
+
+                Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+            }
+        }
+    }
 }

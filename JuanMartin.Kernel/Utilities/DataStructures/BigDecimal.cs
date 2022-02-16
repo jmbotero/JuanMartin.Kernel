@@ -53,6 +53,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public static BigDecimal Zero => new BigDecimal("0");
         public static BigDecimal One => new BigDecimal("1");
         public static BigDecimal Two => new BigDecimal("2");
+        public static BigDecimal Three => new BigDecimal("3");
         public static BigDecimal Epsilon => new BigDecimal("0.000000001");
         public bool IsNegative { get; private set; }
 
@@ -83,12 +84,15 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public static BigDecimal operator -(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.ToString(), b.ToString()));
         public static BigDecimal operator *(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.ToString(), b.ToString()));
         public static BigDecimal operator /(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.ToString(), b.ToString(), supportRepetendSyntax: false));
+        public static BigDecimal operator %(BigDecimal a, BigDecimal b) => new BigDecimal(UtilityMath.Modulus(a.ToString(), b.ToString()).remainder);
+        public static BigDecimal operator ++(BigDecimal a) => new BigDecimal(UtilityMath.AddLargeNumbers(a.ToString(), "1"));
 
-        // operate with doubles
+        // operate with doubles/long
         public static BigDecimal operator +(BigDecimal a, double b) => new BigDecimal(UtilityMath.AddLargeNumbers(a.ToString(), b.ToString()));
         public static BigDecimal operator -(BigDecimal a, double b) => new BigDecimal(UtilityMath.SubstractLargeNumbers(a.ToString(), b.ToString()));
         public static BigDecimal operator *(BigDecimal a, double b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.ToString(), b.ToString()));
         public static BigDecimal operator /(BigDecimal a, double b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.ToString(), b.ToString(), supportRepetendSyntax: false));
+        public static (string quotient, string remainder) operator %(BigDecimal a, long b) => UtilityMath.Modulus(a.ToString(), b.ToString());
 
         // operate with integers
         public static BigDecimal operator <<(BigDecimal a, int b) => UtilityMath.BitLeftShift(a, b);
@@ -101,8 +105,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public static BigDecimal operator *(int a, BigDecimal b) => new BigDecimal(UtilityMath.MultiplyLargeNumbers(a.ToString(), b.ToString()));
         public static BigDecimal operator /(BigDecimal a, int b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.ToString(), b.ToString(), supportRepetendSyntax: false));
         public static BigDecimal operator /(int a, BigDecimal b) => new BigDecimal(UtilityMath.DivideLargeNumbers(a.ToString(), b.ToString(), supportRepetendSyntax: false));
-        public static (string quotient, string remainder) operator %(BigDecimal a, int b) => UtilityMath.IntegerDivision(a.ToString(), b.ToString());
-        public static (string quotient, string remainder) operator %(BigDecimal a, long b) => UtilityMath.IntegerDivision(a.ToString(), b.ToString());
+//        public static (string quotient, string remainder) operator %(BigDecimal a, int b) => UtilityMath.IntegerDivision(a.ToString(), b.ToString());
+        public static BigDecimal operator %(BigDecimal a, int b) =>new BigDecimal(UtilityMath.Modulus(a.ToString(), b.ToString()).remainder);
         public static bool operator ==(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.ToString(), b.ToString()) == 0;
         public static bool operator !=(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.ToString(), b.ToString()) != 0;
         public static bool operator <(BigDecimal a, BigDecimal b) => UtilityMath.CompareLargeNumbers(a.ToString(), b.ToString()) == -1;

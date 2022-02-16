@@ -293,6 +293,29 @@
                     </Rule>
                   </Rule>
                 </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="UtilityMathTests+PrimeFactorizationTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+PrimeFactorizationTests.ShougldGetCompletePrimeFactorList" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShougldGetCompletePrimeFactorList" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+PrimeFactorizationTests.ShouldCountFctorsForLargeNumbersUsingPrimeFactorization" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldCountFctorsForLargeNumbersUsingPrimeFactorization" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+PrimeFactorizationTests.ShouldCountFctorsUsingPrimeFactorization" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldCountFctorsUsingPrimeFactorization" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
               </Rule>
             </Rule>
             <Rule Match="All">

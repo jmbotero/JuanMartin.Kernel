@@ -249,6 +249,29 @@ namespace JuanMartin.Kernel.Utilities
         }
 
 
+        /// <summary>
+        /// Function that returns true if n is prime else returns false
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static bool IsPrimeUsingLoop(long n)
+        {
+            // Corner cases
+            if (n <= 1) return false;
+            if (n <= 3) return true;
+
+            // This is checked so that we can skip middle five numbers in below loop
+            if (n % 2 == 0 || n % 3 == 0)
+                return false;
+
+            for (long i = 5; i * i <= n; i += 6)
+                if (n % i == 0 ||
+                    n % (i + 2) == 0)
+                    return false;
+
+            return true;
+        }
+
         public static Func<long, bool> IsPrimeUsingSquares = (number) =>
         {
             if (number <= 1)
@@ -261,6 +284,34 @@ namespace JuanMartin.Kernel.Utilities
                 return false;
 
             var counter = 3;
+
+            while ((counter * counter) <= number)
+            {
+                if (number % counter == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    counter += 2;
+                }
+            }
+
+            return true;
+        };
+
+        public static Func<BigInteger, bool> LargeNumnberIsPrimeUsingSquares = (number) =>
+        {
+            if (number <= 1)
+                return false;
+
+            if (number == 2)
+                return true;
+
+            if (number % 2 == 0)
+                return false;
+
+            BigInteger counter = 3;
 
             while ((counter * counter) <= number)
             {
@@ -1821,7 +1872,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="vector1"></param>
         /// <param name="vector2"></param>
         /// <returns></returns>
-        public static int DotProduct(int[] vector1 ,int[] vector2)
+        public static int DotProduct(int[] vector1, int[] vector2)
         {
             return vector1[0] * vector2[0] + vector1[1] * vector2[1];
         }
@@ -1835,7 +1886,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         public static int DotProduct(int[] point, int[] a, int[] b)
         {
-            return (b[1]-a[1])*(point[0]-a[0])+(a[0]-b[0])*(point[1]-a[1]);
+            return (b[1] - a[1]) * (point[0] - a[0]) + (a[0] - b[0]) * (point[1] - a[1]);
         }
 
         public static IEnumerable<T> GetPolygonalNumbers<T>(int sides, int lowerBound, int upperBound)
@@ -2023,8 +2074,8 @@ namespace JuanMartin.Kernel.Utilities
         /// 
         /// </summary>
         /// <param name="number"></param>
-        /// <param name="includeSelf"></param>
-        /// <param name="includeOne"></param>
+        /// <param name="number"></param>
+        /// <param name="start"></param>
         /// <returns></returns>
         public static IEnumerable<long> GetFactors(long number, long start)
         {
@@ -2033,24 +2084,25 @@ namespace JuanMartin.Kernel.Utilities
                 if ((number % i) == 0)
                 {
                     yield return i;
-                    if (number != i * i) yield return number / i;
+                    if (number != i * i) yield return number / i; // if n^2 is  factor then facor set is composed by pairs
                 }
             }
         }
 
-        public static IEnumerable<int> GetPrimeFactors(long number, bool includeSelf = false, bool includeOne = true)
+        public static IEnumerable<long> GetPrimeFactors(long number, bool includeSelf = false, bool includeOne = true)
         {
             var factors = GetFactors(number, includeSelf, includeOne).Distinct().ToList();
 
-            foreach (int n in factors)
+            foreach (long n in factors)
             {
                 if (IsPrimeUsingSquares(n))
                     yield return n;
             }
         }
 
-        public static List<long> GetPrimeFactors(long number, HashSet<long> primes)
+        public static List<long> GetPrimeFactors(long number)
         {
+            long[] primes = ErathostenesSieve((int)number);
             List<long> factors = new List<long>();
 
             if (!primes.Contains(number))
@@ -2069,10 +2121,164 @@ namespace JuanMartin.Kernel.Utilities
                     {
                         i++;
                     }
-                    p = primes.ElementAt(i);
+                    p = primes[i];
                 }
             }
+            else
+            {
+                factors.Add(1);
+                factors.Add(number);
+            }
             return factors;
+        }
+
+        public static List<long> PrimeFactorization(long number, long i = 2)
+        {
+            var factors = new List<long>();
+
+            PrimeFactorizationRecursion(number, i, factors);
+            return factors;
+        }
+
+        private static void PrimeFactorizationRecursion(long number, long i, List<long> list)
+        {
+            if (number > 1 && i <= number)
+            {
+                if ((number % i) == 0)
+                {
+                    list.Add(i);
+                    number /= i;
+                }
+                else
+                {
+                    if (i >= number && IsPrimeUsingSquares(number))
+                    {
+                        list.Add(number);
+                        i = NextPrime(i);
+                    }
+                    else
+                    {
+                        //number /= i;
+                        i = NextPrime(i);
+                    }
+                }
+                PrimeFactorizationRecursion(number, i, list);
+            }
+        }
+
+        public static List<BigInteger> PrimeFactorizationLargeNumber(BigInteger number, BigInteger start)
+        {
+            var factors = new List<BigInteger>();
+
+            PrimeFactorizationLargeNumberRecursion(number, start, factors);
+            return factors;
+        }
+
+        private static void PrimeFactorizationLargeNumberRecursion(BigInteger number, BigInteger i, List<BigInteger> list)
+        {
+            if (number > 1 && i <= number)
+            {
+                if ((number % i) == 0)
+                {
+                    list.Add(i);
+                    number /= i;
+                }
+                else
+                {
+                    if (i >= number && LargeNumnberIsPrimeUsingSquares(number))
+                    {
+                        list.Add(number);
+                        i = NextLargeNumberPrime(i);
+                    }
+                    else
+                    {
+                        //number /= i;
+                        i = NextLargeNumberPrime(i);
+                    }
+                }
+                PrimeFactorizationLargeNumberRecursion(number, i, list);
+            }
+        }
+
+        private static long NextPrime(long i)
+        {
+            long l = i + 1;
+
+            while (true)
+            {
+                if (IsPrimeUsingSquares(l))
+                    break;
+                l++;
+            }
+            return l;
+        }
+
+        private static BigInteger NextLargeNumberPrime(BigInteger i)
+        {
+            BigInteger l = i + 1;
+
+            while (true)
+            {
+                if (LargeNumnberIsPrimeUsingSquares(l))
+                    break;
+                l++;
+            }
+            return l;
+        }
+
+        /// <summary>
+        /// Count the number of factors of a number using its prime factorizastion
+        /// <see cref="https://www.wikihow.com/Find-How-Many-Factors-Are-in-a-Number?amp=1"/>
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static int CountFactors(long number)
+        {
+            if (number == 0)
+                return 0;
+
+            int count = 1;
+            List<long> primeFactors = PrimeFactorization(number);
+
+            primeFactors.Sort();
+
+            long start = 0;
+            foreach (long n in primeFactors)
+            {
+                if (n != start)
+                {
+                    start = n;
+                    count *= (primeFactors.Count(f => f == n) + 1);
+                }
+                else
+                    continue;
+            }
+            return count;
+        }
+
+        public static int CountLargeNumberFactors(BigInteger number)
+        {
+            if (number == 0) 
+                return 0;
+
+            int count = 1;
+            List<BigInteger> primeFactors = PrimeFactorizationLargeNumber(number,2);
+
+            primeFactors.Sort();
+
+            
+            BigInteger start = 0;
+            foreach (var n in primeFactors)
+            {
+                if (n != start)
+                {
+                    start = n;
+                    count *= (primeFactors.Count(f => f == n) + 1);
+                }
+                else
+                    continue;
+            }
+            return count;
         }
 
         /// <summary>
@@ -2581,7 +2787,7 @@ namespace JuanMartin.Kernel.Utilities
             });
 
             return numbers.ToArray();
-        } 
+        }
 
         /// <summary>
         /// Source code from <see cref="https://www.mathblog.dk/files/euler/Problem50.cs"/>
@@ -2589,7 +2795,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="lowerLimit"></param>
         /// <param name="upperLimit"></param>
         /// <returns></returns>
-        public static long[] ErathostenesSieve2(int upperLimit,  int lowerLimit = 2)
+        public static long[] ErathostenesSieve2(int upperLimit, int lowerLimit = 2)
         {
 
             int sieveBound = (int)(upperLimit - 1) / 2;
@@ -2626,7 +2832,7 @@ namespace JuanMartin.Kernel.Utilities
 
             return numbers.ToArray();
         }
-        public static long[] CompositeErathostenesSieve(int upperLimit, int lowerlimit=4)
+        public static long[] CompositeErathostenesSieve(int upperLimit, int lowerlimit = 4)
         {
             var lower = (lowerlimit < 4) ? 4 : lowerlimit;
             var primes = ErathostenesSieve(upperLimit, lowerlimit);
@@ -2662,9 +2868,9 @@ namespace JuanMartin.Kernel.Utilities
             return primes.ToArray();
         }
 
-        public static IEnumerable<int> GeneratePrimesUsingSquares(int upperLimit, int lowerLimit=2  )
+        public static IEnumerable<int> GeneratePrimesUsingSquares(int upperLimit, int lowerLimit = 2)
         {
-            for(var number=lowerLimit;number<upperLimit;number++)
+            for (var number = lowerLimit; number < upperLimit; number++)
             {
                 if (IsPrimeUsingSquares(number))
                     yield return number;
@@ -3047,7 +3253,7 @@ namespace JuanMartin.Kernel.Utilities
                         return false;
                     }
             }
-            
+
             return false;
         }
 
@@ -3076,14 +3282,14 @@ namespace JuanMartin.Kernel.Utilities
             return false;
         }
 
-        public static bool IsPerferctSquare(BigInteger number,BigInteger actualSqtr)
+        public static bool IsPerferctSquare(BigInteger number, BigInteger actualSqtr)
         {
             var expectedSqrt = number * number;
             if (expectedSqrt == actualSqtr)
             {
                 return true;
             }
-            
+
             return false;
         }
 
@@ -3260,7 +3466,7 @@ namespace JuanMartin.Kernel.Utilities
                 n /= 10;
             }
 
-            if(addUpToSingleDigit)
+            if (addUpToSingleDigit)
                 while (sum > 10)
                     sum = NumericDigitSum(sum);
 
@@ -3291,7 +3497,7 @@ namespace JuanMartin.Kernel.Utilities
                 trial++;
 
                 if (digits.Count < 2)
-                    break;                           
+                    break;
                 if (trial == digits.Count)
                     break;
             }
@@ -3340,7 +3546,7 @@ namespace JuanMartin.Kernel.Utilities
             if (number == "1")
                 return "1";
 
-            return MultiplyLargeNumbers(number, FactorialOverFlow(SubstractLargeNumbers(number,"1")));
+            return MultiplyLargeNumbers(number, FactorialOverFlow(SubstractLargeNumbers(number, "1")));
         }
 
         public static T FactorialLoop<T>(int number)
@@ -3351,12 +3557,12 @@ namespace JuanMartin.Kernel.Utilities
             {
                 var x = default(T);
                 var factorial = (dynamic)x + 1;
-                
+
                 for (int i = 2; i <= number; i++)
                 {
                     factorial *= i;
                 }
-                return factorial; 
+                return factorial;
             }
             else
                 throw new InvalidOperationException(string.Format("{0} is invalid, loop-based Factorial can only operate on numeric types.", methodType));
@@ -3444,11 +3650,11 @@ namespace JuanMartin.Kernel.Utilities
                 if (!tail.Contains(sequence))
                     sequence = string.Empty;
 
-                if (sequenceTail  == tail)
+                if (sequenceTail == tail)
                     return sequence;
                 else
                     continue;
-            }                                            
+            }
             return string.Empty;
         }
 
@@ -3507,7 +3713,7 @@ namespace JuanMartin.Kernel.Utilities
             }
             else
                 addition = StringNumberAddition(leftValue, rightValue);
-         
+
             return addition;
         }
 
@@ -3522,7 +3728,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         public static string SubstractLargeNumbers(string leftValue, string rightValue)
-        {            
+        {
             string substraction;
 
             // supportRepetendSyntax in iputs == false
@@ -3562,12 +3768,12 @@ namespace JuanMartin.Kernel.Utilities
             }
             else
                 if (CompareLargeNumbers(leftValue, rightValue) == -1)
-                {
-                    substraction = StringNumberSubstraction(rightValue, leftValue);
-                    substraction = (substraction != "0") ? substraction.Insert(0, "-") : substraction;
-                }
-                else
-                    substraction = StringNumberSubstraction(leftValue, rightValue);
+            {
+                substraction = StringNumberSubstraction(rightValue, leftValue);
+                substraction = (substraction != "0") ? substraction.Insert(0, "-") : substraction;
+            }
+            else
+                substraction = StringNumberSubstraction(leftValue, rightValue);
 
             return substraction;
         }
@@ -3671,7 +3877,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name=" round">Some divisions have a great number of  decimals so truncate the
         /// response if it is above this number, by default do not round</param>
         /// <returns></returns> 
-        public static string DivideLargeNumbers(string leftValue, string rightValue, out string remainder, int round=40, bool processRemainder=true, bool supportRepetendSyntax=true)
+        public static string DivideLargeNumbers(string leftValue, string rightValue, out string remainder, int round = 40, bool processRemainder = true, bool supportRepetendSyntax = true)
         {
             // only output a remainder as below when processReminder=false
             remainder = string.Empty;
@@ -3687,13 +3893,13 @@ namespace JuanMartin.Kernel.Utilities
 
             // process decimal
             int divisorDecimalIndex = rightValue.IndexOf('.');
-            int decimalShift = rightValue.DecimalNumberPart(divisorDecimalIndex).Length; 
+            int decimalShift = rightValue.DecimalNumberPart(divisorDecimalIndex).Length;
 
             // move divisor decimal to the right
-             int dividendDecimalIndex = leftValue.IndexOf('.');
+            int dividendDecimalIndex = leftValue.IndexOf('.');
 
             // if no dividend decimal add it, only if needed when divisor has decimal
-            if (dividendDecimalIndex == -1 && divisorDecimalIndex  != -1)
+            if (dividendDecimalIndex == -1 && divisorDecimalIndex != -1)
             {
                 leftValue += ".0";
                 dividendDecimalIndex = leftValue.WholeNumberPart(dividendDecimalIndex).Length;
@@ -3751,21 +3957,21 @@ namespace JuanMartin.Kernel.Utilities
             // more digit from leftValue.
             while (leftValue.Length > i)
             {
-                (string q, string r) = IntegerDivision(dividend, rightValue);
+                (string q, string r) = Modulus(dividend, rightValue);
                 // keep result in answer i.e. dividend / rightValue
                 quotient += q;
 
-                 // take remainder and add next digit of number
+                // take remainder and add next digit of number
                 dividend = (r == "0") ? string.Empty : r;
                 dividend += leftValue[i];
 
                 i++;
             }
-            (string quot, string rem) = IntegerDivision(dividend, rightValue);
+            (string quot, string rem) = Modulus(dividend, rightValue);
             quotient += quot;
 
             // process decimal quotient
-             string sequence = string.Empty;
+            string sequence = string.Empty;
             if (processRemainder)
             {
                 if (new BigDecimal(rem) > BigDecimal.Zero)
@@ -3792,7 +3998,7 @@ namespace JuanMartin.Kernel.Utilities
                             remainderDigits += "0";
                         }
 
-                        (quot, rem) = IntegerDivision(dividend, rightValue);
+                        (quot, rem) = Modulus(dividend, rightValue);
                         quotient += quot;
 
                         if (round > 0 && remainderDigits.Length >= round)
@@ -3803,7 +4009,7 @@ namespace JuanMartin.Kernel.Utilities
             }
             else
                 remainder = rem;
-   
+
             //if repetend  syntax is not supported, make sure there is no sequence evaluated
             if (!supportRepetendSyntax)
                 sequence = string.Empty;
@@ -3817,16 +4023,16 @@ namespace JuanMartin.Kernel.Utilities
             return DivideLargeNumbers(leftValue, rightValue, remainder: out _, round, processRemainder, supportRepetendSyntax);
         }
 
-            /// </summary>
-            /// A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic 
-            /// (repeating its values at regular intervals) and the infinitely repeated portion is not zero, this method tells
-            /// if a string of digits contains a sequence like  this and returns it too. 
-            /// Start searching after sequence has been aappended at  least three times.
-            /// </summary>
-            /// <param name="digits"></param>
-            /// <param name="quot"></param>
-            /// <returns></returns>
-            public static (bool IsCyclic, string Sequence) DetermineNumericCyclicalSequence(string digits, string quot)
+        /// </summary>
+        /// A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic 
+        /// (repeating its values at regular intervals) and the infinitely repeated portion is not zero, this method tells
+        /// if a string of digits contains a sequence like  this and returns it too. 
+        /// Start searching after sequence has been aappended at  least three times.
+        /// </summary>
+        /// <param name="digits"></param>
+        /// <param name="quot"></param>
+        /// <returns></returns>
+        public static (bool IsCyclic, string Sequence) DetermineNumericCyclicalSequence(string digits, string quot)
         {
             bool match = false;
             char digit = quot[0];
@@ -3864,9 +4070,9 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="leftValue"></param>
         /// <param name="rightValue"></param>
         /// <returns></returns>
-        public static (string quotient, string remainder) IntegerDivision(string leftValue, string rightValue)
+        public static (string quotient, string remainder) Modulus(string leftValue, string rightValue)
         {
-            if (rightValue == "0")
+             if (rightValue == "0")
                 throw new ArithmeticException("Cannot divide by zero.");
             if (leftValue == "0")
                 return ("0", "0");
@@ -3874,12 +4080,16 @@ namespace JuanMartin.Kernel.Utilities
             leftValue = leftValue.TrimStart('0');
             rightValue = rightValue.TrimStart('0');
 
+            //  TODO: handle decimals
+            leftValue = leftValue.WholeNumberPart();
+            rightValue = rightValue.WholeNumberPart();
+
             int i = 2;
             string aux = rightValue;
             string lastRemainder;
             do
             {
-                 lastRemainder = (aux == "0") ? "0" : SubstractLargeNumbers(leftValue, aux);
+                lastRemainder = (aux == "0") ? "0" : SubstractLargeNumbers(leftValue, aux);
 
                 if (CompareLargeNumbers(lastRemainder, "0") == -1)
                 {
@@ -3890,13 +4100,13 @@ namespace JuanMartin.Kernel.Utilities
                 aux = MultiplyLargeNumberBySingleDigit(rightValue, i);
                 i++;
             }
-            while (CompareLargeNumbers(aux, leftValue)  != 1);
+            while (CompareLargeNumbers(aux, leftValue) != 1);
             i -= 2;
 
             return (i.ToString(), lastRemainder);
         }
 
-        
+
         /// <summary>
         /// Return from numerical value comparison: 
         ///         0 if rightValue = LeftValue
@@ -4067,7 +4277,7 @@ namespace JuanMartin.Kernel.Utilities
 
                 var digit = int.Parse(leftValue[i].ToString());
                 var number = MultiplyLargeNumberBySingleDigit(rightValue, digit);
-                
+
                 //pad with zeroes for multiplication for partials of 'left' digits    
                 var padRight = number.Length + (leftValue.Length - 1 - i);
                 var paddedNumber = number.PadRight(padRight, '0');
@@ -4078,7 +4288,7 @@ namespace JuanMartin.Kernel.Utilities
                 stringOperands.Append(paddedNumber);
 
                 operands = stringOperands.ToString();
-            } 
+            }
 
             var numbers = operands.Split(',').ToArray<string>();
 
@@ -4102,7 +4312,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="additiveExpressdion"></param>
         /// <param name="length"> minimal length of bits of original number</param>
         /// <returns></returns>
-        public static BigDecimal BitLeftShift(BigDecimal  shiftExpression , int additiveExpressdion, int length=1000)
+        public static BigDecimal BitLeftShift(BigDecimal shiftExpression, int additiveExpressdion, int length = 1000)
         {
             var binary = shiftExpression.ToBinary();
             BigDecimal result;
@@ -4130,14 +4340,14 @@ namespace JuanMartin.Kernel.Utilities
             BigDecimal result;
 
             binary = binary.PadLeft(length, '0');
-            
+
             string prefix;
             if (shiftExpression.IsNegative)
                 prefix = "1".Repeat(additiveExpressdion);
             else
                 prefix = "0".Repeat(additiveExpressdion);
             binary = prefix + binary.Remove(binary.Length - 1 - additiveExpressdion);
-            
+
             result = BigDecimal.ConvertFromBinary(binary);
 
             return result;
@@ -4155,9 +4365,9 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static double EvaluateSimpleArithmeticOerations(string expression, int NumberOfDecimalsAllowedForArithmeticOperationParsing=4)
+        public static double EvaluateSimpleArithmeticOerations(string expression, int NumberOfDecimalsAllowedForArithmeticOperationParsing = 4)
         {
-            if(!CheckForValidArithmeticSyntax(expression, NumberOfDecimalsAllowedForArithmeticOperationParsing))
+            if (!CheckForValidArithmeticSyntax(expression, NumberOfDecimalsAllowedForArithmeticOperationParsing))
                 throw new ArgumentException($"{expression} is not a valid expression.");
 
             double result = double.PositiveInfinity;
@@ -4203,7 +4413,7 @@ namespace JuanMartin.Kernel.Utilities
                                 throw new DivideByZeroException($"Division by zero in {expression}.");
                             else
                                 result = a / b;
-                                if (NumberOfDecimalsAllowedForArithmeticOperationParsing == 0 && result < 1) result = 0;
+                            if (NumberOfDecimalsAllowedForArithmeticOperationParsing == 0 && result < 1) result = 0;
                             break;
                         }
                     default:
@@ -4622,7 +4832,7 @@ namespace JuanMartin.Kernel.Utilities
                 carryon = Convert.ToInt32(number);
             }
             //if is the last column include the carry-on as part of the value
-            value = carryon.ToString()  + value;
+            value = carryon.ToString() + value;
 
             return value;
         }
@@ -4689,7 +4899,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
         /// <returns></returns>
-        private static int AlignValuesOfBinaryOpertation(ref string rightValue, ref string leftValue, bool alignNumericParts=true)
+        private static int AlignValuesOfBinaryOpertation(ref string rightValue, ref string leftValue, bool alignNumericParts = true)
         {
             var rightDecimalPointIndex = AlignStringArithmeticValues(ref rightValue, leftValue, alignNumericParts);
             var leftDecimalPointIndex = AlignStringArithmeticValues(ref leftValue, rightValue, alignNumericParts);
