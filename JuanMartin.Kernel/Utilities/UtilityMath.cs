@@ -2089,6 +2089,18 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
+        public static IEnumerable<BigInteger> GetFactorsLargeNumbers(BigInteger number, BigInteger start)
+        {
+            for (BigInteger i = start; i * i <= number; i++)
+            {
+                if ((number % i) == 0)
+                {
+                    yield return i;
+                    if (number != i * i) yield return number / i; 
+                }
+            }
+        }
+
         public static IEnumerable<long> GetPrimeFactors(long number, bool includeSelf = false, bool includeOne = true)
         {
             var factors = GetFactors(number, includeSelf, includeOne).Distinct().ToList();
@@ -2132,15 +2144,25 @@ namespace JuanMartin.Kernel.Utilities
             return factors;
         }
 
-        public static List<long> PrimeFactorization(long number, long i = 2)
+        /// <summary>
+        /// Get prime factrization from a prime sieve, 
+        /// convert it to a queue for sequential retrieval
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static List<long> PrimeFactorization(long number, long i = 2, int maximumPrime = 10000)
         {
             var factors = new List<long>();
+            var primeQueue = new System.Collections.Generic.Queue<long>();
+            foreach (var p in ErathostenesSieve(maximumPrime))
+                primeQueue.Enqueue(p);
 
-            PrimeFactorizationRecursion(number, i, factors);
+            PrimeFactorizationRecursion(number, i, primeQueue, factors);
             return factors;
         }
 
-        private static void PrimeFactorizationRecursion(long number, long i, List<long> list)
+        private static void PrimeFactorizationRecursion(long number, long i, System.Collections.Generic.Queue<long> primes, List<long> list)
         {
             if (number > 1 && i <= number)
             {
@@ -2154,27 +2176,34 @@ namespace JuanMartin.Kernel.Utilities
                     if (i >= number && IsPrimeUsingSquares(number))
                     {
                         list.Add(number);
-                        i = NextPrime(i);
+                        if (primes.Count == 0) return; //if there are no more primes stop factorizing
+                        i = primes.Dequeue();
+                        //i = NextPrime(i);
                     }
                     else
                     {
                         //number /= i;
-                        i = NextPrime(i);
+                        if (primes.Count == 0) return;
+                        i = primes.Dequeue();
+                        //i = NextPrime(i);
                     }
                 }
-                PrimeFactorizationRecursion(number, i, list);
+                PrimeFactorizationRecursion(number, i, primes, list);
             }
         }
 
-        public static List<BigInteger> PrimeFactorizationLargeNumber(BigInteger number, BigInteger start)
+        public static List<BigInteger> PrimeFactorizationLargeNumber(BigInteger number, BigInteger start, int maximumPrime)
         {
             var factors = new List<BigInteger>();
+            var primeQueue = new System.Collections.Generic.Queue<long>();
+            foreach (var p in ErathostenesSieve(maximumPrime))
+                primeQueue.Enqueue(p);
 
-            PrimeFactorizationLargeNumberRecursion(number, start, factors);
+            PrimeFactorizationLargeNumberRecursion(number, start, primeQueue, factors);
             return factors;
         }
 
-        private static void PrimeFactorizationLargeNumberRecursion(BigInteger number, BigInteger i, List<BigInteger> list)
+        private static void PrimeFactorizationLargeNumberRecursion(BigInteger number, BigInteger i, System.Collections.Generic.Queue<long> primes, List<BigInteger> list)
         {
             if (number > 1 && i <= number)
             {
@@ -2188,42 +2217,20 @@ namespace JuanMartin.Kernel.Utilities
                     if (i >= number && LargeNumnberIsPrimeUsingSquares(number))
                     {
                         list.Add(number);
-                        i = NextLargeNumberPrime(i);
+                        if (primes.Count == 0) return;
+                        i = new BigInteger(primes.Dequeue());
+                        //i = NextLargeNumberPrime(i);                                                                                                                                      
                     }
                     else
                     {
                         //number /= i;
-                        i = NextLargeNumberPrime(i);
+                        if (primes.Count == 0) return;
+                        i = new BigInteger(primes.Dequeue());
+                        //i = NextLargeNumberPrime(i);
                     }
                 }
-                PrimeFactorizationLargeNumberRecursion(number, i, list);
+                PrimeFactorizationLargeNumberRecursion(number, i, primes, list);
             }
-        }
-
-        private static long NextPrime(long i)
-        {
-            long l = i + 1;
-
-            while (true)
-            {
-                if (IsPrimeUsingSquares(l))
-                    break;
-                l++;
-            }
-            return l;
-        }
-
-        private static BigInteger NextLargeNumberPrime(BigInteger i)
-        {
-            BigInteger l = i + 1;
-
-            while (true)
-            {
-                if (LargeNumnberIsPrimeUsingSquares(l))
-                    break;
-                l++;
-            }
-            return l;
         }
 
         /// <summary>
@@ -2232,13 +2239,13 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
-        public static int CountFactors(long number)
+        public static int CountFactors(long number, int maximumPrime = 10000)
         {
             if (number == 0)
                 return 0;
 
             int count = 1;
-            List<long> primeFactors = PrimeFactorization(number);
+            List<long> primeFactors = PrimeFactorization(number,maximumPrime: maximumPrime);
 
             primeFactors.Sort();
 
@@ -2258,11 +2265,27 @@ namespace JuanMartin.Kernel.Utilities
 
         public static int CountLargeNumberFactors(BigInteger number)
         {
+            int count = 0;
+
+            for (BigInteger i = 1; i < number; i++)
+            {
+                if ((number % i) == 0)
+                {
+                    count++;
+                    if (number != i * i) count++;
+                }
+            }
+
+            return count;
+        }
+
+        public static int CountLargeNumberFactorsUsingRecursion(BigInteger number, int maximumPrime = 17)
+        {
             if (number == 0) 
                 return 0;
 
             int count = 1;
-            List<BigInteger> primeFactors = PrimeFactorizationLargeNumber(number,2);
+            List<BigInteger> primeFactors = PrimeFactorizationLargeNumber(number,2, maximumPrime);
 
             primeFactors.Sort();
 
@@ -2789,13 +2812,55 @@ namespace JuanMartin.Kernel.Utilities
             return numbers.ToArray();
         }
 
+
+        /// <summary>
+        /// Calculate  all primes smaller than or equal to n using
+        /// Sieve of Eratosthenes, using boolean array: from GeekForGeeks
+        /// <see cref="https://www.geeksforgeeks.org/sieve-of-eratosthenes/"/>
+        /// 
+        /// </summary>
+        /// <param name="upperLimit"></param>
+        public static List<long> EratosthenesSieveWithBooleanArray(long upperLimit)
+        {
+            var sieve = new List<long>();
+
+            // Create a boolean array "prime[0..n]" and initialize all entries
+            // it as true. A value in prime[i] will finally be false if i is Not a
+            // prime, else true
+            bool[] prime = new bool[upperLimit + 1];
+
+            for (long i = 0; i <= upperLimit; i++)
+                prime[i] = true;
+
+            for (long p = 2; p * p <= upperLimit; p++)
+            {
+                // If prime[p] is not changed, then it is a prime
+                if (prime[p] == true)
+                {
+                    // Update all multiples of p
+                    for (long i = p * p; i <= upperLimit; i += p)
+                        prime[i] = false;
+                }
+            }
+
+
+            // Prepare the sieve
+            for (long i = 2; i <= upperLimit; i++)
+            {
+                if (prime[i])
+                    sieve.Add(i);
+            }
+
+            return sieve;
+        }
+
         /// <summary>
         /// Source code from <see cref="https://www.mathblog.dk/files/euler/Problem50.cs"/>
         /// </summary>
         /// <param name="lowerLimit"></param>
         /// <param name="upperLimit"></param>
         /// <returns></returns>
-        public static long[] ErathostenesSieve2(int upperLimit, int lowerLimit = 2)
+        public static long[] ErathostenesSieveMathBlog(int upperLimit, int lowerLimit = 2)
         {
 
             int sieveBound = (int)(upperLimit - 1) / 2;

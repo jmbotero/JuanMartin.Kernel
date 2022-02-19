@@ -1380,7 +1380,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
 
             [Test]
-            public void ShouldCountFctorsUsingPrimeFactorization()
+            public void ShouldCountFactorsUsingPrimeFactorization()
             {
                 int expectedFactorCount, actualFactorCount;
                 long actualNumber;
@@ -1415,7 +1415,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
 
             [Test]
-            public void ShouldCountFctorsForLargeNumbersUsingPrimeFactorization()
+            public void ShouldCountFactorsForLargeNumbersUsingPrimeFactorization()
             {
                 int expectedFactorCount, actualFactorCount;
                 BigInteger actualNumber;
@@ -1423,14 +1423,14 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 actualNumber = new BigInteger(4);
                 expectedFactorCount = 3;
 
-                actualFactorCount = UtilityMath.CountLargeNumberFactors(actualNumber);
+                actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
 
                 actualNumber = BigInteger.Pow(180180, 2);
                 expectedFactorCount = 2025;
 
-                actualFactorCount = UtilityMath.CountLargeNumberFactors(actualNumber);
+                actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
             }

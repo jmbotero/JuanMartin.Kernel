@@ -314,6 +314,12 @@
                         <Property Name="DisplayName" Value="ShouldCountFctorsUsingPrimeFactorization" />
                       </Rule>
                     </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="JuanMartin.Kernel.Utilities.Tests.UtilityMathTests+PrimeFactorizationTests.ShouldCountFactorsForLargeNumbersUsingPrimeFactorization" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="ShouldCountFactorsForLargeNumbersUsingPrimeFactorization" />
+                      </Rule>
+                    </Rule>
                   </Rule>
                 </Rule>
               </Rule>
