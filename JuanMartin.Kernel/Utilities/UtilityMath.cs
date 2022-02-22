@@ -2151,12 +2151,9 @@ namespace JuanMartin.Kernel.Utilities
         /// <param name="number"></param>
         /// <param name="i"></param>
         /// <returns></returns>
-        public static List<long> PrimeFactorization(long number, long i = 2, int maximumPrime = 10000)
+        public static List<long> PrimeFactorization(long number, System.Collections.Generic.Queue<long> primeQueue, long i = 2)
         {
             var factors = new List<long>();
-            var primeQueue = new System.Collections.Generic.Queue<long>();
-            foreach (var p in ErathostenesSieve(maximumPrime))
-                primeQueue.Enqueue(p);
 
             PrimeFactorizationRecursion(number, i, primeQueue, factors);
             return factors;
@@ -2192,12 +2189,9 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public static List<BigInteger> PrimeFactorizationLargeNumber(BigInteger number, BigInteger start, int maximumPrime)
+        public static List<BigInteger> PrimeFactorizationLargeNumber(BigInteger number, BigInteger start, System.Collections.Generic.Queue<long> primeQueue)
         {
             var factors = new List<BigInteger>();
-            var primeQueue = new System.Collections.Generic.Queue<long>();
-            foreach (var p in ErathostenesSieve(maximumPrime))
-                primeQueue.Enqueue(p);
 
             PrimeFactorizationLargeNumberRecursion(number, start, primeQueue, factors);
             return factors;
@@ -2239,13 +2233,13 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
-        public static int CountFactors(long number, int maximumPrime = 10000)
+        public static int CountFactors(long number, System.Collections.Generic.Queue<long> primeQueue)
         {
             if (number == 0)
                 return 0;
 
             int count = 1;
-            List<long> primeFactors = PrimeFactorization(number,maximumPrime: maximumPrime);
+            List<long> primeFactors = PrimeFactorization(number, primeQueue);
 
             primeFactors.Sort();
 
@@ -2279,13 +2273,13 @@ namespace JuanMartin.Kernel.Utilities
             return count;
         }
 
-        public static int CountLargeNumberFactorsUsingRecursion(BigInteger number, int maximumPrime = 17)
+        public static int CountLargeNumberFactorsUsingRecursion(BigInteger number, System.Collections.Generic.Queue<long> primeQueue)
         {
             if (number == 0) 
                 return 0;
 
             int count = 1;
-            List<BigInteger> primeFactors = PrimeFactorizationLargeNumber(number,2, maximumPrime);
+            List<BigInteger> primeFactors = PrimeFactorizationLargeNumber(number, 2, primeQueue);
 
             primeFactors.Sort();
 

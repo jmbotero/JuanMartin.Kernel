@@ -1348,6 +1348,13 @@ namespace JuanMartin.Kernel.Utilities.Tests
         [TestFixture]
         public class PrimeFactorizationTests
         {
+            System.Collections.Generic.Queue<long> actualPrimes;
+            private void PrimeQueueSetup()
+            {
+                actualPrimes = new System.Collections.Generic.Queue<long>();
+                foreach (var p in UtilityMath.ErathostenesSieve(10000))
+                    actualPrimes.Enqueue(p);
+            }
             [Test()]
             public void ShougldGetCompletePrimeFactorList()
             {
@@ -1355,26 +1362,30 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 long actualNumber;
 
                 actualNumber = 72;
+                PrimeQueueSetup();
                 expectedPrimeFactors = new List<long> { 2, 2, 2, 3, 3 };
-                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
 
                 actualNumber = 28227;
+                PrimeQueueSetup();
                 expectedPrimeFactors = new List<long> { 3, 97, 97 };
-                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber, actualPrimes);
 
-                Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
+                 Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
 
                 actualNumber = 7540;
+                PrimeQueueSetup();
                 expectedPrimeFactors = new List<long> { 2, 2, 5, 13, 29 };
-                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
 
                 actualNumber = 15802;
+                PrimeQueueSetup();
                 expectedPrimeFactors = new List<long> { 2, 7901 };
-                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber);
+                actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
             }
@@ -1387,29 +1398,33 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualNumber = 4;
                 expectedFactorCount = 3;
+                PrimeQueueSetup();
 
-                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+                actualFactorCount = UtilityMath.CountFactors(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
 
                 actualNumber = 72;
                 expectedFactorCount = 12;
+                PrimeQueueSetup();
 
-                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+                actualFactorCount = UtilityMath.CountFactors(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
 
                 actualNumber = 7540;
                 expectedFactorCount = 24;
+                PrimeQueueSetup();
 
-                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+                actualFactorCount = UtilityMath.CountFactors(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
 
                 actualNumber = 15802;
                 expectedFactorCount = 4;
+                PrimeQueueSetup();
 
-                actualFactorCount = UtilityMath.CountFactors(actualNumber);
+                actualFactorCount = UtilityMath.CountFactors(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
             }
@@ -1422,15 +1437,17 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
                 actualNumber = new BigInteger(4);
                 expectedFactorCount = 3;
+                PrimeQueueSetup();
 
-                actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber);
+                actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
 
                 actualNumber = BigInteger.Pow(180180, 2);
                 expectedFactorCount = 2025;
+                PrimeQueueSetup();
 
-                actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber);
+                actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
             }
