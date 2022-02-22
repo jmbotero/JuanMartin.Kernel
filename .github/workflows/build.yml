@@ -43,5 +43,5 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"jmbotero_JuanMartin.Kernel" /o:"jmbotero" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          msbuild C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.csproj /t:Clean;Rebuild
+          msbuild ..\..\JuanMartin.Kernel.sln /t:Clean;Rebuild
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
