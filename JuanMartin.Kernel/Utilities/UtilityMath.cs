@@ -297,6 +297,7 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
+           
             return true;
         };
 
@@ -2369,28 +2370,6 @@ namespace JuanMartin.Kernel.Utilities
             return A + B;
         }
 
-        public static int DigitLength<T>(T number)
-        {
-            if (Utilities.UtilityType.IsNumericType(number.GetType()))
-            {
-                return number.ToString().Length;
-            }
-            else
-                throw new InvalidOperationException(string.Format("{0} is invalid, DigitLength method can only be used numeric types.", number.GetType()));
-        }
-
-        public static int DigitCount<T>(T number)
-        {
-            if (Utilities.UtilityType.IsNumericType(number.GetType()))
-            {
-                dynamic n = number;
-                return (IsNaturalNumber(n.ToString())) ? (int)Math.Floor(1 + Math.Log10((double)n)) : -1;
-            }
-            else
-                throw new InvalidOperationException(string.Format("{0} is invalid, DigiatCount method can only be used numeric types.", number.GetType()));
-        }
-
-
         public static IEnumerable<Fraction> GetReducedProperFractionsUsingYield(int d, Fraction key = null)
         {
             var fractions = RPF(d, key).ToList();
@@ -2763,6 +2742,13 @@ namespace JuanMartin.Kernel.Utilities
             return ascending || descending;
         }
 
+        /// <summary>
+        /// Get array witn prime numbers from lower limit to upper limit, including
+        /// </summary>
+        /// <param name="upperLimit"></param>
+        /// <param name="lowerLimit"></param>
+        /// <param name="threadCount"></param>
+        /// <returns></returns>
         public static long[] ErathostenesSieve(int upperLimit, int lowerLimit = 2, int threadCount = 1)
         {
             int sieveBound = (int)(upperLimit - 1) / 2;
@@ -2799,7 +2785,9 @@ namespace JuanMartin.Kernel.Utilities
                 {
                     var n = 2 * i + 1;
                     if (n >= lowerLimit && UtilityMath.IsPrime(n))
+                    {
                         numbers.Add(n);
+                    }
                 }
             });
 
@@ -2934,28 +2922,6 @@ namespace JuanMartin.Kernel.Utilities
                 if (IsPrimeUsingSquares(number))
                     yield return number;
             }
-        }
-
-        /// <summary>
-        /// Returns first part of number.
-        /// </summary>
-        /// <param name="number">Initial number</param>
-        /// <param name="N">Amount of digits required</param>
-        /// <returns>First part of number</returns>
-        public static int TakeNDigits(int number, int N)
-        {
-            // this is for handling negative numbers, we are only insterested in postitve number
-            number = Math.Abs(number);
-            // special case for 0 as Log of 0 would be infinity
-            if (number == 0)
-                return number;
-            // getting number of digits on this input number
-            int numberOfDigits = (int)Math.Floor(Math.Log10(number) + 1);
-            // check if input number has more digits than the required get first N digits
-            if (numberOfDigits >= N)
-                return (int)Math.Truncate((number / Math.Pow(10, numberOfDigits - N)));
-            else
-                return number;
         }
 
         public static bool IsPalindrome(long number)
@@ -3299,7 +3265,7 @@ namespace JuanMartin.Kernel.Utilities
                 case 6:
                 case 9:
                     {
-                        switch (NumericDigitSum(number, true))
+                        switch (DigitsSum(number, true))
                         {
                             case 1:
                             case 4:
@@ -3487,6 +3453,71 @@ namespace JuanMartin.Kernel.Utilities
             return letters.ToString();
         }
 
+        public static int NumericDigitCount<T>(T number)
+        {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException(string.Format("{0} is invalid, NumericDigitCount method can only be used numeric types.", methodType));
+
+            dynamic n = number;
+            return (IsNaturalNumber(n.ToString())) ? (int)Math.Floor(1 + Math.Log10((double)n)) : -1;
+        }
+
+        /// <summary>
+        /// Returns first part of number.
+        /// </summary>
+        /// <param name="number">Initial number</param>
+        /// <param name="N">Amount of digits required</param>
+        /// <returns>First part of number</returns>
+        public static int TakeNDigits(int number, int N)
+        {
+            // this is for handling negative numbers, we are only insterested in postitve number
+            number = Math.Abs(number);
+            // special case for 0 as Log of 0 would be infinity
+            if (number == 0)
+                return number;
+            // getting number of digits on this input number
+            int numberOfDigits = DigitCount(number);
+            // check if input number has more digits than the required get first N digits
+            if (numberOfDigits >= N)
+                return (int)Math.Truncate((number / Math.Pow(10, numberOfDigits - N)));
+            else
+                return number;
+        }
+
+        public static int FirstDigit<T>(T number)
+        {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException($"{number} is {methodType}, and FirstDigit only applies to numeric types.");
+
+            dynamic n = number;
+
+            n = Math.Abs(n);
+            while (n >= 10)
+                n /= 10;
+
+            return (int)n;
+        }
+
+        public static int DigitCount<T>(T number)
+        {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException($"{number} is {methodType}, and DigitCount only applies to numeric types.");
+
+            dynamic n = number;
+            // In case of negative numbers
+            n = Math.Abs(n);
+
+            if (n >= 10)
+                return DigitCount(n / 10) + 1;
+            return 1;
+        }
+
         public static long DigitsSum(string number)
         {
             var digits = number.ToCharArray();
@@ -3502,15 +3533,38 @@ namespace JuanMartin.Kernel.Utilities
             return sum;
         }
 
+        public static long DigitsSum<T>(T number)
+        {
+            var methodType = typeof(T);
+
+            if (!UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException($"{number} is {methodType}, and DigitCount only applies to numeric types.");
+
+            dynamic n = number;
+            // In case of negative numbers
+            n = Math.Abs(n);
+
+            var digits = n.ToString().ToCharArray();
+            long sum = 0;
+
+            for (int i = 0; i < digits.Length; i++)
+            {
+                sum += (digits[i] - 48);
+            }
+
+            return sum;
+        }
+
         /// <summary>
-        /// Get digits  in numbeil them and/or those in its sum add up to a  single digit.
+        /// Get digits  in number and addthem and/or those in its sum add up to a  single digit.
         /// E.g: 637 -> 6+3+7=1+6=7
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="number"></param>
         /// <returns></returns>
-        public static int NumericDigitSum<T>(T number, bool addUpToSingleDigit = false)
+        public static int DigitsSum<T>(T number, bool addUpToSingleDigit)
         {
+        
             var methodType = typeof(T);
 
             if (!UtilityType.IsNumericType(methodType))
@@ -3527,11 +3581,39 @@ namespace JuanMartin.Kernel.Utilities
 
             if (addUpToSingleDigit)
                 while (sum > 10)
-                    sum = NumericDigitSum(sum);
+                    sum = DigitsSum(sum, addUpToSingleDigit);
 
             return (int)sum;
 
         }
+
+        /// <summary>
+        /// Return array (digit/position) of the maximum count of repeats  of digit in number on
+        /// the whole set. Array is initialized with zeroes.
+        /// </summary>
+        /// <param name="numberSet"></param>
+        /// <returns></returns>
+        public static long[] MaximumNumericFrequency(long[] numberSet)
+        {
+            var frquencies = new long[10];
+
+            foreach (var number in numberSet)
+            {
+                var letters = number.ToString();
+                var counts = letters.DigitCounts();
+
+                for (var d = 0; d < 10; d++)
+                {
+                    var count = counts[d];//digits.LongCount(x => (x - 48) == d);
+
+                    if (count > frquencies[d])
+                        frquencies[d] = count;
+                }
+            }
+
+            return frquencies;
+        }
+
         public static List<Tuple<int, int>> TwoDigitSummation(List<int> digits, int fix, int target)
         {
             var sums = new List<Tuple<int, int>>();

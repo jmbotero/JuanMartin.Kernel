@@ -24,11 +24,11 @@ namespace JuanMartin.Kernel.Extesions.Tests
         {
             string actualNumber = "a";
 
-            Assert.IsFalse(actualNumber.IsNumeric(),"Single letter.");
+            Assert.IsFalse(actualNumber.IsNumeric(), "Single letter.");
 
             actualNumber = "1a3";
 
-            Assert.IsFalse(actualNumber.IsNumeric(),"Letter in number.");
+            Assert.IsFalse(actualNumber.IsNumeric(), "Letter in number.");
         }
 
         [Test()]
@@ -56,7 +56,7 @@ namespace JuanMartin.Kernel.Extesions.Tests
         {
             string actualNumber = "456.123";
 
-            Assert.IsTrue(actualNumber.IsNumeric(),"Multiple digit decimal number.");
+            Assert.IsTrue(actualNumber.IsNumeric(), "Multiple digit decimal number.");
 
             actualNumber = ".123";
 
@@ -65,6 +65,19 @@ namespace JuanMartin.Kernel.Extesions.Tests
             actualNumber = "45.612.3";
 
             Assert.IsFalse(actualNumber.IsNumeric(), "Value with multiple decimal points.");
+        }
+
+        [Test()]
+        public void ShouldReturnCountsOfAllDigitsInNumber()
+        {
+            int actualNumber;
+            long[] expectedCounts;
+
+            expectedCounts = new long[] { 0, 1, 1, 1, 3, 0, 1, 2, 1, 0 };
+            actualNumber = 2147483647;
+
+            var actualCounts = actualNumber.ToString().DigitCounts();
+            Assert.AreEqual(expectedCounts, actualCounts);
         }
     }
 }

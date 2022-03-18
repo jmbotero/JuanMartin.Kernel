@@ -5,10 +5,39 @@ namespace JuanMartin.Kernel.Extesions
 {
     public static class BasicExtensions
     {
-        public static int Sign<T>(this T number)
+        public static bool HasDuplicates<T>(this T number, int length=10)
         {
             if (!Utilities.UtilityType.IsNumericType(number.GetType()))
-                throw new InvalidOperationException(string.Format("{0} is invalid, Sign extension only applies to numeric types.", number.GetType()));
+                throw new InvalidOperationException($"{number} is {number.GetType()}, and HasDuplicates extension only applies to numeric types.");
+
+            dynamic n = number;
+
+            // Flag to indicate digit has been used, all fase to start.
+            int l = (length != 10) ? Utilities.UtilityMath.DigitCount(number) : length;
+            var used = new bool[l];
+
+            // Process each digit in number.
+            while (n != 0)
+            {
+                var i = n % 10;
+
+                // If duplicate, return true as soon as found.
+                if (used[i]) return true;
+
+                // Otherwise, mark used, go to next digit.
+                used[i] = true;
+                n /= 10;
+            }
+
+            // No duplicates after checking all digits, return false.
+            return false;
+        }
+        public static int Sign<T>(this T number)
+        {
+            var methodType = typeof(T);
+
+            if (!Utilities.UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException(string.Format("{0} is invalid, Sign extension only applies to numeric types.", methodType));
 
             dynamic n = number;
 
@@ -43,7 +72,7 @@ namespace JuanMartin.Kernel.Extesions
         {
             return Path.GetFileNameWithoutExtension(@this.FullName);
         }
-        
+
         /// <summary>
         /// Reverse digits in a number.
         /// </summary>
@@ -52,19 +81,19 @@ namespace JuanMartin.Kernel.Extesions
         /// <returns></returns>
         public static T Reverse<T>(this T number)
         {
-            if (Utilities.UtilityType.IsNumericType(number.GetType()))
+            var methodType = typeof(T);
+
+            if (!Utilities.UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException(string.Format("{0} is invalid, Reverse extension only applies to numeric types.", methodType));
+
+            dynamic ReverseNumber = 0;
+            dynamic n = number;
+            while (n > 0)
             {
-                dynamic ReverseNumber = 0;
-                dynamic n = number;
-                while (n > 0)
-                {
-                    ReverseNumber = (ReverseNumber * 10) + (n % 10);
-                    n /= 10;
-                }
-                return ReverseNumber;
+                ReverseNumber = (ReverseNumber * 10) + (n % 10);
+                n /= 10;
             }
-            else
-                throw new InvalidOperationException(string.Format("{0} is invalid, Reverse extension only applies to numeric types.", number.GetType()));
+            return ReverseNumber;
         }
 
     }

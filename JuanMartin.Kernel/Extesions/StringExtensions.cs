@@ -26,7 +26,7 @@ namespace JuanMartin.Kernel.Extesions
 
         public static bool IsNullOrEmptyOrZero(this string source)
         {
-            bool match = false;
+            bool match = true;
             
             if(source!=null  && source != string.Empty)
             {
@@ -60,11 +60,51 @@ namespace JuanMartin.Kernel.Extesions
         {
             return (T)Enum.Parse(typeof(T), enumValue);
         }
+
+        public static int DigitLength(this string number)
+        {
+            if (!number.IsNumeric())
+                throw new InvalidOperationException($"{number} must be a numeric representation to use DigitLength.");
+
+            return number.Length;
+        }
+        /// <summary>
+        /// Return array each (digit/position) with the count of repeats  of digit in number on
+        /// Array is initialized with zeroes.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static long[] DigitCounts(this string number)
+        {
+            if (!number.IsNumeric())
+                throw new InvalidOperationException($"{number} must be a numeric representation to use DigitCounts.");
+
+            var frquencies = new long[10];
+
+            var digits = number.ToCharArray();
+
+            foreach (var d in digits)
+            {
+                var i = Convert.ToInt32(d.ToString());
+
+                frquencies[i]++;
+            }
+
+
+            return frquencies;
+        }
+
+        /// <summary>
+        /// Return aseending ordered on key, a dictionary <character, % frequency> of only
+        /// characters in message.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static IOrderedEnumerable<KeyValuePair<char, double>> Frequency(this string message)
         {
             var characters = message.ToCharArray();
             var myDict = characters.GroupBy(x => x).ToDictionary(g => g.Key, g => (double)g.Count() / characters.Count());
-            var sortedDict = from entry in myDict orderby entry.Value descending select entry;
+            var sortedDict = from entry in myDict orderby entry.Key ascending select entry;
 
             return sortedDict;
         }

@@ -159,7 +159,7 @@ namespace JuanMartin.Kernel.Processors
                                         var numericPattern = new Regex("^[0-9,]*$");
                                        
                                         //TODO: specify range pattern
-                                        if (numericPattern.IsMatch(actualValue))
+                                        if (!actualValue.IsNullOrEmptyOrZero() && numericPattern.IsMatch(actualValue))
                                             value = actualValue.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
                                         else
                                             throw new ArgumentException($"Cannot parse value {actualValue} as an integer or comma-separaated list of integers.");

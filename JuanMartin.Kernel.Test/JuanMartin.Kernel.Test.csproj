@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Adapters\AdapterMySqlMock.cs" />
     <Compile Include="Adapters\AdapterMySqlTests.cs" />
+    <Compile Include="Extesions\BasicExtensionsTests.cs" />
     <Compile Include="Extesions\CollectionExtensionsTests.cs" />
     <Compile Include="Extesions\StringExtensionsTests.cs" />
     <Compile Include="Formatters\ValueHolderTests.cs" />

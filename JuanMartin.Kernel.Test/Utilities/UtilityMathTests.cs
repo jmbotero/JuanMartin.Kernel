@@ -191,7 +191,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             }
 
             [Test()]
-            public void ShouldReturnSelectionsOfAllStingMembersInCollectionIncludingRepetitionsInLinearOrderInAscendingOrder()
+            public void ShouldReturnSelectionsOfAllStringMembersInCollectionIncludingRepetitionsInLinearOrderInAscendingOrder()
             {
                 var actualColection = new string[] { "A", "B" };
                 var actualK = 2;
@@ -370,7 +370,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         public class PrimeFactorsTests
         {
             [Test()]
-            public void ShouldHaveTwoPrimeFactorsForOneThousand()
+            public void ShouldHaveTwoPrimeFactorsForTenThousand()
             {
                 var actualNumber = 1000;
                 var actualFactors = UtilityMath.GetPrimeFactors(actualNumber, false, false);
@@ -401,7 +401,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         public class GetCombinationsOfKTests
         {
             [Test()]
-            public void ShouldReturOneCobinationWhenchoosingSameNumberOfElementsAsNumberOfDistinctObjectsInSet()
+            public void ShouldReturOneCobinationWhenChoosingSameNumberOfElementsAsNumberOfDistinctObjectsInSet()
             {
                 var actualCollection = Enumerable.Range(1, 3).ToArray();
                 var actualCombination = UtilityMath.GetCombinationsOfK<int>(actualCollection, actualCollection.Length).ToArray();
@@ -694,15 +694,38 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
 
         [TestFixture]
-        public class NumericDigitSumTests
+        public class DigitsSumTests
         {
+            [Test()]
+            public void ShouldBeTheFastestsDigitSumMethodTheArrayVariant()
+            {
+                void ArraySum(long[] numbers)
+                {
+                    var f = numbers.Select(i => UtilityMath.DigitsSum(i)).ToList();
+                }
+                void StringSum(long[] numbers)
+                {
+                    var f = numbers.Select(i => UtilityMath.DigitsSum(i.ToString())).ToList();
+                }
+                void ModulusSum(long[] numbers)
+                {
+                    var f = numbers.Select(i => UtilityMath.DigitsSum(i, addUpToSingleDigit: false)).ToList();
+                }
+                var actualNumbers = new long[] { 12345, 98765,  23456, 87654, 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654 };
+                var actualArrayBasedDigitSumDuration = UtilityHelper.Measure(() => ArraySum(actualNumbers));
+                var actualArithmeticBasedDigitSumDuration = UtilityHelper.Measure(() => ModulusSum(actualNumbers));
+                var actualStringBasedDigitSumDuration = UtilityHelper.Measure(() => StringSum(actualNumbers));
+
+                Assert.IsTrue(actualArithmeticBasedDigitSumDuration < actualArrayBasedDigitSumDuration, "Array variant is fastest.");
+                Assert.IsTrue(actualArithmeticBasedDigitSumDuration > actualStringBasedDigitSumDuration, "String variant is slowest.");
+             }
             [Test()]
             public void ShouldFinSumOfDigitsInNumberAsSingleDigit()
             {
-                BigInteger actualNumber = 321489;
-                int expectedSum = 9;
+                BigInteger actualNumber = 11111111111;
+                int expectedSum = 2;
 
-                var actualSum = UtilityMath.NumericDigitSum(actualNumber, true);
+                var actualSum = UtilityMath.DigitsSum(actualNumber, true);
 
                 Assert.AreEqual(expectedSum, actualSum);
             }
@@ -710,7 +733,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
         [TestFixture]
         public class AddLargeNumbersTests
-        {
+        { 
             [Test()]
             public void ShouldAddTwoNumbersWithoutDecimalTest()
             {
