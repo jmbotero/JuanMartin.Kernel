@@ -297,7 +297,6 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
-           
             return true;
         };
 
@@ -328,6 +327,68 @@ namespace JuanMartin.Kernel.Utilities
 
             return true;
         };
+
+        /// <summary>
+        /// Rabin–Miller primality test is a probabilistic primality test: an algorithm 
+        /// which determines whether a given number is likely to be prime, similar 
+        /// to the Fermat primality test and the Solovay–Strassen primality test.
+        /// <see cref="https://stackoverflow.com/questions/4236673/sample-code-for-fast-primality-testing-in-c-sharp"/>
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static bool MillerRabin(ulong n)
+        {
+
+            if (n == 2) return true; 
+            if (n == 1 ) return false;
+            if (n % 2 == 0) return false;
+
+            /// <see cref="http://oeis.org/A014233"/>
+            ulong[] ar;
+            if (n < 4759123141) ar = new ulong[] { 2, 7, 61 };
+            else if (n < 341550071728321) ar = new ulong[] { 2, 3, 5, 7, 11, 13, 17 };
+            else ar = new ulong[] { 2, 3, 5, 7, 11, 13, 17, 19, 23 };
+            ulong d = n - 1;
+            int s = 0;
+            while ((d & 1) == 0) { d >>= 1; s++; }
+            int i, j;
+            for (i = 0; i < ar.Length; i++)
+            {
+                ulong a = Math.Min(n - 2, ar[i]);
+                ulong now = BitwisePow(a, d, n);
+                if (now == 1) continue;
+                if (now == n - 1) continue;
+                for (j = 1; j < s; j++)
+                {
+                    now = BitwiseMultiply(now, now, n);
+                    if (now == n - 1) break;
+                }
+                if (j == s) return false;
+            }
+            return true;
+        }
+
+        private static ulong BitwiseMultiply(ulong a, ulong b, ulong mod)
+        {
+            int i;
+            ulong now = 0;
+            for (i = 63; i >= 0; i--) if (((a >> i) & 1) == 1) break;
+            for (; i >= 0; i--)
+            {
+                now <<= 1;
+                while (now > mod) now -= mod;
+                if (((a >> i) & 1) == 1) now += b;
+                while (now > mod) now -= mod;
+            }
+            return now;
+        }
+
+        private static ulong BitwisePow(ulong a, ulong p, ulong mod)
+        {
+            if (p == 0) return 1;
+            if (p % 2 == 0) return BitwisePow(BitwiseMultiply(a, a, mod), p / 2, mod);
+            return BitwiseMultiply(BitwisePow(a, p - 1, mod), a, mod);
+        }
 
         public class Operands : IComparable<Operands>
         {
@@ -3542,7 +3603,9 @@ namespace JuanMartin.Kernel.Utilities
 
             dynamic n = number;
             // In case of negative numbers
-            n = Math.Abs(n);
+            if (n < 0)
+                n *= -1;  
+            //n = Math.Abs(n);
 
             var digits = n.ToString().ToCharArray();
             long sum = 0;
@@ -3599,8 +3662,8 @@ namespace JuanMartin.Kernel.Utilities
 
             foreach (var number in numberSet)
             {
-                var letters = number.ToString();
-                var counts = letters.DigitCounts();
+                var digits = number.ToString();
+                var counts = digits.DigitCounts();
 
                 for (var d = 0; d < 10; d++)
                 {

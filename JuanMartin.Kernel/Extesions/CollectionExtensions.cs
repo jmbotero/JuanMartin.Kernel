@@ -93,6 +93,17 @@ namespace JuanMartin.Kernel.Extesions
                 yield return start + current;
             }
         }
+
+        public static ulong Sum(this IEnumerable<ulong> source)
+        {
+            ulong sum = 0;
+            foreach (var number in source)
+            {
+                sum += number;
+            }
+            return sum;
+        }
+
         public static IEnumerable<(T item, int index)> Enumerate<T>(this IEnumerable<T> self)
              => self?.Select((item, index) => (item, index)) ?? new List<(T, int)>();
 
