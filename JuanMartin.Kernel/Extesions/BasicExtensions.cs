@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using JuanMartin.Kernel.Utilities;
 
 namespace JuanMartin.Kernel.Extesions
 {
@@ -32,6 +33,52 @@ namespace JuanMartin.Kernel.Extesions
             // No duplicates after checking all digits, return false.
             return false;
         }
+
+        private static int IsGrowthNumber(int number, UtilityMath.Growth growth)
+        {
+            if (number <= 0)
+            {
+                throw new InvalidOperationException("To decide if number is increasing or decreasing, it must be positive");
+            }
+            if (number < 100)
+            {
+                throw new InvalidOperationException("Clearly there cannot be any bouncy numbers below one-hundred");
+            }
+
+            int right = number % 10;
+            number /= 10;
+            int left = number % 10;
+            number /= 10;
+
+            while (true)
+            {
+                if (right != left)
+                {
+                    if (growth == UtilityMath.Growth.increase && left > right)
+                        return 0;
+                    if (growth == UtilityMath.Growth.decrease && left < right)
+                        return 0;
+                }
+                if (number == 0)
+                    break;
+
+                right = left;
+                left = number % 10;
+                number /= 10;
+            }
+            return 1;
+        }
+
+        public static bool IsIncreasingNumber(this int number)
+        {
+            return IsGrowthNumber(number, UtilityMath.Growth.increase) == 1;
+        }
+
+        public static bool IsDecreasingNumber(this int number)
+        {
+            return IsGrowthNumber(number, UtilityMath.Growth.decrease) == 1;
+        }
+
         public static int Sign<T>(this T number)
         {
             var methodType = typeof(T);
@@ -46,7 +93,12 @@ namespace JuanMartin.Kernel.Extesions
 
         public static bool Between<T>(this T source, T low, T high,bool inclusive=true) where T : IComparable
         {
-            if(inclusive)
+            var methodType = typeof(T);
+
+            if (!Utilities.UtilityType.IsNumericType(methodType))
+                throw new InvalidOperationException(string.Format("{0} is invalid, Between extension only applies to numeric types.", methodType));
+
+            if (inclusive)
                 return source.CompareTo(low) >= 0 && source.CompareTo(high) <= 0;
             else
                 return source.CompareTo(low) > 0 && source.CompareTo(high) < 0;

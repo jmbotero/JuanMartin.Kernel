@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Numerics;
 using System.Collections.Generic;
-using JuanMartin.Kernel.RuleEngine;
+using JuanMartin.Kernel.Extesions;                                                                                                                                                                                                                                                                                                                                                                                                  
 using JuanMartin.Kernel.Utilities.DataStructures;
 
 namespace JuanMartin.Kernel.Utilities.Tests
@@ -574,8 +574,8 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldFlagAsPrimeCorreccctlyUsdingRabinMillerTest()
             {
-                var actualNotPrimes = new long[] { 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25, 26, 
-                                                    27, 28, 30, 32, 33, 34, 35, 36, 38, 39, 40, 42, 44, 45, 46, 48, 49, 
+                var actualNotPrimes = new long[] { 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25, 26,
+                                                    27, 28, 30, 32, 33, 34, 35, 36, 38, 39, 40, 42, 44, 45, 46, 48, 49,
                                                     50, 51, 52, 54, 55, 56, 57, 58, 60, 62, 30119 * 30119, 34883 * 34883};
 
                 foreach (ulong n in actualNotPrimes)
@@ -586,7 +586,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 foreach (ulong n in actualPrimes)
                     Assert.IsTrue(UtilityMath.MillerRabin(n), $"{n} is prime.");
 
-                actualPrimes = new long[] { 1262903,  1262917,  1262927, 1262929,  1262939, 1262941 };
+                actualPrimes = new long[] { 1262903, 1262917, 1262927, 1262929, 1262939, 1262941 };
 
                 foreach (ulong n in actualPrimes)
                     Assert.IsTrue(UtilityMath.MillerRabin(n), $"{n} is prime.");
@@ -732,14 +732,14 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 {
                     var f = numbers.Select(i => UtilityMath.DigitsSum(i, addUpToSingleDigit: false)).ToList();
                 }
-                var actualNumbers = new long[] { 12345, 98765,  23456, 87654, 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654 };
+                var actualNumbers = new long[] { 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654, 12345, 98765, 23456, 87654 };
                 var actualArrayBasedDigitSumDuration = UtilityHelper.Measure(() => ArraySum(actualNumbers));
                 var actualArithmeticBasedDigitSumDuration = UtilityHelper.Measure(() => ModulusSum(actualNumbers));
                 var actualStringBasedDigitSumDuration = UtilityHelper.Measure(() => StringSum(actualNumbers));
 
                 Assert.IsTrue(actualArithmeticBasedDigitSumDuration < actualArrayBasedDigitSumDuration, "Array variant is fastest.");
                 Assert.IsTrue(actualArithmeticBasedDigitSumDuration > actualStringBasedDigitSumDuration, "String variant is slowest.");
-             }
+            }
             [Test()]
             public void ShouldFinSumOfDigitsInNumberAsSingleDigit()
             {
@@ -754,7 +754,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
 
         [TestFixture]
         public class AddLargeNumbersTests
-        { 
+        {
             [Test()]
             public void ShouldAddTwoNumbersWithoutDecimalTest()
             {
@@ -1417,7 +1417,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 expectedPrimeFactors = new List<long> { 3, 97, 97 };
                 actualPrimeFactors = UtilityMath.PrimeFactorization(actualNumber, actualPrimes);
 
-                 Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
+                Assert.AreEqual(expectedPrimeFactors, actualPrimeFactors, $"Factors of {actualNumber}");
 
                 actualNumber = 7540;
                 PrimeQueueSetup();
@@ -1494,6 +1494,38 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 actualFactorCount = UtilityMath.CountLargeNumberFactorsUsingRecursion(actualNumber, actualPrimes);
 
                 Assert.AreEqual(expectedFactorCount, actualFactorCount, $"Factor count of {actualNumber}");
+            }
+        }
+
+        [TestFixture]
+        public class IsBouncyNumberTests
+        {
+            [Test()]
+            public void ShouldFlagNumberWithNoDigitExceededOrFollowedByTheDigitToItsLeftAsBouncyNumber()
+            {
+                int actualNumber;
+
+                actualNumber = 538;
+
+                Assert.IsTrue(UtilityMath.IsBouncyNumber(actualNumber), $"{actualNumber} is a bouncy number");
+
+                actualNumber = 134468;
+
+                Assert.IsFalse(UtilityMath.IsBouncyNumber(actualNumber), $"{actualNumber} is not a bouncy number");
+                Assert.IsTrue(actualNumber.IsIncreasingNumber(), $"{actualNumber} is an increasing number");
+                Assert.IsFalse(actualNumber.IsDecreasingNumber(), $"{actualNumber} is not a decreasing number");
+
+                actualNumber = 66420;
+
+                Assert.IsFalse(UtilityMath.IsBouncyNumber(actualNumber), $"{actualNumber} is not a bouncy number");
+                Assert.IsTrue(actualNumber.IsDecreasingNumber(), $"{actualNumber} is an decreasing number");
+                Assert.IsFalse(actualNumber.IsIncreasingNumber(), $"{actualNumber} is not an increasing number");
+
+                actualNumber = 155349;
+
+                Assert.IsTrue(UtilityMath.IsBouncyNumber(actualNumber), $"{actualNumber} is a bouncy number");
+                Assert.IsFalse(actualNumber.IsIncreasingNumber(), $"{actualNumber} is not an increasing number");
+                Assert.IsFalse(actualNumber.IsDecreasingNumber(), $"{actualNumber} is not a decreasing number");
             }
         }
     }

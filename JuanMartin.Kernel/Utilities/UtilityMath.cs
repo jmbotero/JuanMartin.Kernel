@@ -170,6 +170,11 @@ namespace JuanMartin.Kernel.Utilities
             none = 16
         }
 
+        public enum Growth
+        {
+            increase = 0,
+            decrease = 1
+        }
 
         public static T AddGenericValues<T>(T operand1, T operand2)
         {
@@ -1708,10 +1713,23 @@ namespace JuanMartin.Kernel.Utilities
 
             return constant.ToString();
         }
+        /// <summary>
+        /// We shall call a positive integer that is neither increasing nor decreasing a "bouncy" number; for example, 155349.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static bool IsBouncyNumber(int number)
+        {
+            bool a = number.IsDecreasingNumber();
+            if (a) return false;
+            bool b = number.IsIncreasingNumber();
+            if (b) return false;
+
+            return true;
+        }
 
         public static bool IsNaturalNumber(string number)
         {
-
             return (int.TryParse(number, out int n) && n > 0);
         }
 
