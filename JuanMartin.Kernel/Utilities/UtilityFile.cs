@@ -12,6 +12,26 @@ namespace JuanMartin.Kernel.Utilities
         public const char CarriageReturn = '\r';
         public const char LineFeed = '\n';
 
+        public static List<FileInfo> GetAllFiles(string path)
+        {
+            var files = new List<FileInfo>();
+
+            GetAllFiles(path, files);
+
+            return files;
+        }
+        private static void GetAllFiles(string path, List<FileInfo> files)
+        {
+            DirectoryInfo dir = new DirectoryInfo(path);
+            
+            files.AddRange(dir.GetFiles());
+
+            foreach(var d in dir.GetDirectories())
+            {
+                GetAllFiles(d.FullName, files);
+            }
+        }
+
         public static bool WriteArrayToFile<T>(string fileName, T[] source,bool overwrite=true)
         {
             try
