@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IWshRuntimeLibrary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -12,21 +13,72 @@ namespace JuanMartin.Kernel.Utilities
         public const char CarriageReturn = '\r';
         public const char LineFeed = '\n';
 
-        public static List<FileInfo> GetAllFiles(string path)
+        public static string GetLinkTargetPath(string shortcutFilename)
+        {
+            using var br = new BinaryReader(System.IO.File.OpenRead(shortcutFilename));
+            // skip the first 20 bytes (HeaderSize and LinkCLSID)
+            br.ReadBytes(0x14);
+            // read the LinkFlags structure (4 bytes)
+            uint lflags = br.ReadUInt32();
+            // if the HasLinkTargetIDList bit is set then skip the stored IDList 
+            // structure and header
+            if ((lflags & 0x01) == 1)
+            {
+                br.ReadBytes(0x34);
+                var skip = br.ReadUInt16(); // this counts of how far we need to skip ahead
+                br.ReadBytes(skip);
+            }
+            // get the number of bytes the path contains
+            var length = br.ReadUInt32();
+            // skip 12 bytes (LinkInfoHeaderSize, LinkInfoFlgas, and VolumeIDOffset)
+            br.ReadBytes(0x0C);
+            // Find the location of the LocalBasePath position
+            var lbpos = br.ReadUInt32();
+            // Skip to the path position 
+            // (subtract the length of the read (4 bytes), the length of the skip (12 bytes), and
+            // the length of the lbpos read (4 bytes) from the lbpos)
+            br.ReadBytes((int)lbpos - 0x14);
+            var size = length - lbpos - 0x02;
+            var bytePath = br.ReadBytes((int)size);
+            var path = Encoding.UTF8.GetString(bytePath, 0, bytePath.Length);
+            return path;
+        }
+
+        public static string GetLinkTargetPathUsingWshShell(string shortcutFilename)
+        {
+            if (System.IO.File.Exists(shortcutFilename))
+            {
+                   // WshShellClass shell = new WshShellClass();
+                   WshShell shell = new WshShell(); //Create a new WshShell Interface
+                IWshShortcut link = (IWshShortcut)shell.CreateShortcut(shortcutFilename); //Link the interface to our shortcut
+
+                return link.TargetPath; //Show the target in a MessageBox using IWshShortcut
+            }
+            return string.Empty;
+        }
+        public static List<FileInfo> GetAllFiles(string path, bool pathIsLink)
         {
             var files = new List<FileInfo>();
+            if (pathIsLink)
+            {
+                path = GetLinkTargetPath(path);
 
-            GetAllFiles(path, files);
+                if (string.IsNullOrEmpty(path))
+                    throw new IOException("Problem reading target path from windows shortcut.");
+            }
+
+                GetAllFiles(path, files);
 
             return files;
         }
+
         private static void GetAllFiles(string path, List<FileInfo> files)
         {
             DirectoryInfo dir = new DirectoryInfo(path);
             
             files.AddRange(dir.GetFiles());
 
-            foreach(var d in dir.GetDirectories())
+               foreach(var d in dir.GetDirectories())
             {
                 GetAllFiles(d.FullName, files);
             }
@@ -36,10 +88,10 @@ namespace JuanMartin.Kernel.Utilities
         {
             try
             {
-                if (overwrite && File.Exists(fileName))
-                    File.Delete(fileName);
+                if (overwrite && System.IO.File.Exists(fileName))
+                    System.IO.File.Delete(fileName);
 
-                File.WriteAllLines(fileName, Array.ConvertAll(source, x => x.ToString()));
+                System.IO.File.WriteAllLines(fileName, Array.ConvertAll(source, x => x.ToString()));
                 return true;
             }
             catch
@@ -51,7 +103,7 @@ namespace JuanMartin.Kernel.Utilities
         {
             var word = new StringBuilder();
 
-            using var stream = File.OpenRead(fileName);
+            using var stream = System.IO.File.OpenRead(fileName);
             using var reader = new StreamReader(stream);
             while (reader.Peek() != -1)
             {
