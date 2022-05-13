@@ -10,7 +10,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         [Test]
         public void ShouldFindAllFilesUnderDirectoryTree()
         {
-            var actualFiles = UtilityFile.GetAllFiles(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data");
+            var actualFiles = UtilityFile.GetAllFiles(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data", false);
             var expectedFileCount = 4;
 
             Assert.AreEqual(expectedFileCount, actualFiles.Count);
