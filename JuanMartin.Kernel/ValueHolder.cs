@@ -130,6 +130,10 @@ namespace JuanMartin.Kernel
             }
         }
 
+        public override string ToString()
+        {
+            return $"{Name}:{Value}";
+        }
         #region Clonable interface methods
         public object Clone()
         {
