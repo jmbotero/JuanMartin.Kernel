@@ -4,14 +4,12 @@ namespace JuanMartin.Kernel.Messaging
 {
     public class Message : IMessage, IRecordSet, ICloneable
     {
-        private ValueHolder _message;
-        private ValueHolder _header;
-        private ValueHolder _payload;
+        private readonly ValueHolder _payload;
 
         public Message(string Name, string Type, string Text)
         {
-            _message = new ValueHolder(Name);
-            _header = new ValueHolder("Header");
+            Value = new ValueHolder(Name);
+            Header = new ValueHolder("Header");
             _payload = new ValueHolder("Data");
 
             AddHeader();
@@ -22,8 +20,8 @@ namespace JuanMartin.Kernel.Messaging
             if (Text != string.Empty)
                 this.AddData(Text);
 
-            _message.AddAnnotation(_header);
-            _message.AddAnnotation(_payload);
+            Value.AddAnnotation(Header);
+            Value.AddAnnotation(_payload);
         }
 
         public Message(string Name, string Type)
@@ -43,21 +41,14 @@ namespace JuanMartin.Kernel.Messaging
 
         public Message(IMessage Message)
         {
-            _message = Message.Value;
-            _header = Message.Header;
+            Value = Message.Value;
+            Header = Message.Header;
             _payload = Message.Data;
         }
 
-        public ValueHolder Value
-        {
-            get { return _message; }
-        }
+        public ValueHolder Value { get; }
 
-        public ValueHolder Header
-        {
-            get { return _header; }
-            set { _header = value; }
-        }
+        public ValueHolder Header { get; set; }
 
         ValueHolder IMessage.Data
         {
@@ -75,14 +66,14 @@ namespace JuanMartin.Kernel.Messaging
             {
                 try
                 {
-                    return (string)_header.GetAnnotation("Type").Value;
+                    return (string)Header.GetAnnotation("Type").Value;
                 }
                 catch
                 {
                     return string.Empty;
                 }
             }
-            set { _header.GetAnnotation("Type").Value = value; }
+            set { Header.GetAnnotation("Type").Value = value; }
         }
 
         public string Name
@@ -91,14 +82,14 @@ namespace JuanMartin.Kernel.Messaging
             {
                 try
                 {
-                    return (string)_header.GetAnnotation("Name").Value;
+                    return (string)Header.GetAnnotation("Name").Value;
                 }
                 catch
                 {
                     return string.Empty;
                 }
             }
-            set { _header.GetAnnotation("Name").Value = value; }
+            set { Header.GetAnnotation("Name").Value = value; }
         }
 
         public DateTime Dtm
@@ -107,14 +98,14 @@ namespace JuanMartin.Kernel.Messaging
             {
                 try
                 {
-                    return (DateTime)_header.GetAnnotation("Dtm").Value;
+                    return (DateTime)Header.GetAnnotation("Dtm").Value;
                 }
                 catch
                 {
                     return DateTime.MinValue;
                 }
             }
-            set { _header.GetAnnotation("Dtm").Value = value; }
+            set { Header.GetAnnotation("Dtm").Value = value; }
         }
 
         private void AddHeader()
@@ -123,9 +114,9 @@ namespace JuanMartin.Kernel.Messaging
             ValueHolder type = new ValueHolder("Type");
             ValueHolder dtm = new ValueHolder("Dtm");
 
-            _header.AddAnnotation(name);
-            _header.AddAnnotation(type);
-            _header.AddAnnotation(dtm);
+            Header.AddAnnotation(name);
+            Header.AddAnnotation(type);
+            Header.AddAnnotation(dtm);
         }
 
         public void AddSender(string Name, string Type, object Value)
@@ -138,7 +129,7 @@ namespace JuanMartin.Kernel.Messaging
             sender.AddAnnotation(name);
             sender.AddAnnotation(type);
 
-            _header.AddAnnotation(sender);
+            Header.AddAnnotation(sender);
         }
 
         public void AddSender(string Name, string Type)
@@ -156,7 +147,7 @@ namespace JuanMartin.Kernel.Messaging
             receiver.AddAnnotation(name);
             receiver.AddAnnotation(type);
 
-            _header.AddAnnotation(receiver);
+            Header.AddAnnotation(receiver);
         }
 
         public void AddReceiver(string Name, string Type)
