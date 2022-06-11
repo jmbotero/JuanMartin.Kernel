@@ -15,8 +15,13 @@ namespace JuanMartin.Kernel.RuleEngine
 {
     public class ExpressionEvaluator
     {
+        /// <summary>
+        ///  <see cref="https://www.fileformat.info/info/charset/UTF-8/list.htm"/> for character conversions
+        /// </summary>
         //Regular expression for tokenizing expressions to be evaluated
-        private static readonly string _expressionRegEx = string.Format(@"((?:\x27{0}*\x27)|(?:\b{1}+\b)|\x29|\x28|\x2c|>=|<=|!=|==|<|>|AND|OR|NOT|ISNULL|XOR|\x2b|\x2d|\x2a|\x2f)", @"[\s\w\d\x21\x22\x23\x24\x25\x26\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x3a\x3d\x3f\x5b\x5c\x5d\x5e\x5f\x7b\x7c\x7d\x7e]", @"[\w\d\x21\x22\x23\x24\x25\x26\x2e\x3a\x3f\x5b\x5c\x5d\x5e\x5f\x7b\x7c\x7d\x7e]");
+        private static readonly string _singleCharacters = @"[\w\d\x21\x22\x23\x24\x25\x26\x2e\x3a\x3f\x40\x5b\x5c\x5d\x5e\x5f\x7b\x7c\x7d\x7e]";
+        private static readonly string _singleCharactersWithSpace = @"[\s\w\d\x21\x22\x23\x24\x25\x26\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x3a\x3d\x3f\x40\x5b\x5c\x5d\x5e\x5f\x7b\x7c\x7d\x7e]";
+        private static readonly string _expressionRegEx = string.Format(@"((?:\x27{0}*\x27)|(?:\b{1}+\b)|\x29|\x28|\x2c|>=|<=|!=|==|<|>|AND|OR|NOT|ISNULL|XOR|\x2b|\x2d|\x2a|\x2f)",   _singleCharactersWithSpace , _singleCharacters);
 
         //LinkedList of characters and their replacement values, for characters not supported inside an a token in the expression by the regex above
         //because they are restricted symbols for the evaluator, like sinqle quote or open parenthesis
@@ -88,20 +93,19 @@ namespace JuanMartin.Kernel.RuleEngine
             return Token;
         }
 
-        public void Parse(string Expression)
+        public void Parse(string expression)
         {
-            Debug.Write("Parsing to inFix Expression: " + Expression + " : ");
+            Debug.Write("Parsing to inFix Expression: " + expression + " : ");
 
             //Reset stacks to parse a new expression 
             ClearStack();
 
             //Tokenize string
             Regex regex = new Regex(_expressionRegEx, RegexOptions.IgnoreCase);
-            string[] tokens = regex.Split(Expression);
+            string[] tokens = regex.Split(expression);
 
-            for (int i = 0; i < tokens.Length; i++)
+            foreach(string token in tokens)
             {
-                string token = tokens[i].Trim();
                 if (token == null || token == String.Empty) continue; //Workaround: sometimes regex will bring back empty entries, skip these
 
                 Symbol symbol = ParseToSymbol(token);
@@ -109,7 +113,7 @@ namespace JuanMartin.Kernel.RuleEngine
                 //Add the new symbol to the collection only if its name is not blank which means not a valid symbol
                 if (symbol.Name != string.Empty)
                     _inFixExpression.Add(symbol);
-
+                            
                 Debug.Write(symbol.Name + "|");
             }
 
@@ -119,65 +123,65 @@ namespace JuanMartin.Kernel.RuleEngine
             InfixToPostfix();
         }
 
-        private Symbol ParseToSymbol(string Token)
+        private Symbol ParseToSymbol(string token)
         {
             //If tokens were encoded by the uer when calling the evaluator
             //decode them before storing them into Symbols
-            Token = DecodeToken(Token);
+            token = DecodeToken(token);
 
             Symbol symbol = new Symbol();
 
-            if (IsOpenParanthesis(Token))
+            if (IsOpenParanthesis(token))
             {
-                symbol.Name = Token;
+                symbol.Name = token;
                 symbol.Type = Symbol.TokenType.OpenBracket;
             }
-            else if (IsCloseParanthesis(Token))
+            else if (IsCloseParanthesis(token))
             {
-                symbol.Name = Token;
+                symbol.Name = token;
                 symbol.Type = Symbol.TokenType.CloseBracket;
             }
-            else if (IsFunction(Token) != null) //Isfunction must come before Isvariable because its an exact match where the other is not
+            else if (IsFunction(token) != null) //Isfunction must come before Isvariable because its an exact match where the other is not
             {
-                symbol.Name = Token;
+                symbol.Name = token;
                 symbol.Type = Symbol.TokenType.Function;
             }
-            else if (IsOperator(Token))
+            else if (IsOperator(token))
             {
-                symbol.Name = Token;
+                symbol.Name = token;
                 symbol.Type = Symbol.TokenType.Operator;
             }
-            else if (UtilityType.IsBoolean(Token))
+            else if (UtilityType.IsBoolean(token))
             {
-                symbol.Name = Token;
-                symbol.Value = new Value(Value.Parse(Token));
+                symbol.Name = token;
+                symbol.Value = new Value(Value.Parse(token));
                 symbol.Type = Symbol.TokenType.Value;
             }
-            else if (IsFact(Token))
+            else if (IsFact(token))
             {
-                symbol.Name = Token;
+                symbol.Name = token;
                 symbol.Type = Symbol.TokenType.Fact;
             }
-            else if (UtilityType.IsNumber(Token))
+            else if (UtilityType.IsNumber(token))
             {
-                symbol.Name = Token;
-                symbol.Value = new Value(Value.Parse(Token));
+                symbol.Name = token;
+                symbol.Value = new Value(Value.Parse(token));
                 symbol.Type = Symbol.TokenType.Value;
             }
-            else if (UtilityType.IsString(Token))
+            else if (UtilityType.IsString(token))
             {
-                symbol.Name = Token;
-                symbol.Value = new Value(Value.Parse(Token));
+                symbol.Name = token;
+                symbol.Value = new Value(Value.Parse(token));
                 symbol.Type = Symbol.TokenType.Value;
             }
-            else if (Token.Trim() == ",")
+            else if (token.Trim() == ",")
             {
                 //Skip commas added for parameter separation in functions
             }
             else
             {
                 //Who knows what it is so throw an exception
-                throw new Exception("Error parsing token or invalid token: " + Token);
+                throw new Exception("Error parsing token or invalid token: " + token);
             }
 
             return symbol;

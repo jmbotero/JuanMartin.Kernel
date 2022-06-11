@@ -66,8 +66,16 @@ namespace JuanMartin.Kernel.Adapters
             List<Symbol> symbols = expression.PostFix;
 
             string commandName = (string)symbols[0].Name;
-            for (int i = 1; i < symbols.Count; i++)
-                parameters.Add(symbols[i].Value.Result);
+            foreach(var s in symbols)
+            {
+                if (s != null)
+                {
+                    if (s.Value != null)
+                        parameters.Add(s.Value.Result);
+                    //else
+                        //throw new ArgumentNullException($"{s} value not defined.");
+                }
+            }
 
             //Build stored procedure call as query: this is a workaround because otherwise we  need to know the exact param names
             string commandText = string.Format("CALL {0}(", commandName);
@@ -78,8 +86,6 @@ namespace JuanMartin.Kernel.Adapters
                     commandText += ",";
             }
             commandText += ");";
-
-            ValueHolder results = new ValueHolder();
 
             //Because of same problem above pass the 'Call' as the command text and do not set the type as sproc
             MySqlCommand command = new MySqlCommand(commandText, _connection);
@@ -94,9 +100,9 @@ namespace JuanMartin.Kernel.Adapters
 
             command.Connection.Open();
 
-            MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
+            MySqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection);
 
-            results = GetResultSet(reader, Name, Command);
+            ValueHolder results = GetResultSet(reader, Name, Command);
 
             reader.Close();
             return results;
@@ -104,15 +110,13 @@ namespace JuanMartin.Kernel.Adapters
 
         private ValueHolder ExecuteQuery(string Name, string Query)
         {
-            ValueHolder results = new ValueHolder();
-
             MySqlCommand command = new MySqlCommand(Query, _connection);
             command.CommandType = CommandType.Text;
             command.Connection.Open();
 
             MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
 
-            results = GetResultSet(reader, Name, Query);
+            ValueHolder results = GetResultSet(reader, Name, Query);
 
             reader.Close();
             return results;
@@ -195,6 +199,8 @@ namespace JuanMartin.Kernel.Adapters
                     break;
                 case CommandType.Text:
                     _responseData = ExecuteQuery(resultsName, query);
+                    break;
+                case CommandType.TableDirect:
                     break;
                 default:
                     throw new Exception("Only StoredProcedure and Text are mysql adapter valid request types.");

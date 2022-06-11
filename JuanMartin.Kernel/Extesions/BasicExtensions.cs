@@ -6,6 +6,24 @@ namespace JuanMartin.Kernel.Extesions
 {
     public static class BasicExtensions
     {
+        /// <summary>
+        /// Act like an implicit cast from a SQL data type to a C#/.NET data type.
+        /// <see cref="https://stackoverflow.com/questions/870697/unable-to-cast-object-of-type-system-dbnull-to-type-system-string"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static T ConvertFromSqlDataType<T>(object obj)
+        {
+            if (obj == null || obj == DBNull.Value)
+            {
+                return default; // returns the default value for the type
+            }
+            else
+            {
+                return (T)obj;
+            }
+        }
         public static bool HasDuplicates<T>(this T number, int length=10)
         {
             if (!Utilities.UtilityType.IsNumericType(number.GetType()))

@@ -79,7 +79,7 @@ namespace JuanMartin.Kernel.RuleEngine
 
         public override string ToString()
         {
-            return string.Format("[{0}, {1}, {2}]", _name, _value.ToString(), _type.ToString());
+            return string.Format("[{0}:{1}:{2}]", _name, (_value != null)?_value.ToString():"", _type.ToString());
         }
     }
 }

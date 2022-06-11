@@ -73,27 +73,28 @@ namespace JuanMartin.Kernel
         public object Clone()
         {
             return new Value((Value)this);
-        }
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 
-        public static object Parse(string Token)
+        public static object Parse(string token)
         {
             object value;
 
-            if (UtilityType.IsBoolean(Token))
+            if (UtilityType.IsBoolean(token))
             {
-                value = Boolean.Parse(Token);
+                value = Boolean.Parse(token);
             }
-            else if (UtilityType.IsNumber(Token))
+            else if (UtilityType.IsNumber(token))
             {
-                value = Double.Parse(Token);
+                value = Double.Parse(token);
             }
-            else if (UtilityType.IsString(Token))
+            else if (UtilityType.IsString(token))
             {
-                value = Token.Substring(1, Token.Length - 2);
+                int length = token.Length - 2;
+                value = ((length) > 0) ? token.Substring(1, length) : token;
             }
             else
             {
-                value = Token; //TO DO: Use serialization
+                value = token; //TO DO: Use serialization
             }
 
             return value;
