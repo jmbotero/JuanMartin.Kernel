@@ -130,6 +130,11 @@ namespace JuanMartin.Kernel.Utilities
             return result;
         }
 
+        /// <summary>
+        /// Check if guid in string representation has a valid form.
+        /// </summary>
+        /// <param name="guidString"></param>
+        /// <returns></returns>
         public static bool IsGuid(string guidString)
         {
             bool isValid = false;
