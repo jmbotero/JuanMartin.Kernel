@@ -95,7 +95,9 @@ namespace JuanMartin.Kernel.Adapters
             //Add param values so the mysqlclient can replace them in the command text
             for (int i = 1; i < parameters.Count + 1; i++)
             {
-                command.Parameters.AddWithValue("@p" + i, symbols[i].Value.Result);
+                var symbol = symbols[i]?.Value;
+                if(symbol != null)
+                   command.Parameters.AddWithValue("@p" + i, symbol.Result);
             }
 
             command.Connection.Open();
