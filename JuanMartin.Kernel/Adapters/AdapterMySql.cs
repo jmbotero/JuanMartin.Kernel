@@ -79,13 +79,18 @@ namespace JuanMartin.Kernel.Adapters
 
             //Build stored procedure call as query: this is a workaround because otherwise we  need to know the exact param names
             string commandText = string.Format("CALL {0}(", commandName);
+            string p = "";
             for (int i = 1; i < parameters.Count + 1; i++)
             {
-                commandText += "@p" + i;
-                if (i < parameters.Count)
-                    commandText += ",";
+                var symbol = symbols[i]?.Value;
+                if (symbol != null)
+                {
+                    if (p.Length > 0)
+                       p += ",";
+                    p += "@p" + i;
+                }
             }
-            commandText += ");";
+            commandText += p + ");";
 
             //Because of same problem above pass the 'Call' as the command text and do not set the type as sproc
             MySqlCommand command = new MySqlCommand(commandText, _connection);
