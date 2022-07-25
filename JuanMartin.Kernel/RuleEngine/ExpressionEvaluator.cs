@@ -106,7 +106,7 @@ namespace JuanMartin.Kernel.RuleEngine
 
             foreach(string token in tokens)
             {
-                if (token == null || token == String.Empty) continue; //Workaround: sometimes regex will bring back empty entries, skip these
+                if (token == null || token == String.Empty || token.Trim()  == string.Empty) continue; //Workaround: sometimes regex will bring back empty entries, skip these
 
                 Symbol symbol = ParseToSymbol(token);
 
