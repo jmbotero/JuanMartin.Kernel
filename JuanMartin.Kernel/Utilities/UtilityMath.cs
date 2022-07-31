@@ -1754,7 +1754,7 @@ namespace JuanMartin.Kernel.Utilities
             var x = 8 * number + 1;
             var isMatch = (x % 2 == 1);
 
-            isMatch = isMatch && IsPerferctSquare((double)x);
+            isMatch = isMatch && IsPerferctSquare(x);
 
             return isMatch;
         }
@@ -2636,12 +2636,17 @@ namespace JuanMartin.Kernel.Utilities
             }
         }
 
-        public static int[] GetRepeatedDigitCounts(int number)
+        /// <summary>
+        /// Get array of counts of each digit 1..9 in number
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static int[] GetRepeatedDigitCounts<T>(T number)
         {
             var counts = new int[10];
             var count = DigitCount(number);
 
-            var n = number;
+            dynamic n = number;
             for (int i = 1; i <= count; i++)
             {
                 var d = n % 10;
@@ -2969,11 +2974,11 @@ namespace JuanMartin.Kernel.Utilities
             return composites.ToArray();
         }
 
-        public static int[] GeneratePrimes(int n)
+        public static long[] GeneratePrimes(int upperLimit, int lowerLimit = 2)
         {
-            var primes = new List<int> { 2 };
-            var nextPrime = 3;
-            while (primes.Count < n)
+            var primes = new List<long> { lowerLimit };
+            long nextPrime = lowerLimit + 1;
+            while (primes.Count < upperLimit)
             {
                 var sqrt = (int)Math.Sqrt(nextPrime);
                 var isPrime = true;
@@ -2994,7 +2999,7 @@ namespace JuanMartin.Kernel.Utilities
             return primes.ToArray();
         }
 
-        public static IEnumerable<int> GeneratePrimesUsingSquares(int upperLimit, int lowerLimit = 2)
+        public static IEnumerable<long> GeneratePrimesUsingSquares(int upperLimit, int lowerLimit = 2)
         {
             for (var number = lowerLimit; number < upperLimit; number++)
             {
@@ -3120,7 +3125,7 @@ namespace JuanMartin.Kernel.Utilities
             var b = (double)SqrtDigitExpansion((int)n, digits);
 
             // add decimal
-            if (!IsPerferctSquare((double)originalNumber))
+            if (!IsPerferctSquare((long)originalNumber))
             {
                 // Decimal position indicate where to put the decimal in the square root
                 b = ShiftDecimal(b, decimalPosition);
@@ -3361,9 +3366,9 @@ namespace JuanMartin.Kernel.Utilities
             return false;
         }
 
-        public static bool IsPerferctSquare(double number)
+        public static bool IsPerferctSquare(long number)
         {
-            for (int i = 1; i * i <= number; i++)
+            for (long i = 1; i * i <= number; i++)
             {
                 // if (i * i = n) 
                 if ((number % i == 0) && (number / i == i))
@@ -3581,6 +3586,14 @@ namespace JuanMartin.Kernel.Utilities
             return (int)n;
         }
 
+        /// <summary>
+        /// Get count of digits in a number without using string
+        /// representation length.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static int DigitCount<T>(T number)
         {
             var methodType = typeof(T);
@@ -3880,6 +3893,13 @@ namespace JuanMartin.Kernel.Utilities
             return string.Empty;
         }
 
+        /// <summary>
+        /// Get list of digits in decimal representation of the numerator/divisor fractions 
+        /// </summary>
+        /// <param name="numerator"></param>
+        /// <param name="divisor"></param>
+        /// <param name="upperLimit"></param>
+        /// <returns></returns>
         public static IEnumerable<int> GetDecimalList(int numerator, int divisor, int upperLimit)
         {
             var dividend = 10 * numerator;
@@ -5528,9 +5548,7 @@ namespace JuanMartin.Kernel.Utilities
         {
             if (pos1 != pos2)
             {
-                var tmp = values[pos1];
-                values[pos1] = values[pos2];
-                values[pos2] = tmp;
+                (values[pos2], values[pos1]) = (values[pos1], values[pos2]);
             }
         }
         #endregion

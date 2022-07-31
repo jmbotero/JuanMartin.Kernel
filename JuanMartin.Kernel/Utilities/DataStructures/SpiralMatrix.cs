@@ -40,13 +40,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             northwest
         }
 
-        private long _diagonalSum;
-
         public static int Dimension { get; private set; }
 
         public int[,] Matrix { get; }
 
-        public long DiagonalSum { get => _diagonalSum; private set => _diagonalSum = value; }
+        public long DiagonalSum { get; private set; }
 
         public SpiralMatrix(int dimension)
         {
