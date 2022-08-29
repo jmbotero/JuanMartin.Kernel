@@ -61,6 +61,22 @@ namespace JuanMartin.Kernel.Extesions
             return (T)Enum.Parse(typeof(T), enumValue);
         }
 
+        /// <summary>
+        ///  Capitalize first letter of every word in a sentence (or singgle word)
+        /// </summary>
+        /// <param name="sentence"></param>
+        /// <returns></returns>
+        public static string Capitalize(this string sentence)
+        {
+            var words = sentence.Split(' ');
+
+            for (var i = 0; i < words.Length; i++)
+            {
+                words[i] = words[i].Substring(0, 1).ToUpper() +
+                    words[i].Substring(1).ToLower();
+            }
+            return String.Join(" ", words);
+        }
         public static int DigitLength(this string number)
         {
             if (!number.IsNumeric())
