@@ -11,7 +11,6 @@ namespace JuanMartin.Kernel.Adapters
     public class AdapterMySql : IExchangeRequestReply
     {
         private string _connectionString;
-        private MySqlConnection _connection;
         private IMessage _response;
         private IMessage _request;
         private ValueHolder _responseData;
@@ -93,7 +92,7 @@ namespace JuanMartin.Kernel.Adapters
             commandText += p + ");";
 
             //Because of same problem above pass the 'Call' as the command text and do not set the type as sproc
-            MySqlCommand command = new MySqlCommand(commandText, _connection);
+            MySqlCommand command = new MySqlCommand(commandText, Connection);
 
             //command.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -117,8 +116,10 @@ namespace JuanMartin.Kernel.Adapters
 
         private ValueHolder ExecuteQuery(string Name, string Query)
         {
-            MySqlCommand command = new MySqlCommand(Query, _connection);
-            command.CommandType = CommandType.Text;
+            MySqlCommand command = new MySqlCommand(Query, Connection)
+            {
+                CommandType = CommandType.Text
+            };
             command.Connection.Open();
 
             MySqlDataReader reader = command.ExecuteReader(System.Data.CommandBehavior.CloseConnection);
@@ -151,10 +152,7 @@ namespace JuanMartin.Kernel.Adapters
         }
 
         #region Public Properties
-        public MySqlConnection Connection
-        {
-            get { return _connection; }
-        }
+        public MySqlConnection Connection { get; private set; }
         #endregion
 
         #region Adapter interface methods
@@ -162,9 +160,9 @@ namespace JuanMartin.Kernel.Adapters
         {
             try
             {
-                if (_connection == null)
+                if (Connection == null)
                 {
-                    _connection = new MySqlConnection(_connectionString);
+                    Connection = new MySqlConnection(_connectionString);
                     _isConnected = true;
                 }
             }
@@ -179,7 +177,7 @@ namespace JuanMartin.Kernel.Adapters
 
         public void Disconnect()
         {
-            _connection.Close();
+            Connection.Close();
         }
 
         public void Send(IMessage Request)
