@@ -74,6 +74,9 @@ namespace JuanMartin.Kernel.Utilities
 
         private static void GetAllFiles(string path, List<FileInfo> files)
         {
+            if(!Directory.Exists(path))
+                throw new DirectoryNotFoundException(path);
+
             DirectoryInfo dir = new DirectoryInfo(path);
             
             files.AddRange(dir.GetFiles());

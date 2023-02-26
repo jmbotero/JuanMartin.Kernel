@@ -106,6 +106,7 @@ namespace JuanMartin.Kernel.Adapters
 
             command.Connection.Open();
 
+            
             MySqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection);
 
             ValueHolder results = GetResultSet(reader, Name, Command);

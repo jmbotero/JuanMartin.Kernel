@@ -72,8 +72,11 @@ namespace JuanMartin.Kernel.Extesions
 
             for (var i = 0; i < words.Length; i++)
             {
-                words[i] = words[i].Substring(0, 1).ToUpper() +
+                if (words[i].Length > 0)
+                {
+                    words[i] = words[i].Substring(0, 1).ToUpper() +
                     words[i].Substring(1).ToLower();
+                }
             }
             return String.Join(" ", words);
         }
