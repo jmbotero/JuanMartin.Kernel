@@ -97,6 +97,7 @@
     <Compile Include="Attributes\StringValue.cs" />
     <Compile Include="Extesions\BasicExtensions.cs" />
     <Compile Include="Extesions\CollectionExtensions.cs" />
+    <Compile Include="Extesions\EnumExtensions.cs" />
     <Compile Include="Extesions\MethodExtensions.cs" />
     <Compile Include="Extesions\StringExtensions.cs" />
     <Compile Include="Formatters\AssemblyReader.cs" />
