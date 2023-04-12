@@ -12,7 +12,7 @@ namespace JuanMartin.Kernel.RuleEngine.Tests
             var actualFactName = "foo2";
             var expectedFactValue = 4;
 
-            actualEngine.Load(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\ut-single-rule.xml");
+            actualEngine.Load(@"C:\GitHub\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\ut-single-rule.xml");
             actualEngine.Execute();
 
             var actualFact = actualEngine.FactLookup(actualFactName); // after rule executes fact = 3+1

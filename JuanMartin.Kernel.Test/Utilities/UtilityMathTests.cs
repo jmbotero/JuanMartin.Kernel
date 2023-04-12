@@ -595,7 +595,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
             [Test()]
             public void ShouldContainOnlyPrimes()
             {
-                var fileName = @"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\first_million_primes.txt";
+                var fileName = @"C:\GitHub\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\first_million_primes.txt";
                 var actualPrimes = UtilityFile.ReadTextToStringEnumerable(fileName).ToHashSet();
 
                 var actualSieve = UtilityMath.ErathostenesSieve(1000000);

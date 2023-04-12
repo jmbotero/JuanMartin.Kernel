@@ -10,7 +10,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         [Test]
         public void ShouldFindAllFilesUnderDirectoryTree()
         {
-            var actualFiles = UtilityFile.GetAllFiles(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data", false);
+            var actualFiles = UtilityFile.GetAllFiles(@"C:\GitHub\JuanMartin.Kernel\JuanMartin.Kernel.Test\data", false);
             var expectedFileCount = 4;
 
             Assert.AreEqual(expectedFileCount, actualFiles.Count);
@@ -19,7 +19,7 @@ namespace JuanMartin.Kernel.Utilities.Tests
         [Test]
         public void ShoulProcessAsZipAndContainAContentXmlFileIfAnOdtFileIsSelected()
         {
-            var files = UtilityFile.ListZipFileContents(@"C:\GitRepositories\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\dvd-labels-template.odt");
+            var files = UtilityFile.ListZipFileContents(@"C:\GitHub\JuanMartin.Kernel\JuanMartin.Kernel.Test\data\dvd-labels-template.odt");
             Assert.IsTrue(files.Contains("content.xml"));
         }
     }
