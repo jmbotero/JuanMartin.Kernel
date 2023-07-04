@@ -33,6 +33,10 @@ namespace JuanMartin.Kernel.Extesions
 
         public static T GetValueFromDescription<T>(string description) where T : Enum
         {
+            if (description != null)
+            {
+                description = description.Trim();
+            }
             foreach (var field in typeof(T).GetFields())
             {
                 if (Attribute.GetCustomAttribute(field,
@@ -48,7 +52,7 @@ namespace JuanMartin.Kernel.Extesions
                 }
             }
 
-            throw new ArgumentException("Not found.", nameof(description));
+            throw new ArgumentException($"Not found: {nameof(description)} = '{description.ToString()}'");
             // Or return default(T);
         }
     }

@@ -297,6 +297,11 @@ namespace JuanMartin.Kernel.Extesions
             }
             else
                 return s;
-        } 
+        }
+
+        public static int Ocurrences(this string s, char charater)
+        {
+            return s.Count(x => x == charater);                                          
+        }
      }
 }
