@@ -31,6 +31,11 @@ namespace JuanMartin.Kernel.Extesions
             return null;
         }
 
+        public static IEnumerable<string>  GetDescriptionsEnumerable(Type type)
+        {
+            foreach (Enum item in Enum.GetValues( type))
+                 yield return GetDescription(item);
+        }
         public static T GetValueFromDescription<T>(string description) where T : Enum
         {
             if (description != null)

@@ -175,6 +175,23 @@ namespace JuanMartin.Kernel.Utilities
             }
             return contents.AsEnumerable();
         }
+        public static StringBuilder ReadTextToStringBuilder(string fileName, bool removeCarriageReturn = false)
+        {
+            string line = string.Empty;
+            var text = new StringBuilder();
+
+            using (var reader = new StreamReader(fileName, Encoding.UTF8))
+            {
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (removeCarriageReturn)   
+                        text.Append(line);
+                    else
+                        text.AppendLine(line);          
+                }
+            }
+            return text;
+        }
         public static List<string> ListZipFileContents(string zipFileName)
         {
             var contents = new List<string>();
