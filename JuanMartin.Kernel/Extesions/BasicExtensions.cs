@@ -1,11 +1,66 @@
 ﻿using System;
+using System.Configuration.Internal;
 using System.IO;
 using JuanMartin.Kernel.Utilities;
+using Microsoft.Extensions.Configuration;
+using MySqlX.XDevAPI;
 
 namespace JuanMartin.Kernel.Extesions
 {
     public static class BasicExtensions
     {
+        public static string GetStringConfigurationValue(this IConfiguration configuration, string settingName, string defaultValue, string sectionName = "")
+        {
+            string? aux;
+            if (string.IsNullOrEmpty(sectionName))
+                aux = configuration[sectionName];
+            else
+            {
+                aux = null;
+                var section = configuration.GetSection(sectionName);
+                if (section != null)
+                    aux = section[settingName];
+            }
+            return aux ?? defaultValue;
+        }
+        public static bool GetBooleanConfigurationValue(this IConfiguration configuration, string settingName, bool defaultValue, string sectionName = "")
+        {
+            string? aux;
+
+            if (string.IsNullOrEmpty(sectionName))
+                aux = configuration[sectionName];
+            else
+            {
+                aux = null;
+                var section = configuration.GetSection(sectionName);
+                if (section != null)
+                    aux = section[settingName];
+            }
+
+            if (aux != null)
+                return Convert.ToBoolean(aux);
+
+            return defaultValue;
+        }
+        public static int GetIntegerConfigurationValue(this IConfiguration configuration, string settingName, int defaultValue, string sectionName = "")
+        {
+            string? aux;
+
+            if (string.IsNullOrEmpty(sectionName))
+                aux = configuration[sectionName];
+            else
+            {
+                aux = null;
+                var section = configuration.GetSection(sectionName);
+                if (section != null)
+                    aux = section[settingName];
+            }
+
+            if (aux != null)
+                return Convert.ToInt32(aux);
+
+            return defaultValue;
+        }
         /// <summary>
         /// Act like an implicit cast from a SQL data type to a C#/.NET data type.
         /// <see cref="https://stackoverflow.com/questions/870697/unable-to-cast-object-of-type-system-dbnull-to-type-system-string"/>

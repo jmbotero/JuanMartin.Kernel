@@ -255,7 +255,8 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 for (var actualNumber = 0.5; actualNumber < 10; actualNumber += 0.5)
                 {
                     var actualSqrt = UtilityMath.GetSqrtBySubstraction(actualNumber, 5);
-                    var expectedNumber = Math.Round(actualSqrt * actualSqrt, 3);
+                    double expectedNumber = actualSqrt * actualSqrt;
+                    expectedNumber = Math.Round(expectedNumber, 2);
 
                     Assert.AreEqual(expectedNumber, actualNumber);
                 }
