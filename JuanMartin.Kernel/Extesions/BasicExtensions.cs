@@ -1,14 +1,25 @@
 ﻿using System;
-using System.Configuration.Internal;
+using System.Collections.Generic;
 using System.IO;
 using JuanMartin.Kernel.Utilities;
 using Microsoft.Extensions.Configuration;
-using MySqlX.XDevAPI;
 
 namespace JuanMartin.Kernel.Extesions
 {
     public static class BasicExtensions
     {
+        public static Dictionary<string, object> RemoveNullEntries(this Dictionary<string, object?> dictionary)
+        {
+            Dictionary < string, object> tmp = dictionary;
+
+            foreach (var entry in tmp)
+            {
+                if(entry.Value==null)
+                    tmp.Remove(entry.Key);
+            }
+            return tmp;
+        }
+
         public static string GetStringConfigurationValue(this IConfiguration configuration, string settingName, string defaultValue, string sectionName = "")
         {
             string? aux;

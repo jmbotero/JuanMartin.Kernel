@@ -299,6 +299,23 @@ namespace JuanMartin.Kernel.Extesions
                 return s;
         }
 
+        public static int  GetInstanceIndex(this string s, string value, int instanceCount=1, char  separator=',')
+        {
+            if(string.IsNullOrEmpty(s) || string.IsNullOrEmpty(value))
+                return -1;
+            else if (!instanceCount.Between(1,s.Ocurrences(separator)))
+                return -1;
+
+            int index = -1;
+            int startIndex = 0;
+
+            for(int i=0;i<instanceCount;i++)
+            {
+                index=s.IndexOf(value,startIndex + 1);
+                startIndex = index;
+            }
+            return index;
+        }
         public static int Ocurrences(this string s, char charater)
         {
             return s.Count(x => x == charater);                                          

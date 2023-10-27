@@ -36,23 +36,26 @@ namespace JuanMartin.Kernel.Extesions
             foreach (Enum item in Enum.GetValues( type))
                  yield return GetDescription(item);
         }
-        public static T GetValueFromDescription<T>(string description) where T : Enum
+        public static T GetValueFromDescription<T>(string description, string keyWord = "") where T : Enum
         {
             if (description != null)
             {
                 description = description.Trim();
             }
+            if (keyWord != "" && !description.Contains(keyWord))
+                return default(T);
+
             foreach (var field in typeof(T).GetFields())
             {
                 if (Attribute.GetCustomAttribute(field,
                 typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
                 {
-                    if (attribute.Description == description)
+                    if (attribute.Description == description || (keyWord != "" && description.Contains(keyWord)))
                         return (T)field.GetValue(null);
                 }
                 else
                 {
-                    if (field.Name == description)
+                    if (field.Name == description || (keyWord != "" && description.Contains(keyWord)))
                         return (T)field.GetValue(null);
                 }
             }
