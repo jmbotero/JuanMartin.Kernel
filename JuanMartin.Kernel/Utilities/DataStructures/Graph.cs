@@ -3,17 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JuanMartin.Kernel.Utilities;
 
 namespace JuanMartin.Kernel.Utilities.DataStructures
 {
-    /// <summary>
-    /// Implementation of a undirected graph
-    /// copied from https://codereview.stackexchange.com/questions/131583/generic-graph-implementation-in-c
-    /// </summary>
-    /// <seealso cref="https://youtu.be/KmVSCv6Bn8E"/>  
-    /// <seealso cref="https://docs.microsoft.com/en-us/previous-versions/ms379574(v=vs.80)?redirectedfrom=MSDN"/>
-    public abstract class Graph<T>  // base graph
+	/// <summary>
+	/// Implementation of a basic graph
+	/// copied from https://codereview.stackexchange.com/questions/131583/generic-graph-implementation-in-c
+	/// </summary>
+	/// <seealso cref="https://youtu.be/KmVSCv6Bn8E"/>  
+	/// <seealso cref="https://docs.microsoft.com/en-us/previous-versions/ms379574(v=vs.80)?redirectedfrom=MSDN"/>
+	public abstract class Graph<T>  // base graph
     {
 
         public const int INFINITY = int.MaxValue / 2;
@@ -23,7 +22,16 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             shortest = 0,
             longest = 1
         };
+        public enum DefineObjectUniqueness
+        {
+            None = 0,
+            onName = 1,
+            onIndex = 2,
+            onGuid = 3,
+            onValue = 4
+        };
 
+        public DefineObjectUniqueness DefineVertexUniqueness { get; set; } =  DefineObjectUniqueness.onName;
         public Dictionary<string, string> VertexUris;
         public bool HasDuplicateVertexNames => Vertices.Count != Vertices.Select(v => v.Name).Distinct().Count();
         public HashSet<Vertex<T>> Vertices { get; set; }
@@ -99,13 +107,54 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public bool Contains(Vertex<T> value) => Vertices.Contains(value);
         public Vertex<T> AddVertex(Vertex<T> v)
         {
-            if (true) //Vertices.Count(i=>i.Name==v.Nam      e) == 0) // ensure uniqueness
+            bool isVertexUnique = false;
+
+            switch(DefineVertexUniqueness)
+            {
+				case DefineObjectUniqueness.None:
+					{
+						isVertexUnique = true;
+						break;
+					}
+				case DefineObjectUniqueness.onName:
+					{
+						if (Vertices.Count(i => i.Name == v.Name) == 0)
+							isVertexUnique = true;
+						break;
+					}
+				case DefineObjectUniqueness.onGuid:
+					{
+						if (Vertices.Count(i => i.Guid == v.Guid) == 0)
+							isVertexUnique = true;
+						break;
+					}
+				case DefineObjectUniqueness.onIndex:
+					{
+						if (Vertices.Count(i => i.Index == v.Index) == 0)
+							isVertexUnique = true;
+						break;
+					}
+				case DefineObjectUniqueness.onValue:
+					{
+						if (Vertices.Count(i => i.Value.Equals(v.Value)) == 0)
+							isVertexUnique = true;
+						break;
+					}
+				default:
+                    {
+                        isVertexUnique = false;
+                        break;
+                    }
+			}
+
+			if (isVertexUnique)
             {
                 VertexUris.Add(v.Guid, v.Name);
                 v.Index = Vertices.Count;
                 Vertices.Add(v);
                 return v;
             }
+            return null;
         }
 
         /// <summary>
@@ -116,8 +165,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// <returns></returns>
         public Vertex<T> AddVertex(T value, string name = null, string guid = null, int index = -1)
         {
-            if (name == null)
-                name = value.ToString();
+            name ??= value.ToString();
 
             Vertex<T> added;
             try
@@ -139,7 +187,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (Vertices.Count(v => v.Name == name) > 1)
                 return null;
 
-            var vertex = GetVertex(name: name);
+            var vertex = GetVertexByName(name: name);
 
             if (vertex is null)
                 return null;
@@ -174,7 +222,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public Vertex<T> RemoveVertexByGuid(Guid guid)
         {
-            var v = GetVertex(guid);
+            var v = GetVertexByGuid(guid);
 
             if (v == null) 
                 return null;
@@ -205,7 +253,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             if (from is null || to is null)
                 throw new ArgumentNullException("To Add edge must be created with a from (source) and a to (target) vertices.");
 
-            if (Vertices.Contains(from) && Vertices.Contains(to))
+            var containsToByGuid = VertexUris.Keys.Contains(to.Guid); //Vertices.Select(v => v.Guid = to.Guid) != null; //     VertexUris.ContainsKey(to.Guid);
+            var containsFromByGuid = VertexUris.Keys.Contains(from.Guid); //Vertices.Select(v => v.Guid = from.Guid) != null; //VertexUris.ContainsKey(from.Guid); 
+			//            if (Vertices.Contains(from) && Vertices.Contains(to))
+			if (containsFromByGuid && containsToByGuid)
             {
                 if (direction == Edge<T>.EdgeDirection.unidirectional)
                 {
@@ -243,7 +294,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             }
             else
             {
-                throw new ArgumentException("To Add edge between a and b, both vertices must be added before.");
+				throw new ArgumentException("To Add edge between a and b, both vertices must be added before.");
             }
 
             return true; 
@@ -327,7 +378,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         {
             if (fromName != Edge<T>.EdgeVertexFromNameDefault)
             {
-                var v = GetVertex(name: fromName);
+                var v = GetVertexByName(name: fromName);
 
                 if (v == null)
                     return null;
@@ -417,12 +468,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public List<Vertex<T>> GetVertices(string name)
+        public List<Vertex<T>> GetVerticesByName(string name)
         {
             return Vertices.Where(v => v.Name == name).ToList();
+        
         }
 
-        public Vertex<T> GetVertex(string name)
+        public Vertex<T> GetVertexByName(string name)
         {
             if (name != null)
             {
@@ -431,12 +483,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             return null;
         }
 
-        public Vertex<T> GetVertex(Guid guid)
+        public Vertex<T> GetVertexByGuid(Guid guid)
         {
             return Vertices.FirstOrDefault(v => v.Guid == guid.ToString());
         }
 
-        public Vertex<T> GetVertex(int index)
+        public Vertex<T> GetVertexByIndex(int index)
         {
             return Vertices.FirstOrDefault(v => v.Index == index);
         }
@@ -656,7 +708,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public string GetVertexName(int index)
         {
             var n = "";
-            var v = GetVertex(index);
+            var v = GetVertexByIndex(index);
 
             if (v != null)
                 n = v.Name;
@@ -683,8 +735,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             Vertex<T> a, b;
             try
             {
-                a = GetVertices(name: start).First();
-                b = GetVertices(name: end).Last();
+                a = GetVerticesByName(name: start).First();
+                b = GetVerticesByName(name: end).Last();
             }
             catch (Exception)
             {
@@ -720,7 +772,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     if (dist.ContainsKey(currentId))
                     {
                         currentId = dist[currentId].Previous;
-                        currentNode = GetVertex(guid: Guid.Parse(currentId));
+                        currentNode = GetVertexByGuid(guid: Guid.Parse(currentId));
 
                         shortestPath.AddVertex(currentNode);
                     }
@@ -754,7 +806,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             Vertex<T> a;
             try
             {
-                a = GetVertices(name: start).First();
+                a = GetVerticesByName(name: start).First();
             }
             catch (Exception)
             {
@@ -767,7 +819,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
              _distance[0][0] = IsNumericNode ? Convert.ToInt32(a.Value) : 0;
             for (int i = 0; i < w * h; i++)
             {
-                for (int y = 0; y < h; y++)
+                for (int y = 0; y < h;  y++)
                 {
                     for (int x = 0; x < w; x++)
                     {

@@ -31,7 +31,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
         public bool AddEdge(string nameFrom, string nameTo, string name, Edge<T>.EdgeType type = Edge<T>.EdgeType.none, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.undirected, double weight = 0)
         {
-            return AddEdge(GetVertex(nameFrom), GetVertex(nameTo), name, type, direction, weight);
+            return AddEdge(GetVertexByName(nameFrom), GetVertexByName(nameTo), name, type, direction, weight);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             for (int i = 0; i < nodes; i++)
             {
-                var from = GetVertex(i);
+                var from = GetVertexByIndex(i);
                 if (from == null)
                     throw new ArgumentNullException($"Vertex for Index ( {i}) not defined.");
 
@@ -126,7 +126,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
                 for (int j = 0; j < nodes; j++)
                 {
-                    var to = GetVertex(j);
+                    var to = GetVertexByIndex(j);
 
                     if (to == null)
                         throw new ArgumentNullException($"Vertex for Index ( {j}) not defined.");
@@ -197,8 +197,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                 var toName = e.To.Name;
                 var fromName = e.From.Name;
 
-                e.To =mst.GetVertex(name: toName);
-                e.From = mst.GetVertex(name: fromName);
+                e.To =mst.GetVertexByName(name: toName);
+                e.From = mst.GetVertexByName(name: fromName);
 
                 mst.AddEdge(e);
                 count++;
@@ -237,8 +237,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
             var toName = start.To.Name;
             var fromName = start.From.Name;
 
-            start.To = mst.GetVertex(name: toName);
-            start.From = mst.GetVertex(name: fromName);
+            start.To = mst.GetVertexByName(name: toName);
+            start.From = mst.GetVertexByName(name: fromName);
 
             mst.AddEdge(start);
 
@@ -262,13 +262,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     Edge<T> least = edge;
                     if (edge.Type == Edge<T>.EdgeType.incoming)
                     {
-                        next = GetVertex(name: edge.From.Name);
-                        _ = GetVertex(name: edge.To.Name); // current
+                        next = GetVertexByName(name: edge.From.Name);
+                        _ = GetVertexByName(name: edge.To.Name); // current
                     }
                     else if (edge.Type == Edge<T>.EdgeType.outgoing)
                     {
-                        next = GetVertex(name: edge.To.Name);
-                        _ = GetVertex(name: edge.From.Name); // current
+                        next = GetVertexByName(name: edge.To.Name);
+                        _ = GetVertexByName(name: edge.From.Name); // current
                     }
 
                     // if new current is already visited, try next edge
@@ -284,8 +284,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     toName = least.To.Name;
                     fromName = least.From.Name;
 
-                    least.To = mst.GetVertex(name: toName);
-                    least.From = mst.GetVertex(name: fromName);
+                    least.To = mst.GetVertexByName(name: toName);
+                    least.From = mst.GetVertexByName(name: fromName);
 
                     mst.AddEdge(least);
                     visitedEdges.Add(edge);
@@ -318,7 +318,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             foreach (var v in originalVertices)
             {
-                //var V = GetVertex(name: v.Name);
+                //var V = GetVertexByIndex(name: v.Name);
 
                 var adjacents = v.AllNeighbors().Select(v => v.Name).ToList();
                 //var newNames = v.AllNeighbors().Except(vertices).Select(v => v.Name);

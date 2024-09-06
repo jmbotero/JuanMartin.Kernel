@@ -15,6 +15,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     /// <seealso cref="https://docs.microsoft.com/en-us/previous-versions/ms379574(v=vs.80)?redirectedfrom=MSDN"/>
     public class DirectedAcyclicGraph<T> : Graph<T>, IGraph<T>
     {
+        public bool IgnoreLoopCyclicEdges {  get; set; } = true;
+
         public DirectedAcyclicGraph()
         {
             Vertices = new HashSet<Vertex<T>>();
@@ -36,38 +38,42 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public bool AddEdge(string nameFrom, string nameTo, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
 , double weight = Edge<T>.EdgeWeightDefault)
         {
-            return AddEdge(GetVertex(nameFrom), GetVertex(nameTo), name, type, direction, weight);
+            return AddEdge(GetVertexByName(nameFrom), GetVertexByName(nameTo), name, type, direction, weight);
         }
         public new bool AddEdge(Vertex<T> from, Vertex<T> to, string name = null, Edge<T>.EdgeType type = Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection direction = Edge<T>.EdgeDirection.unidirectional
             , double weight = Edge<T>.EdgeWeightDefault)
         {
-            if(direction==Edge<T>.EdgeDirection.undirected)
-                throw new ArgumentException("Undirected edges cannot be added to a directed-acyclic graph.");
+            bool isLoop = from.Equals(to);
 
-            if (from.Equals(to))
-                throw new ArgumentException("A loop edge, from and to the same vertex cannot be added in a directed-acyclic graph.");
-
-            // default for directed cyclic graph is direction composite
-            base.AddEdge(from, to, name, type, Edge<T>.EdgeDirection.composite, weight);
-            try
+            if (!isLoop || (isLoop && !IgnoreLoopCyclicEdges))
             {
-                if (direction == Edge<T>.EdgeDirection.bidirectional)
+                if (direction == Edge<T>.EdgeDirection.undirected)
+                    throw new ArgumentException("Undirected edges cannot be added to a directed-acyclic graph.");
+
+                if (isLoop)
+                    throw new ArgumentException("A loop edge, from and to the same vertex cannot be added in a directed-acyclic graph.");
+
+                // default for directed cyclic graph is direction composite
+                base.AddEdge(from, to, name, type, Edge<T>.EdgeDirection.composite, weight);
+                try
                 {
-                     // translate into four edges ; inverting to and from (therefore neighbors too)
-                    // add outgoing edge
-                    to.AddEdge(to, from, Edge<T>.EdgeType.outgoing, direction, name, weight);
-                    to.AddNeighbor(from, Neighbor<T>.NeighborType.outgoing);
-                    // if it is outgoing for the source vertex it is incoming for the target one
-                    from.AddEdge(to, from, Edge<T>.EdgeType.incoming, direction, name, weight);
-                    from.AddNeighbor(to, Neighbor<T>.NeighborType.incoming);
+                    if (direction == Edge<T>.EdgeDirection.bidirectional)
+                    {
+                        // translate into four edges ; inverting to and from (therefore neighbors too)
+                        // add outgoing edge
+                        to.AddEdge(to, from, Edge<T>.EdgeType.outgoing, direction, name, weight);
+                        to.AddNeighbor(from, Neighbor<T>.NeighborType.outgoing);
+                        // if it is outgoing for the source vertex it is incoming for the target one
+                        from.AddEdge(to, from, Edge<T>.EdgeType.incoming, direction, name, weight);
+                        from.AddNeighbor(to, Neighbor<T>.NeighborType.incoming);
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                    //return false;
                 }
             }
-            catch (Exception)
-            {
-                throw;
-                //return false;
-            }
-
             return true;
         }
 
@@ -92,8 +98,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
                     double w = (double)matrix[i][j];
                     if (w > 0)
                     {
-                        var from = GetVertex(i);
-                        var to = GetVertex(j);
+                        var from = GetVertexByIndex(i);
+                        var to = GetVertexByIndex(j);
                         string n = $"{from.Name}-{to.Name}";
                         var e = new Edge<T>(from, to, w, n, Edge<T>.EdgeType.outgoing, Edge<T>.EdgeDirection.unidirectional);
                         AddEdge(e);
@@ -117,7 +123,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
             for (int i = 0; i < nodes; i++)
             {
-                var from = GetVertex(i);
+                var from = GetVertexByIndex(i);
                 if (from == null)
                     throw new ArgumentNullException($"Vertex for Index ( {i}) not defined.");
 
@@ -125,7 +131,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
 
                 for (int j = 0; j < nodes; j++)
                 {
-                    var to = GetVertex(j);
+                    var to = GetVertexByIndex(j);
 
                     if (to == null)
                         throw new ArgumentNullException($"Vertex for Index ( {j}) not defined.");

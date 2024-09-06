@@ -30,10 +30,10 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         List<Edge<T>> GetIncomingEdges();
         bool Contains(T value);
         bool Contains(Vertex<T> value);
-        Vertex<T> GetVertex(string name);
-        Vertex<T> GetVertex(Guid guid);
-        Vertex<T> GetVertex(int index);
-        List<Vertex<T>> GetVertices(string name);
+        Vertex<T> GetVertexByName(string name);
+        Vertex<T> GetVertexByGuid(Guid guid);
+        Vertex<T> GetVertexByIndex(int index);
+        List<Vertex<T>> GetVerticesByName(string name);
         List<Vertex<T>> GetRoot();
         List<Vertex<T>> VisitedVertices();
         List<Vertex<T>> UnVisitedVertices();

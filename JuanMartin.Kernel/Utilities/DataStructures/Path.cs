@@ -12,11 +12,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
     {
         public Path()
         {
+            VertexUris = new Dictionary<string, string>();
             Vertices = new List<Vertex<T>>();
             Weight = 0;
         }
-
-        public List<Vertex<T>> Vertices { get; set; }
+		public Dictionary<string, string> VertexUris;
+		public List<Vertex<T>> Vertices { get; set; }
         public int Weight { get; set; }
         public bool IsComplete()
         {
@@ -45,8 +46,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures
         public void AddVertex(Vertex<T> v)
         {
             //check not duplicate by guid
-            if (v !=   null &&  Vertices.FirstOrDefault(item => item.Guid == v.Guid) == null)
+            if (v != null && Vertices.FirstOrDefault(item => item.Guid == v.Guid) == null)
+            {
                 Vertices.Add(v);
+                VertexUris.Add(v.Guid, v.Name);         
+            }
         }
 
         public void Append(Path<T> p)

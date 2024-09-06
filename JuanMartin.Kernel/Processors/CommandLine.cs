@@ -3,9 +3,11 @@ using JuanMartin.Kernel.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -47,7 +49,7 @@ namespace JuanMartin.Kernel.Processors
         [JsonConstructor]
         public CommandLine()
         {}
-        public CommandLine(string line, string fileName = "")
+        public CommandLine(string line, Dictionary<string,string> lineTokens = null, string fileName = "")
         {
             // use default
             if (fileName == string.Empty)
@@ -68,18 +70,30 @@ namespace JuanMartin.Kernel.Processors
             Options = new List<CommandLineOption>();
             LoadCommandLineSettings(fileName);
             Line = line;
-            Parse(line);
+            Parse(line, lineTokens);
         }
 
-        private void Parse(string line)
+        private void Parse(string line, Dictionary<string, string> lineTokens)
         {
             if (line != null)
             {
                 if (line[0] != '-' || line.Substring(0, 2) != "--")
                     throw new ArgumentException($"Command line '{line}' is not formatted correctly: does not begin with an option defined with '-' or '--'.");
 
+                // replace tokens specifid in line
+                if(lineTokens != null)
+                {
+                    foreach(var token in lineTokens)
+                    {
+                        line = line.Replace(token.Key, token.Value);
+                    }
+                }
+
+                if(line.Contains("_token_"))
+					throw new ArgumentException($"Command line '{line}' contains unreplaceable tokens.");
+				
                 // get option name/Values from line in dictionary
-                var options = line.Split(new string[] { "-", "--" }, StringSplitOptions.RemoveEmptyEntries)
+				var options = line.Split(new string[] { "-", "--" }, StringSplitOptions.RemoveEmptyEntries)
                                     .Select(s => s.Split('='))
                                     .ToDictionary(s => s.First().Trim(), s => (s.Last() == s.First()) ? string.Empty : s.Last().Trim());
 
@@ -132,7 +146,7 @@ namespace JuanMartin.Kernel.Processors
                 {
                     throw new ArgumentException("Culture info argument not defined in settings file.");
                 }
-                Type tType = null;
+                Type systemType = null;
 
                 foreach (var o in options)
                 {
@@ -143,26 +157,49 @@ namespace JuanMartin.Kernel.Processors
                         throw new ArgumentOutOfRangeException($"Option {o.Key} not found in command line settings file.");
 
                     option.Status = CommandLineOption.OptionStatus.assigned;
-                    string sType = option.ValueType;
+                    string optionType = option.ValueType;
 
-                    if (sType != null)
+                    if (optionType != null)
                     {
-                        //TOTO: fix value parsing logic
                         if (!option.IsSingle) // do not assign value to singles as these do no have command line values
                         {
                             var actualValue = o.Value;
 
-                            switch (sType)
+                            switch (optionType)
                             {
                                 case "System.Int32[]":
                                     {
-                                        var numericPattern = new Regex("^[0-9,]*$");
-                                       
-                                        //TODO: specify range pattern
-                                        if (!actualValue.IsNullOrEmptyOrZero() && numericPattern.IsMatch(actualValue))
-                                            value = actualValue.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
+										// http://regexstorm.net/tester?p=%5e%28x%7c%5cd%2b%29%28%28%2c%7c%3a%29%5cd%2b%29*%24&i=1%3a4%2c6
+										var numericPattern = new Regex("^(x|\\d+)((,|:)\\d+)*$");
+
+                                        if (actualValue == "x")                             
+                                            value = null;
+                                        else if (actualValue.IsNullOrEmptyOrZero(checkZero: false) && numericPattern.IsMatch(actualValue))
+                                        {
+                                            // parse ranges and single entries
+                                            //value = actualValue.Split(',').Select(i => Convert.ToInt32(i, cultures)).ToArray();
+                                            var items = new List<int>();
+                                            var values = actualValue.Split(',').ToArray();
+                                            foreach (string v in values)
+                                            {
+                                                if (!v.Contains(":"))
+                                                {
+                                                    items.Add(Convert.ToInt32(v));
+                                                }
+                                                else
+                                                {
+                                                    var i = v.IndexOf(":");
+                                                    string beginParameter = v.Substring(0, i);
+                                                    string endParameter = v.Substring(i + 1);
+													int begin = Convert.ToInt32(beginParameter);
+													int end   = (i<v.Length)?Convert.ToInt32(endParameter) :0;
+                                                    items.AddRange(Enumerable.Range(begin,end).ToArray<int>());
+                                                }
+                                        }
+												value = items.ToArray(); // convert to array to avoid 'recquired iconvertible'  exception
+                                            }
                                         else
-                                            throw new ArgumentException($"Cannot parse value {actualValue} as an integer or comma-separaated list of integers.");
+                                            throw new ArgumentException($"Cannot parse value ({actualValue}) as an integer or comma-separaated list of integers or  integer range (defined as begin:end).");
                                         break;
                                     }
                                 case "System.Int32":
@@ -173,12 +210,12 @@ namespace JuanMartin.Kernel.Processors
                                         break;
                                     }
                                 default:
-                                    throw new TypeLoadException($"Type {sType} not supported.");
+                                    throw new TypeLoadException($"Type {optionType} not supported.");
                             }
                         }
                         else // if single and boolean value is true else use value in settings as default
                         {
-                            switch (sType)
+                            switch (optionType)
                             {
                                 case "System.Int32[]":
                                     {
@@ -197,18 +234,18 @@ namespace JuanMartin.Kernel.Processors
                                         break;
                                     }
                                 default:
-                                    throw new TypeLoadException($"Type {sType} not supported.");
+                                    throw new TypeLoadException($"Type {optionType} not supported.");
                             }
                         }
                        
-                        tType = UtilityType.ParseType(sType);
+                        systemType = UtilityType.ParseType(optionType);
                         try
                         {
-                            option.Value = Convert.ChangeType(value, tType);
+                            option.Value = Convert.ChangeType(value, systemType);
                         }
                         catch (Exception e)
                         {
-                            throw new TypeLoadException($"Error changing option's type ({sType}): {e.Message}.");
+                            throw new TypeLoadException($"Error changing option's type ({optionType}): {e.Message}.");
                         }       
                     }
                 }

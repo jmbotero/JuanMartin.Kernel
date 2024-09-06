@@ -24,14 +24,17 @@ namespace JuanMartin.Kernel.Extesions
             return match;
         }
 
-        public static bool IsNullOrEmptyOrZero(this string source)
+        public static bool IsNullOrEmptyOrZero(this string source, bool checkZero=true)
         {
             bool match = true;
             
             if(source!=null  && source != string.Empty)
             {
-                var zeroes = new Regex(@"^0+$");
-                match = zeroes.IsMatch(source);
+                if (checkZero)
+                {
+                    var zeroes = new Regex(@"^0+$");
+                    match = zeroes.IsMatch(source);
+                }
             }
 
             return match;

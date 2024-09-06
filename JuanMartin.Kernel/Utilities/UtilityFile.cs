@@ -161,13 +161,17 @@ namespace JuanMartin.Kernel.Utilities
             return lines.Select(line => line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries).Select(v => ProcessValue(v, nullIndicator)).ToArray()).ToArray();
         }
 
-        public static IEnumerable<string> ReadTextToStringEnumerable(string fileName)
+        public static IEnumerable<string> ReadTextToStringEnumerable(string fileName, bool isZeroBasedCollection = true)
         {
             string line = string.Empty;
             var contents = new List<string>();
 
             using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
+                // first line shoul be item [2] in enumerable
+                if (!isZeroBasedCollection)
+                    contents.Add("");
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     contents.Add(line);

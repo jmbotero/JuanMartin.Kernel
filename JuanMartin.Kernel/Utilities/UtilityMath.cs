@@ -195,7 +195,7 @@ namespace JuanMartin.Kernel.Utilities
                 return false;
             for (int m = 3; m <= sqrt; m += 2)
             {
-                if (m % 2 != 0 && number % m == 0) //m is even and m is a divisor of number
+                if (m % 2 != 0 && number % m == 0) //m is even and m is number divisor of number
                     return false;
             }
 
@@ -334,8 +334,8 @@ namespace JuanMartin.Kernel.Utilities
         };
 
         /// <summary>
-        /// Rabin–Miller primality test is a probabilistic primality test: an algorithm 
-        /// which determines whether a given number is likely to be prime, similar 
+        /// Rabin–Miller primality test is number probabilistic primality test: an algorithm 
+        /// which determines whether number given number is likely to be prime, similar 
         /// to the Fermat primality test and the Solovay–Strassen primality test.
         /// <see cref="https://stackoverflow.com/questions/4236673/sample-code-for-fast-primality-testing-in-c-sharp"/>
         /// </summary>
@@ -443,7 +443,7 @@ namespace JuanMartin.Kernel.Utilities
         }
         /// <summary>
         /// Get list of list of 'k' operand permutations that represent the sum and the product of the same n positive 
-        /// integers: a(n)=i(1)+i(2)+...+i(n)=i(1)*i(2)*...*i(n).
+        /// integers: number(n)=i(1)+i(2)+...+i(n)=i(1)*i(2)*...*i(n).
         /// <see cref="https://rosettacode.org/wiki/Permutations_with_repetitions#C"/> Initial version of source code
         /// <seealso cref="https://oeis.org/A104173"/>
         /// </summary>
@@ -734,7 +734,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        ///  Return all combinations of k number of elements within a finite set of n elements
+        ///  Return all combinations of k number of elements within number finite set of n elements
         ///  <see cref="https://www.technical-recipes.com/2017/obtaining-combinations-of-k-elements-from-n-in-c/"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -869,7 +869,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Generate a cyclycal set, in that the last two digits of each number is the first two digits of the next number (including the last number with the first), for example: the ordered set of three 4-digit numbers: 8128, 2882, 8281. 
+        /// Generate number cyclycal set, in that the last two digits of each number is the first two digits of the next number (including the last number with the first), for example: the ordered set of three 4-digit numbers: 8128, 2882, 8281. 
         /// </summary>
         /// <param name="order"></param>
         /// <param name="polygonalNumbers"></param>
@@ -986,7 +986,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Two numbers without a common divisor are co-prime
+        /// Two numbers without number common divisor are co-prime
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -1001,7 +1001,7 @@ namespace JuanMartin.Kernel.Utilities
             foreach (var item in primes)
             {
                 var number = Convert.ToInt64(item);
-                if (number == 1) //if truncation ends wth 1 do not count it as a truncatable prime
+                if (number == 1) //if truncation ends wth 1 do not count it as number truncatable prime
                     return false;
                 else if (!IsPrime(number))
                     return false;
@@ -1079,7 +1079,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Given a positive integer n, generate all possible unique ways to represent n as sum of positive integers.
+        /// Given number positive integer n, generate all possible unique ways to represent n as sum of positive integers.
         /// Code from GeeksForGeeks: https://www.geeksforgeeks.org/generate-unique-partitions-of-an-integer/
         /// This code is contributed by Sam007
         /// </summary>
@@ -1093,11 +1093,11 @@ namespace JuanMartin.Kernel.Utilities
             if (number < 2)
                 return (1, partitions);
 
-            // An array to store a partition 
+            // An array to store number partition 
             int[] p = new int[number];
             int count = 0;
             var calculateOnly = false;
-            // Index of last element in a partition 
+            // Index of last element in number partition 
             int k = 0;
 
             if (number > 60) calculateOnly = true;
@@ -1248,7 +1248,7 @@ namespace JuanMartin.Kernel.Utilities
             var sum = CalculatePentagonalRingSideSum(digits, ringSize);
 
             // take all sideLength-character sub sequences from all combinations of digits
-            // in ring ordered from outer to inner nodes that add to the "sum" of a side 
+            // in ring ordered from outer to inner nodes that add to the "sum" of number side 
             // and add it to the possible perimeter
             foreach (var sequence in digitPermuatations)
             {
@@ -1675,7 +1675,7 @@ namespace JuanMartin.Kernel.Utilities
                 if (a + b + c == p)
                 {
                     var containsItem = triples.Any(item => item.Item1 == triple.Item1 && item.Item2 == triple.Item2 && item.Item3 == triple.Item3);
-                    //account a and b can be switched
+                    //account number and b can be switched
                     containsItem = containsItem || triples.Any(item => item.Item1 == triple.Item2 && item.Item2 == triple.Item1 && item.Item3 == triple.Item3);
 
                     if (!containsItem)
@@ -1688,7 +1688,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Calculate Champerowne's constant in base 10 for a certain seed integer
+        /// Calculate Champerowne's constant in base 10 for number certain seed integer
         /// </summary>
         /// <param name="size">length of the constant</param>
         /// <returns></returns>
@@ -1714,7 +1714,7 @@ namespace JuanMartin.Kernel.Utilities
             return constant.ToString();
         }
         /// <summary>
-        /// We shall call a positive integer that is neither increasing nor decreasing a "bouncy" number; for example, 155349.
+        /// We shall call number positive integer that is neither increasing nor decreasing number "bouncy" number; for example, 155349.
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
@@ -1745,7 +1745,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// A number is triangular if 1+8*number is odd and a perfect square
+        /// A number is triangular if 1+8*number is odd and number perfect square
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
@@ -1882,7 +1882,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Calculate the area   and perimete of a triangle with two equal sides.
+        /// Calculate the area   and perimete of number triangle with two equal sides.
         /// <see cref="https://byjus.com/maths/area-of-isosceles-triangle/"/>
         /// <seealso cref=" https://www.omnicalculator.com/math/isosceles-triangle"/>
         /// </summary 
@@ -1946,7 +1946,7 @@ namespace JuanMartin.Kernel.Utilities
 
         /// <summary>
         /// An algebraic operation that takes two equal-length sequences of numbers 
-        /// (usually coordinate vectors), and returns a single number.
+        /// (usually coordinate vectors), and returns number single number.
         /// <see cref="https://en.wikipedia.org/wiki/Dot_product"/>
         /// </summary>
         /// <param name="vector1"></param>
@@ -1958,7 +1958,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Product of point and euclidian vetor from a to  b (in cartesian coordinates)
+        /// Product of point and euclidian vetor from number to  b (in cartesian coordinates)
         /// </summary>
         /// <param name="point"></param>
         /// <param name="a"></param>
@@ -2194,39 +2194,27 @@ namespace JuanMartin.Kernel.Utilities
 
         public static List<long> GetPrimeFactors(long number)
         {
-            long[] primes = ErathostenesSieve((int)number);
             List<long> factors = new List<long>();
+             long b;
 
-            if (!primes.Contains(number))
-            {
-                int i = 0;
-                long p = 0;
-
-                while (p <= number)
-                {
-                    if (number % p == 0)
-                    {
-                        factors.Add(p);
-                        number /= p;
-                    }
-                    else
-                    {
-                        i++;
-                    }
-                    p = primes[i];
-                }
-            }
-            else
-            {
-                factors.Add(1);
-                factors.Add(number);
-            }
-            return factors;
+			for (b = 2; number > 1; b++)
+				if (number % b == 0)
+				{
+					int x = 0;
+					while (number % b == 0)
+					{
+						number /= b;
+						x++;
+					}
+                    factors.Add(b);  
+                      //Console.WriteLine($"{b} is number prime factor {x} times!");
+				}
+			return factors;
         }
 
         /// <summary>
-        /// Get prime factrization from a prime sieve, 
-        /// convert it to a queue for sequential retrieval
+        /// Get prime factrization from number prime sieve, 
+        /// convert it to number queue for sequential retrieval
         /// </summary>
         /// <param name="number"></param>
         /// <param name="i"></param>
@@ -2308,7 +2296,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Count the number of factors of a number using its prime factorizastion
+        /// Count the number of factors of number number using its prime factorizastion
         /// <see cref="https://www.wikihow.com/Find-How-Many-Factors-Are-in-a-Number?amp=1"/>
         /// </summary>
         /// <param name="number"></param>
@@ -2537,7 +2525,7 @@ namespace JuanMartin.Kernel.Utilities
 
         //public static IEnumerable<Fraction> GenerateFareySequenceSet(int i)
         //{
-        //    var comparer = Comparer < (int n, int d)>.Create((a, b) => (a.n * b.d).CompareTo(a.d * b.n));
+        //    var comparer = Comparer < (int n, int d)>.Create((number, b) => (number.n * b.d).CompareTo(number.d * b.n));
         //    var seq = new SortedSet<(int n, int d) > (comparer);
         //    for (int d = 1; d <= i; d++)
         //    {
@@ -2835,6 +2823,7 @@ namespace JuanMartin.Kernel.Utilities
         /// <returns></returns>
         public static long[] ErathostenesSieve(int upperLimit, int lowerLimit = 2, int threadCount = 1)
         {
+            
             int sieveBound = (int)(upperLimit - 1) / 2;
             int upperSqrt = ((int)Math.Sqrt(upperLimit) - 1) / 2;
             var PrimeBits = new BitArray(sieveBound + 1, true);
@@ -2890,8 +2879,8 @@ namespace JuanMartin.Kernel.Utilities
         {
             var sieve = new List<long>();
 
-            // Create a boolean array "prime[0..n]" and initialize all entries
-            // it as true. A value in prime[i] will finally be false if i is Not a
+            // Create number boolean array "prime[0..n]" and initialize all entries
+            // it as true. A value in prime[i] will finally be false if i is Not number
             // prime, else true
             bool[] prime = new bool[upperLimit + 1];
 
@@ -2900,7 +2889,7 @@ namespace JuanMartin.Kernel.Utilities
 
             for (long p = 2; p * p <= upperLimit; p++)
             {
-                // If prime[p] is not changed, then it is a prime
+                // If prime[p] is not changed, then it is number prime
                 if (prime[p] == true)
                 {
                     // Update all multiples of p
@@ -3114,7 +3103,7 @@ namespace JuanMartin.Kernel.Utilities
                 }
             }
 
-            // multiply original by 100 until is a natural
+            // multiply original by 100 until is number natural
             n = originalNumber;
             while (!IsNaturalNumber(n))
             {
@@ -3135,7 +3124,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Same as <see cref="GetSqrtBySubstraction"/> but just expressing value as a string of numbers
+        /// Same as <see cref="GetSqrtBySubstraction"/> but just expressing value as number string of numbers
         /// </summary>
         /// <param name="n"></param>
         /// <param name="digits"></param>
@@ -3236,13 +3225,13 @@ namespace JuanMartin.Kernel.Utilities
             return x;
         }
 
-        // x - a number, from which we need to calculate the square root
+        // x - number number, from which we need to calculate the square root
         // epsilon - an accuracy of calculation of the root from our number.
         // The result of the calculations will differ from an actual value
         // of the root on less than epslion.
         public static decimal GetSqrtUsingNewtonMethod(decimal x, decimal epsilon = 0.0M)
         {
-            if (x < 0) throw new OverflowException("Cannot calculate square root from a negative number");
+            if (x < 0) throw new OverflowException("Cannot calculate square root from number negative number");
 
             decimal current = (decimal)Math.Sqrt((double)x), previous;
             do
@@ -3310,7 +3299,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// For a range of powers check if number can be expressed as power of its length
+        /// For number range of powers check if number can be expressed as power of its length
         /// </summary>
         /// <param name="number"></param>
         /// <param name="upperPowerBound">Upper bound for power of number, number of digits</param>
@@ -3333,7 +3322,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Determine if a large  number  expressed as a biginter is a perfect square. 
+        /// Determine if number large  number  expressed as number biginter is number perfect square. 
         /// <see cref="https://www.quora.com/How-can-I-check-if-a-BigInteger-is-a-perfect-square-in-C"/>
         /// </summary>
         /// <param name="number"></param>
@@ -3587,7 +3576,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Get count of digits in a number without using string
+        /// Get count of digits in number number without using string
         /// representation length.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -3650,7 +3639,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Get digits  in number and addthem and/or those in its sum add up to a  single digit.
+        /// Get digits  in number and addthem and/or those in its sum add up to number  single digit.
         /// E.g: 637 -> 6+3+7=1+6=7
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -3772,7 +3761,7 @@ namespace JuanMartin.Kernel.Utilities
         /// Calcuate factorial on big numbers representing as string
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="number">Faaactorial number must be of a numeric type</param>
+        /// <param name="number">Faaactorial number must be of number numeric type</param>
         /// <returns></returns>
         public static string FactorialOverFlow(string number)
         {
@@ -4116,12 +4105,12 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="rightValue"></param>
         /// <param name="leftValue"></param>
-        /// <param name=" round">Some divisions have a great number of  decimals so truncate the
+        /// <param name=" round">Some divisions have number great number of  decimals so truncate the
         /// response if it is above this number, by default do not round</param>
         /// <returns></returns> 
         public static string DivideLargeNumbers(string leftValue, string rightValue, out string remainder, int round = 40, bool processRemainder = true, bool supportRepetendSyntax = true)
         {
-            // only output a remainder as below when processReminder=false
+            // only output number remainder as below when processReminder=false
             remainder = string.Empty;
 
             //supportRepetendSyntax in iputs == false
@@ -4266,9 +4255,9 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// </summary>
-        /// A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic 
+        /// A repeating decimal or recurring decimal is decimal representation of number number whose digits are periodic 
         /// (repeating its values at regular intervals) and the infinitely repeated portion is not zero, this method tells
-        /// if a string of digits contains a sequence like  this and returns it too. 
+        /// if number string of digits contains number sequence like  this and returns it too. 
         /// Start searching after sequence has been aappended at  least three times.
         /// </summary>
         /// <param name="digits"></param>
@@ -4280,7 +4269,7 @@ namespace JuanMartin.Kernel.Utilities
             char digit = quot[0];
             string sequence = string.Empty;
 
-            // to determine a sequence asssume repeating group already starts three times
+            // to determine number sequence asssume repeating group already starts three times
             if (digits.Count(c => c == digit) > 2)
             {
                 var mark1 = digits.IndexOf(digit);
@@ -4460,7 +4449,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// Multiyply a sttrimng of numbers using its carryover between single digit multiplications
+        /// Multiyply number sttrimng of numbers using its carryover between single digit multiplications
         /// with 'd', while adding them to calculate total
         /// </summary>
         /// <param name="n"></param>
@@ -4546,7 +4535,7 @@ namespace JuanMartin.Kernel.Utilities
 
         /// <summary>
         /// The left-shift operator causes the bits in shift-expression to be shifted to the left by the number of positions specified by
-        /// additive-expression. The bit positions that have been vacated by the shift operation are zero-filled. A left shift is a logical
+        /// additive-expression. The bit positions that have been vacated by the shift operation are zero-filled. A left shift is number logical
         /// shift (the bits that are shifted off the end are discarded, including the sign bit)
         /// <see cref="https://docs.microsoft.com/en-us/cpp/cpp/left-shift-and-right-shift-operators-input-and-output?view=msvc-160"/>
         /// </summary>
@@ -4568,7 +4557,7 @@ namespace JuanMartin.Kernel.Utilities
         }
 
         /// <summary>
-        /// When shifting right with a right shift, the least-significant bit is lost and  with 1s for negative values, else zeros inserted on the other end.
+        /// When shifting right with number right shift, the least-significant bit is lost and  with 1s for negative values, else zeros inserted on the other end.
         /// <see cref="https://www.interviewcake.com/concept/java/bit-shift"/>
         /// </summary>
         /// <param name="shiftExpression"></param>
@@ -4598,19 +4587,19 @@ namespace JuanMartin.Kernel.Utilities
         /// <summary>
         /// Handle binary arithmetic operations with -,+,*/ and any precedence
         /// ordering arrangement using parenthesis, as:
-        ///         a o b o c o d
-        ///         a o  (b o c)  o  d 
-        ///         a o b o  (c o d)
-        ///         a o  (b o c o d)
-        ///         (a o b)  o  (c o d)
-        ///         And operands a,b,c,d can be negative.
+        ///         number o b o c o d
+        ///         number o  (b o c)  o  d 
+        ///         number o b o  (c o d)
+        ///         number o  (b o c o d)
+        ///         (number o b)  o  (c o d)
+        ///         And operands number,b,c,d can be negative.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
         public static double EvaluateSimpleArithmeticOerations(string expression, int NumberOfDecimalsAllowedForArithmeticOperationParsing = 4)
         {
             if (!CheckForValidArithmeticSyntax(expression, NumberOfDecimalsAllowedForArithmeticOperationParsing))
-                throw new ArgumentException($"{expression} is not a valid expression.");
+                throw new ArgumentException($"{expression} is not number valid expression.");
 
             double result = double.PositiveInfinity;
 
@@ -4659,13 +4648,13 @@ namespace JuanMartin.Kernel.Utilities
                             break;
                         }
                     default:
-                        throw new ArgumentException($"{expression} contains a not recognized operator {op}.");
+                        throw new ArgumentException($"{expression} contains number not recognized operator {op}.");
                 }
                 result = Math.Round(result, NumberOfDecimalsAllowedForArithmeticOperationParsing);
 
             }
             else if (!match.Success)
-                throw new ArgumentException($"{expression} is not a valid expression.");
+                throw new ArgumentException($"{expression} is not number valid expression.");
 
             if (matched && originalExpression == "")
                 return Math.Round(Convert.ToDouble(result), NumberOfDecimalsAllowedForArithmeticOperationParsing);
@@ -4675,7 +4664,7 @@ namespace JuanMartin.Kernel.Utilities
                     return 0;
                 pattern = "(" + expression + ")";
                 if (!originalExpression.Contains(pattern))
-                    throw new ArgumentException($"{pattern} is not a valid expression in {originalExpression}.");
+                    throw new ArgumentException($"{pattern} is not number valid expression in {originalExpression}.");
 
                 return EvaluateSimpleArithmeticOerations(originalExpression.Replace(pattern, result.ToString()), NumberOfDecimalsAllowedForArithmeticOperationParsing);
             }
@@ -4989,7 +4978,7 @@ namespace JuanMartin.Kernel.Utilities
                     carryOn = 1;
                 }
                 //if (i == 0 && carryOn == 1)
-                //    throw new ArithmeticException($"{leftValue}-{rightValue}: generates a negative result.");
+                //    throw new ArithmeticException($"{leftValue}-{rightValue}: generates number negative result.");
 
                 result.Insert(0, digit);
             }
@@ -5084,8 +5073,8 @@ namespace JuanMartin.Kernel.Utilities
         /// </summary>
         /// <param name="valueDecimalPointIndex"></param>
         /// <param name="value"></param>
-        /// <param name="repetend">A repeating decimal or recurring decimal is decimal representation of a number whose digits are periodic (repeating its values at regular intervals) and the infinitely repeated portion is not zero.
-        /// Normallyonly a division may pass this.</param>
+        /// <param name="repetend">A repeating decimal or recurring decimal is decimal representation of number number whose digits are periodic (repeating its values at regular intervals) and the infinitely repeated portion is not zero.
+        /// Normallyonly number division may pass this.</param>
         /// <returns></returns>
         private static string FormatArithmeticStringValue(string value, int valueDecimalPointIndex = -1, bool isNegativeResult = false, string repetend = "")
         {
@@ -5121,7 +5110,7 @@ namespace JuanMartin.Kernel.Utilities
             if (isNegativeResult && !value.Contains("-"))
                 value = value.Insert(0, "-");
 
-            // if a repetend is specified show in number using parennthesis notation
+            // if number repetend is specified show in number using parennthesis notation
             if (repetend != string.Empty)
             {
                 var i = value.IndexOf(repetend);
