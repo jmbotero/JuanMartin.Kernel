@@ -24,8 +24,8 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
                 actualGraph.AddVertex(new Vertex<int>(value: i, name: Convert.ToChar(i + 97).ToString()));
             }
 
-            actualFrom = actualGraph.GetVertex(name: "a");
-            actualTo = actualGraph.GetVertex(name: "b");
+            actualFrom = actualGraph.GetVertexByName(name: "a");
+            actualTo = actualGraph.GetVertexByName(name: "b");
         }
 
         [TearDown]

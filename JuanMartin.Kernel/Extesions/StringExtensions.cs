@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using JuanMartin.Kernel.Utilities;
 
 namespace JuanMartin.Kernel.Extesions
 {
@@ -38,6 +39,13 @@ namespace JuanMartin.Kernel.Extesions
             }
 
             return match;
+        }
+
+        public static bool IsSorted(this string source, UtilityMath.Growth direction)
+        {
+            int[] numbers = source.ToCharArray().Select(n => Convert.ToInt32(n)) .ToArray();
+
+			return UtilityMath.IsSortedUsingRecursion(numbers,0,direction);
         }
         public static string WholeNumberPart(this string source, int index = -1)
         {

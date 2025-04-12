@@ -245,7 +245,7 @@ namespace JuanMartin.Kernel.Processors
                         }
                         catch (Exception e)
                         {
-                            throw new TypeLoadException($"Error changing option's type ({optionType}): {e.Message}.");
+                            throw new TypeLoadException($"Error changing option's type ({optionType}): {e.Message}. For option value [{value}].");
                         }       
                     }
                 }

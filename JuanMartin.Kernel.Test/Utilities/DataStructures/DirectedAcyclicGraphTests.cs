@@ -202,7 +202,7 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
         [Test()]
         public void ShouldBeAbleToGetAVertexByName()
         {
-            var expectedVertex = actualGraph.GetVertex(v1.Name);
+            var expectedVertex = actualGraph.GetVertexByName(v1.Name);
 
             Assert.AreEqual(expectedVertex, v1);
         }

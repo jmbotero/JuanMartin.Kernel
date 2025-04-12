@@ -12,14 +12,29 @@ namespace JuanMartin.Kernel.Extesions.Tests
     public class StringExtensionsTests
     {
         [Test()]
+        public static void ShouldCheckIfSingleCharactersAreSortedTest()
+        {
+			string actualNumber = "123";
+            Assert.IsTrue(actualNumber.IsSorted(Utilities.UtilityMath.Growth.increase));
+
+            string actualString = "abc";
+			Assert.IsTrue(actualString.IsSorted(Utilities.UtilityMath.Growth.increase));
+
+			actualNumber = "6544";
+			Assert.IsTrue(actualNumber.IsSorted(Utilities.UtilityMath.Growth.decrease));
+
+		    actualString = "ccba";
+			Assert.IsTrue(actualString.IsSorted(Utilities.UtilityMath.Growth.decrease));
+		}
+
+		[Test()]
         public static void ShouldBeFlaggedAsNumericIntegerValueTest()
         {
             string actualNumber = "123";
-
             Assert.IsTrue(actualNumber.IsNumeric());
-        }
+		}
 
-        [Test()]
+		[Test()]
         public static void ShouldNotBeFlaggedAsNumericAlphabeticalCharacterTest()
         {
             string actualNumber = "a";

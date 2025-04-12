@@ -118,7 +118,7 @@ namespace JuanMartin.Kernel.Extesions
             return false;
         }
 
-        private static int IsGrowthNumber(int number, UtilityMath.Growth growth)
+        private static int IsGrowthChangingNumber(int number, UtilityMath.Growth growth)
         {
             if (number <= 0)
             {
@@ -152,15 +152,15 @@ namespace JuanMartin.Kernel.Extesions
             }
             return 1;
         }
-
+                            
         public static bool IsIncreasingNumber(this int number)
         {
-            return IsGrowthNumber(number, UtilityMath.Growth.increase) == 1;
+            return IsGrowthChangingNumber(number, UtilityMath.Growth.increase) == 1;
         }
 
         public static bool IsDecreasingNumber(this int number)
         {
-            return IsGrowthNumber(number, UtilityMath.Growth.decrease) == 1;
+            return IsGrowthChangingNumber(number, UtilityMath.Growth.decrease) == 1;
         }
 
         public static int Sign<T>(this T number)

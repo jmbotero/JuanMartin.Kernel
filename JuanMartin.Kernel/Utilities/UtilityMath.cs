@@ -1,14 +1,20 @@
    using JuanMartin.Kernel.Extesions;
+using JuanMartin.Kernel.Processors;
 using JuanMartin.Kernel.RuleEngine;
 using JuanMartin.Kernel.Utilities.DataStructures;
+using Org.BouncyCastle.Asn1.X509.Qualified;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Google.Protobuf.WellKnownTypes.Field.Types;
 using CellList = System.Collections.Generic.Dictionary<string, JuanMartin.Kernel.Utilities.DataStructures.Cells>;
 
 
@@ -151,10 +157,18 @@ namespace JuanMartin.Kernel.Utilities
         }
         #endregion
 
+
         #region Math utility functions
 
         [Flags]
 
+        public enum AlgorithmType
+        {
+            None = 0,
+            Loop = 1,
+            Recursion = 2,
+            BruteForce = 4
+        }
         public enum Sizing
         {
             smallest,
@@ -1728,122 +1742,219 @@ namespace JuanMartin.Kernel.Utilities
             return true;
         }
 
-        public static bool IsNaturalNumber(string number)
+        public static bool IsBouncyNumber(string number)
         {
-            return (int.TryParse(number, out int n) && n > 0);
-        }
-
-        public static bool IsNaturalNumber<T>(T number)
-        {
-            var methodType = typeof(T);
-
-            if (!UtilityType.IsNumericType(methodType))
-                throw new InvalidOperationException(string.Format("{0} is invalid, IsNaturalNumber filter can only operate on numeric types.", methodType));
 
 
-            return (int.TryParse(number.ToString(), out int n) && n > 0);
-        }
-
-        /// <summary>
-        /// A number is triangular if 1+8*number is odd and number perfect square
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public static bool IsTriangularNumber(long number)
-        {
-            var x = 8 * number + 1;
-            var isMatch = (x % 2 == 1);
-
-            isMatch = isMatch && IsPerferctSquare(x);
-
-            return isMatch;
-        }
-
-        public static int[][] GetNumberTriangle(string sequence)
-        {
-            return sequence.Split(';').Select(row => row.Split(',').Select(value => Convert.ToInt32(value)).ToArray()).ToArray();
-        }
-
-        public static long IsPentagonalNumber(long number)
-        {
-            if (number == 0)
-                return -1;
-
-            var n = (1 + Math.Sqrt(24 * number + 1)) / 6;
-
-            return ((n == (long)n) ? (long)n : -1);
-        }
-
-        public static long GetTriangularNumber(long n)
-        {
-            return (n * (n + 1) / 2);
-        }
-
-
-        public static IEnumerable<long> GetTriangularNumbers(long upperLimit, long lowerLimit = 1)
-        {
-            var i = lowerLimit;
-            while (i <= upperLimit)
+            int length = number.Length;
+            int i = 0;
+            int validDigits = 0;
+			// There are no bouncy numbers between 1 to 100.
+			if (length < 2)
+                return false;
+            else if(length == 3 && Convert.ToInt32(number) == 100)
+                return false;
             {
-                if (IsTriangularNumber(i))
-                    yield return i;
-                i++;
-            }
-        }
+                int current = number[0];
+                int right = number[1];
 
-
-        public static long GetPentagonalNumber(long n)
-        {
-            return (n * (3 * n - 1) / 2);
-        }
-
-        public static IEnumerable<long> GetPentagonalNumbers(long limit, long minimum = long.MinValue)
-        {
-            long count = 1;
-
-            while (count <= limit)
-            {
-                var n = (count * (3 * count - 1) / 2);
-                if (n >= minimum)
-                    yield return n;
-                count++;
-            }
-        }
-
-        public static long GetHexagonalNumber(long n)
-        {
-            return (n * (2 * n - 1));
-        }
-
-        public static long GetQuadrilateralNumber(long n)
-        {
-            return (n * n);
-        }
-
-        public static long GetHeptagonalNumber(long n)
-        {
-            return n * (5 * n - 3) / 2;
-        }
-
-        public static long GetOctagonalNumber(long n)
-        {
-            return n * (3 * n - 2);
-        }
-
-        public static long GetPolygonalNumber(int sides, long n)
-        {
-            long number;
-
-            switch (sides)
-            {
-
-                case 3:
+                if (current == right)
+                {
+                    validDigits++;
+                    for (i = 1; i < length - 1; i++)
                     {
-                        //Triangle numbers
-                        number = GetTriangularNumber(n);
-                        break;
+                        current = number[i];
+                        right = number[i + 1];
+                        if (current == right)
+                            validDigits++;
+                        else
+                            break;
                     }
-                case 4:
+                 }
+                else if (right < current)
+                {
+                    validDigits++;
+                    for (i = 1; i < length - 1; i++)
+                    {
+                        current = number[i];
+                        right = number[i + 1];
+                        if (right > current)
+                            return true; // is not decreasing
+                        validDigits++;
+                    }
+               }
+                else if (right > current)
+                {
+                    validDigits++;
+                    for (i = 1; i < length - 1; i++)
+                    {
+                        current = number[i];
+                        right = number[i + 1];
+                        if (right < current)
+                            return true; // is not increasing
+						validDigits++;
+					}
+				}
+			}
+			if (validDigits == length - 1 || validDigits == 1)
+				return false;
+			return true;
+		}
+
+
+		/// <summary> /// 
+		/// The function is recursive and will be called for the very first time, 
+		/// say in a while loop like this   while(isSorted(yourArray, 0 )  The 
+		/// if statement checks if the bounds of the array have been reached.
+		/// The else if statement will call itself recursively and break at any 
+		/// time when the condition becomes false. By default check in increasing
+        /// sort order. Ignores if items have same value.
+		/// </summary> ///   
+		public static bool IsSortedUsingRecursion(int[] arr, int index, UtilityMath.Growth direction = Growth.increase) 
+        {
+            bool eval = false;
+
+         if (index < arr.Length - 1)
+            {
+                switch (direction)
+                {
+                    case Growth.increase:
+                        {
+                            eval = arr[index] <= arr[index + 1];
+                            break;
+                        }
+                    case Growth.decrease:
+                        {
+                            eval = arr[index] >= arr[index + 1];
+                            break;
+                        }
+                    default:
+                        return false;
+                }
+            }
+
+            if (index >= arr.Length - 1) 
+            { 
+                return true; 
+            } 
+            else if ((eval) && IsSortedUsingRecursion(arr, index + 1,direction)) 
+            { 
+                return true; 
+            } 
+            else 
+            { 
+                return false; 
+            } 
+        }
+
+		/// <summary> /// 
+		/// Determines if int array is sorted from 0 -> Max, ignores if items aare the same. 
+		/// </summary> 
+		public static bool IsSortedUsingLoop(int[] arr,  Growth direction = Growth.increase)
+        { 
+            int start = 0;
+           int end = arr.Length - 1;
+            
+            for (int i = start; i < end  - 1; i++)
+			{
+				if ((direction  == Growth.increase  && arr[i] >                                                  arr[i + 1]) ||
+				(direction == Growth.decrease && arr[i] < arr[i + 1]))
+					return false;
+			}
+			return true;
+		}
+		public static bool IsNaturalNumber(string number)
+		{
+			return (int.TryParse(number, out int n) && n > 0);
+		}
+		public static bool IsNaturalNumber<T>(T number)
+		{
+			var methodType = typeof(T);
+			if (!UtilityType.IsNumericType(methodType))
+				throw new InvalidOperationException(string.Format("{0} is invalid, IsNaturalNumber filter can only operate on numeric types.", methodType));
+			return (int.TryParse(number.ToString(), out int n) && n > 0);
+		}
+
+		/// <summary>
+		/// A number is triangular if 1+8*number is odd and number perfect square
+		/// </summary>
+		/// <param name="number"></param>
+		/// <returns></returns>
+		public static bool IsTriangularNumber(long number)
+		{
+			var x = 8 * number + 1;
+			var isMatch = (x % 2 == 1);
+			isMatch = isMatch && IsPerferctSquare(x);
+			return isMatch;
+		}
+		public static int[][] GetNumberTriangle(string sequence)
+		{
+			return sequence.Split(';').Select(row => row.Split(',').Select(value => Convert.ToInt32(value)).ToArray()).ToArray();
+		}
+		public static long IsPentagonalNumber(long number)
+		{
+			if (number == 0)
+				return -1;
+			var n = (1 + Math.Sqrt(24 * number + 1)) / 6;
+			return ((n == (long)n) ? (long)n : -1);
+		}
+		public static long GetTriangularNumber(long n)
+		{
+			return (n * (n + 1) / 2);
+		}
+		public static IEnumerable<long> GetTriangularNumbers(long upperLimit, long lowerLimit = 1)
+		{
+			var i = lowerLimit;
+			while (i <= upperLimit)
+			{
+				if (IsTriangularNumber(i))
+					yield return i;
+				i++;
+			}
+		}
+		public static long GetPentagonalNumber(long n)
+		{
+			return (n * (3 * n - 1) / 2);
+		}
+		public static IEnumerable<long> GetPentagonalNumbers(long limit, long minimum = long.MinValue)
+		{
+			long count = 1;
+			while (count <= limit)
+			{
+				var n = (count * (3 * count - 1) / 2);
+				if (n >= minimum)
+					yield return n;
+				count++;
+			}
+		}
+		public static long GetHexagonalNumber(long n)
+		{
+			return (n * (2 * n - 1));
+		}
+		public static long GetQuadrilateralNumber(long n)
+		{
+			return (n * n);
+		}
+		public static long GetHeptagonalNumber(long n)
+		{
+			return n * (5 * n - 3) / 2;
+		}
+		public static long GetOctagonalNumber(long n)
+		{
+			return n * (3 * n - 2);
+		}
+		public static long GetPolygonalNumber(int sides, long n)
+		{
+			long number;
+			switch (sides)
+			{
+				case 3:
+					{
+						//Triangle numbers
+						number = GetTriangularNumber(n);
+						break;
+					}
+				case 4:
                     {
                         // Square numbers
                         number = GetQuadrilateralNumber(n);
@@ -3742,19 +3853,44 @@ namespace JuanMartin.Kernel.Utilities
             return sum;
         }
 
-        public static BigInteger BinomialCoefficients(int n, int r)
+		public static double Choose(int n, int k)
+		{
+			//this will hold the result for n!
+			double a = 1;
+			//this will hold the result for k!
+			double b = 1;
+			//this will hold the result for (n-k)!
+			double c = 1;
+			for (int i = 1; i <= n; i++)
+			{
+				a *= i;
+				//if the current value of i is k, then a is equal to k!
+				if (i == k)
+				{
+					b = a;
+				}
+				//if the current value of i is n-k, then a is equal to (n-k)!
+				if (i == n - k)
+				{
+					c = a;
+				}
+			}
+			//n choose k formula
+			return a / (b * c);
+		}
+		public static BigInteger BinomialCoefficients(int n, int k)
         {
-            BigInteger ncr = 1;
+            BigInteger nck = 1;
 
-            if (r < n)
+            if (k < n)
             {
                 var fn = FactorialLoop<BigInteger>(n);
-                var fr = FactorialLoop<BigInteger>(r);
-                var fnr = FactorialLoop<BigInteger>(n - r);
-                ncr = fn / (fr * fnr);
+                var fk = FactorialLoop<BigInteger>(k);
+                var fnk = FactorialLoop<BigInteger>(n - k);
+                nck = fn / (fk * fnk);
             }
 
-            return ncr;
+            return nck;
         }
 
         /// <summary>

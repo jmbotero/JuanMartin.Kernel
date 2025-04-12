@@ -159,12 +159,12 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             }
             expectedVertexCount = 6;
 
-            var vA = graph.GetVertex(name: "A");
-            var vB = graph.GetVertex(name: "B");
-            var vC = graph.GetVertex(name: "C");
-            var vD = graph.GetVertex(name: "D");
-            var vE = graph.GetVertex(name: "E");
-            var vF = graph.GetVertex(name: "F");
+            var vA = graph.GetVertexByName(name: "A");
+            var vB = graph.GetVertexByName(name: "B");
+            var vC = graph.GetVertexByName(name: "C");
+            var vD = graph.GetVertexByName(name: "D");
+            var vE = graph.GetVertexByName(name: "E");
+            var vF = graph.GetVertexByName(name: "F");
 
             graph.AddEdge(vA, vB, name: null, weight: 1);
             graph.AddEdge(vA, vC, name: null, weight: 2);
@@ -189,13 +189,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
                 graph.AddVertex(new Vertex<int>(value: i, name: Convert.ToChar(i + 97).ToString()));
             }
 
-            var va = graph.GetVertex(name: "a");
-            var vb = graph.GetVertex(name: "b");
-            var vc = graph.GetVertex(name: "c");
-            var vd = graph.GetVertex(name: "d");
-            var ve = graph.GetVertex(name: "e");
-            var vf = graph.GetVertex(name: "f");
-            var vg = graph.GetVertex(name: "g");
+            var va = graph.GetVertexByName(name: "a");
+            var vb = graph.GetVertexByName(name: "b");
+            var vc = graph.GetVertexByName(name: "c");
+            var vd = graph.GetVertexByName(name: "d");
+            var ve = graph.GetVertexByName(name: "e");
+            var vf = graph.GetVertexByName(name: "f");
+            var vg = graph.GetVertexByName(name: "g");
 
             graph.AddEdge(va, vb, name: null, weight: 1);
             graph.AddEdge(va, vc, name: null, weight: 5);
@@ -224,13 +224,13 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             }
             expectedVertexCount = 7;
 
-            var v1 = graph.GetVertex(name: "1");
-            var v2 = graph.GetVertex(name: "2");
-            var v3 = graph.GetVertex(name: "3");
-            var v4 = graph.GetVertex(name: "4");
-            var v5 = graph.GetVertex(name: "5");
-            var v6 = graph.GetVertex(name: "6");
-            var v7 = graph.GetVertex(name: "7");
+            var v1 = graph.GetVertexByName(name: "1");
+            var v2 = graph.GetVertexByName(name: "2");
+            var v3 = graph.GetVertexByName(name: "3");
+            var v4 = graph.GetVertexByName(name: "4");
+            var v5 = graph.GetVertexByName(name: "5");
+            var v6 = graph.GetVertexByName(name: "6");
+            var v7 = graph.GetVertexByName(name: "7");
 
             graph.AddEdge(v1, v2, name: null, weight: 28);
             graph.AddEdge(v2, v3, name: null, weight: 16);
@@ -320,11 +320,11 @@ namespace JuanMartin.Kernel.Utilities.DataStructures.Tests
             }
             expectedVertexCount = 5;
 
-            var v0 = graph.GetVertex(name: "0");
-            var v1 = graph.GetVertex(name: "1");
-            var v2 = graph.GetVertex(name: "2");
-            var v3 = graph.GetVertex(name: "3");
-            var v4 = graph.GetVertex(name: "4");
+            var v0 = graph.GetVertexByName(name: "0");
+            var v1 = graph.GetVertexByName(name: "1");
+            var v2 = graph.GetVertexByName(name: "2");
+            var v3 = graph.GetVertexByName(name: "3");
+            var v4 = graph.GetVertexByName(name: "4");
 
             graph.AddEdge( v1, v0, name: null, weight: 1);
             graph.AddEdge(v1, v2, name: null, weight: 3);

@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Collections.Generic;
 using JuanMartin.Kernel.Extesions;                                                                                                                                                                                                                                                                                                                                                                                                  
 using JuanMartin.Kernel.Utilities.DataStructures;
+using System.Runtime.InteropServices;
 
 namespace JuanMartin.Kernel.Utilities.Tests
 {
@@ -1528,6 +1529,63 @@ namespace JuanMartin.Kernel.Utilities.Tests
                 Assert.IsFalse(actualNumber.IsIncreasingNumber(), $"{actualNumber} is not an increasing number");
                 Assert.IsFalse(actualNumber.IsDecreasingNumber(), $"{actualNumber} is not a decreasing number");
             }
-        }
+			[Test()]
+			public void ShouldVerifyThatDecreasingDigitsNumericStringNotBouncyNumber()
+			{
+				string number = "66420";
+				Assert.False(UtilityMath.IsBouncyNumber(number));
+
+				number = "766420";
+				Assert.False(UtilityMath.IsBouncyNumber(number));
+			}
+			[Test()]
+			public void ShouldVerifyThatSameDigitsNumericStringNotBouncyNumber()
+			{
+				string number = "11";
+				Assert.False(UtilityMath.IsBouncyNumber(number));
+
+				number = "111111";
+				Assert.False(UtilityMath.IsBouncyNumber(number));
+			}
+
+			[Test()]
+
+			public void ShouldVerifyThatIncreasingDigitsNumericStringNotBouncyNumber()
+			{
+				string number = "134468";
+				Assert.False(UtilityMath.IsBouncyNumber(number));
+
+                number = "1134468";
+				Assert.False(UtilityMath.IsBouncyNumber(number));
+			}
+			[Test()]
+			public void ShouldVerifyThatCombinedIncreasingAndDecreasingDigitsNumericStringBouncyNumber()
+			{
+				string number = "155349";
+				Assert. True(UtilityMath.IsBouncyNumber(number));
+ 			}
+
+		}
+
+		[TestFixture]
+		public class IsSortedUsingLoopTests
+        {
+            [Test()]
+            public void ShouldVerifyUsingLoopThatSetOfAllIncreasingCharactersAreFlagedAsSorted()
+            {
+				int[] actualNumbers = { 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9 };
+
+				Assert.IsTrue(UtilityMath.IsSortedUsingLoop(actualNumbers,UtilityMath.Growth.increase));
+            }
+
+			[Test()]
+			public void ShouldVerifyUsingRecursionThatSetOfAllIncreasingCharactersAreFlagedAsSorted()
+			{
+				int[] actualNumbers = { 1, 1,2,2,3, 3,4, 4,5, 5,6, 6,7,7,8,8,9,9};
+
+				Assert.IsTrue(UtilityMath.IsSortedUsingRecursion(actualNumbers,0,UtilityMath.Growth.increase));
+			}
+		}                                               
     }
+
 }
